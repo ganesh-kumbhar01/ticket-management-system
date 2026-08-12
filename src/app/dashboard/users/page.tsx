@@ -1,0 +1,393 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useRouter } from 'next/navigation';
+import { Trash2, UserPlus, Shield, User, Plus, X, Search, CheckSquare, Square, AlertCircle, CheckCircle2 } from 'lucide-react';
+
+const createUserSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  role: z.enum(['ADMIN', 'AGENT']),
+  status: z.enum(['ACTIVE', 'INACTIVE']),
+});
+
+type CreateUserFormValues = z.infer<typeof createUserSchema>;
+
+type UserType = {
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
+  status: string;
+  createdAt: string;
+};
+
+export default function UsersPage() {
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateUserFormValues>({
+    resolver: zodResolver(createUserSchema),
+    mode: 'onTouched',
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      role: 'AGENT',
+      status: 'ACTIVE',
+    },
+  });
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/users', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to fetch users');
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const onSubmit = async (data: CreateUserFormValues) => {
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(resData.error || 'Failed to create user');
+      }
+
+      setSuccessMsg('User created successfully!');
+      setIsModalOpen(false);
+      reset();
+      fetchUsers(); // Refresh list
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} agents? Their assigned tickets will become unassigned.`)) return;
+
+    setError('');
+    setSuccessMsg('');
+    setIsDeleting(true);
+
+    try {
+      const res = await fetch(`/api/users`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedIds) })
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(resData.error || 'Failed to delete users');
+      }
+
+      setSuccessMsg('Selected users deleted successfully!');
+      setSelectedIds(new Set());
+      fetchUsers(); // Refresh list
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const toggleSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedIds(newSet);
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filteredUsers.length && filteredUsers.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredUsers.map(u => u.id)));
+    }
+  };
+
+  const filteredUsers = users.filter(u => 
+    u.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (u.name && u.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-6">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+            Manage Agents
+          </h1>
+          <p className="text-slate-500 mt-1 font-medium">
+            Create, view, and manage agents and administrators.
+          </p>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-sm shadow-blue-600/20 active:scale-95 shrink-0"
+        >
+          <Plus className="w-5 h-5" />
+          New Agent
+        </button>
+      </header>
+
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <p className="text-sm font-semibold text-red-600">{error}</p>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <p className="text-sm font-semibold text-emerald-600">{successMsg}</p>
+        </div>
+      )}
+
+      {/* Main Table Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+          <div className="relative flex-1 max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search agents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 text-slate-900 font-medium transition-all"
+            />
+          </div>
+          
+          {selectedIds.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-lg text-sm font-bold transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              {isDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.size})`}
+            </button>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="p-12 text-center text-slate-500 font-medium">Loading staff directories...</div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="p-12 text-center text-slate-500 font-medium">
+            {searchQuery ? 'No agents match your search.' : 'No agents found.'}
+          </div>
+        ) : (
+          <div className="overflow-x-auto whitespace-nowrap min-w-0">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/50">
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 w-10">
+                    <button 
+                      onClick={toggleAll}
+                      className="text-slate-400 hover:text-blue-600 transition-colors"
+                    >
+                      {selectedIds.size > 0 && selectedIds.size === filteredUsers.length ? (
+                        <CheckSquare className="w-5 h-5 text-blue-600" />
+                      ) : (
+                        <Square className="w-5 h-5" />
+                      )}
+                    </button>
+                  </th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Joined Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredUsers.map((user) => (
+                  <tr 
+                    key={user.id} 
+                    onClick={() => router.push(`/dashboard/users/${user.id}`)}
+                    className="hover:bg-slate-50 transition-colors bg-white cursor-pointer group"
+                  >
+                    <td className="py-4 px-6">
+                      <button 
+                        onClick={(e) => toggleSelection(user.id, e)}
+                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400"
+                      >
+                        {selectedIds.has(user.id) ? (
+                          <CheckSquare className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <Square className="w-5 h-5" />
+                        )}
+                      </button>
+                    </td>
+                    <td className="py-4 px-6 text-sm font-bold text-slate-900">
+                      {user.name || <span className="text-slate-400 italic font-medium">Not Set</span>}
+                    </td>
+                    <td className="py-4 px-6 text-sm font-medium text-slate-600">
+                      {user.email}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
+                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-blue-100 text-blue-700 border border-blue-200'
+                      }`}>
+                        {user.role === 'ADMIN' ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
+                        user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}>
+                        {user.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500 font-medium">
+                      {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Create User Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Create New Agent</h2>
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name (Optional)</label>
+                <input
+                  type="text"
+                  {...register('name')}
+                  className={`w-full h-11 px-3 bg-white border ${errors.name ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-400`}
+                  placeholder="John Doe"
+                />
+                {errors.name && <p className="text-red-500 text-xs font-medium mt-1">{errors.name.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  {...register('email')}
+                  className={`w-full h-11 px-3 bg-white border ${errors.email ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-400`}
+                  placeholder="agent@system.com"
+                />
+                {errors.email && <p className="text-red-500 text-xs font-medium mt-1">{errors.email.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Temporary Password</label>
+                <input
+                  type="password"
+                  {...register('password')}
+                  className={`w-full h-11 px-3 bg-white border ${errors.password ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-400`}
+                  placeholder="••••••••"
+                />
+                {errors.password && <p className="text-red-500 text-xs font-medium mt-1">{errors.password.message}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Role</label>
+                  <select
+                    {...register('role')}
+                    className={`w-full h-11 px-3 bg-white border ${errors.role ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                  >
+                    <option value="AGENT">Agent</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                  {errors.role && <p className="text-red-500 text-xs font-medium mt-1">{errors.role.message}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Status</label>
+                  <select
+                    {...register('status')}
+                    className={`w-full h-11 px-3 bg-white border ${errors.status ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
+                  {errors.status && <p className="text-red-500 text-xs font-medium mt-1">{errors.status.message}</p>}
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2.5 font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-sm shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Account'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
