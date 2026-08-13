@@ -140,35 +140,35 @@ export default async function DashboardPage() {
     <div className="min-h-full p-4 md:p-6">
       <div className="max-w-7xl mx-auto w-full">
         <header className="mb-4 shrink-0">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {greeting}, {userName}
           </h1>
-          <p className="text-slate-500 mt-0.5 text-sm font-medium">
+          <p className="text-slate-500 dark:text-slate-400 mt-0.5 text-sm font-medium">
             {isAdmin ? 'Here is what\'s happening with your support system today.' : 'Here is the latest update on your assigned tickets.'}
           </p>
         </header>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 shrink-0">
-          <div className="bg-white/60 backdrop-blur-lg border border-white/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 text-xs font-semibold mb-1">Total Tickets</h3>
-            <p className="text-2xl font-bold text-slate-900">{totalTickets}</p>
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Total Tickets</h3>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalTickets}</p>
           </div>
-          <div className="bg-white/60 backdrop-blur-lg border border-white/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 text-xs font-semibold mb-1">Open</h3>
-            <p className="text-2xl font-bold text-purple-600">{openTickets}</p>
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Open</h3>
+            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{openTickets}</p>
           </div>
-          <div className="bg-white/60 backdrop-blur-lg border border-white/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 text-xs font-semibold mb-1">In Progress</h3>
-            <p className="text-2xl font-bold text-amber-500">{progressTickets}</p>
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">In Progress</h3>
+            <p className="text-2xl font-bold text-amber-500 dark:text-amber-400">{progressTickets}</p>
           </div>
-          <div className="bg-white/60 backdrop-blur-lg border border-white/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 text-xs font-semibold mb-1">Resolved</h3>
-            <p className="text-2xl font-bold text-emerald-500">{resolvedTickets}</p>
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Resolved</h3>
+            <p className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">{resolvedTickets}</p>
           </div>
-          <div className="bg-white/60 backdrop-blur-lg border border-white/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 text-xs font-semibold mb-1">Unassigned</h3>
-            <p className="text-2xl font-bold text-rose-500">{unassignedTickets}</p>
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Unassigned</h3>
+            <p className="text-2xl font-bold text-rose-500 dark:text-rose-400">{unassignedTickets}</p>
           </div>
         </div>
 
@@ -182,12 +182,12 @@ export default async function DashboardPage() {
         {/* Tables Section */}
         <div className={`grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4`}>
           {/* Recent Tickets Table */}
-          <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-transparent">
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                 {isAdmin ? 'Recent System Tickets' : 'Your Active Tickets'}
               </h2>
-              <Link href="/dashboard/tickets" className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+              <Link href="/dashboard/tickets" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                 View all &rarr;
               </Link>
             </div>
@@ -200,8 +200,8 @@ export default async function DashboardPage() {
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10">
-                  <tr className="border-b border-slate-100 bg-white/40">
-                    <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">ID</th>
+                  <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
+                    <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Subject</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sender</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Category</th>
@@ -210,17 +210,17 @@ export default async function DashboardPage() {
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Created</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                   {recentTickets.map(ticket => (
-                    <tr key={ticket.id} className="hover:bg-white/50 transition-colors bg-transparent">
-                      <td className="py-2.5 px-4 text-xs text-slate-500 font-medium">#{ticket.id.slice(0,8)}</td>
-                      <td className="py-2.5 px-4 text-xs font-bold text-slate-900">
-                        <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors truncate block max-w-xs">
+                    <tr key={ticket.id} className="hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors bg-transparent">
+                      <td className="py-2.5 px-4 text-xs text-slate-500 dark:text-slate-400 font-medium">#{ticket.id.slice(0,8)}</td>
+                      <td className="py-2.5 px-4 text-xs font-bold text-slate-900 dark:text-white">
+                        <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block max-w-xs">
                           {ticket.subject}
                         </Link>
                       </td>
-                      <td className="py-2.5 px-4 text-xs text-slate-500">{ticket.studentEmail}</td>
-                      <td className="py-2.5 px-4 text-xs text-slate-600 font-medium">{ticket.category}</td>
+                      <td className="py-2.5 px-4 text-xs text-slate-500 dark:text-slate-400">{ticket.studentEmail}</td>
+                      <td className="py-2.5 px-4 text-xs text-slate-600 dark:text-slate-300 font-medium">{ticket.category}</td>
                       <td className="py-2.5 px-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                           ticket.priority === 'URGENT' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
@@ -249,10 +249,10 @@ export default async function DashboardPage() {
 
         {/* Second Table Column */}
         {!isAdmin && (
-          <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-transparent">
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                   Unassigned Queue
                 </h2>
                 <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -304,9 +304,9 @@ export default async function DashboardPage() {
 
         {/* Agent Performance Table */}
         {isAdmin && (
-          <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-transparent">
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                 Agent Performance
               </h2>
             </div>

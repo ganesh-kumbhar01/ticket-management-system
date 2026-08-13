@@ -27,18 +27,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isAdmin = payload.role === 'ADMIN';
 
   return (
-    <div className="h-screen overflow-hidden flex text-slate-900 font-sans bg-transparent">
+    <div className="h-screen overflow-hidden flex text-slate-900 dark:text-slate-100 font-sans bg-transparent transition-colors duration-300">
       {/* Sidebar Component */}
       <Sidebar isAdmin={isAdmin} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <header className="h-16 bg-white/40 backdrop-blur-xl border-b border-white/40 flex items-center justify-end pl-16 pr-4 md:px-8 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.05)] z-10">
+        <header className="h-16 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/40 dark:border-slate-800/50 flex items-center justify-end pl-16 pr-4 md:px-8 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.05)] z-10">
           <div className="flex flex-1 justify-end items-center gap-2 sm:gap-4 px-4 sm:px-6">
             <GlobalSearch />
             <ThemeToggle />
             <NotificationBell />
-            <Link href="/dashboard/profile" className="flex items-center space-x-2 px-3 py-1.5 bg-white/50 border border-white/50 hover:bg-white/70 backdrop-blur-md rounded-full text-sm font-semibold transition-colors text-slate-700 shadow-sm">
+            <Link href="/dashboard/profile" className="flex items-center space-x-2 px-3 py-1.5 bg-white/50 dark:bg-slate-800/50 border border-white/50 dark:border-slate-700 hover:bg-white/70 dark:hover:bg-slate-800 backdrop-blur-md rounded-full text-sm font-semibold transition-colors text-slate-700 dark:text-slate-200 shadow-sm">
               <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
                 {payload.email[0].toUpperCase()}
               </div>

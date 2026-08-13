@@ -27,8 +27,8 @@ body {
 }
 
 .dark body {
-  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #2e1065, #4c1d95);
-  background-size: 400% 400%;
+  background: #020617; /* Very dark slate, almost black */
+  background-image: radial-gradient(circle at top, #0f172a, #020617);
 }
 
 @keyframes gradient {
