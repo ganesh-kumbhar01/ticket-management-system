@@ -462,6 +462,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                                   <a 
                                     key={att.id} 
                                     href={att.url} 
+                                    download={att.filename}
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 p-2 rounded-lg bg-white/50 dark:bg-slate-900/50 hover:bg-white dark:bg-slate-900 transition-colors border border-slate-200/50"
@@ -840,6 +841,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               <a 
                 key={att.id} 
                 href={att.url} 
+                download={att.filename}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200 dark:border-slate-700 group"
