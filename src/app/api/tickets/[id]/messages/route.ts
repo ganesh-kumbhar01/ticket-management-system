@@ -3,9 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
+
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -72,22 +70,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
 
     if (files && files.length > 0) {
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      await fs.mkdir(uploadDir, { recursive: true });
-
       for (const file of files) {
         if (file instanceof File) {
-          const ext = path.extname(file.name);
-          const safeName = crypto.randomBytes(16).toString('hex') + ext;
-          const filePath = path.join(uploadDir, safeName);
           const buffer = Buffer.from(await file.arrayBuffer());
-          
-          await fs.writeFile(filePath, buffer);
+          const base64Data = buffer.toString('base64');
+          const dataUri = `data:${file.type || 'application/octet-stream'};base64,${base64Data}`;
           
           await prisma.attachment.create({
             data: {
               filename: file.name,
-              url: `/uploads/${safeName}`,
+              url: dataUri,
               mimeType: file.type,
               size: file.size,
               messageId: message.id

@@ -1,22 +1,23 @@
 import { simpleParser } from 'mailparser';
 import { prisma } from '@/lib/db';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
+
 
 async function saveAttachment(attachment: any, messageId: string) {
-  const ext = path.extname(attachment.filename || '');
-  const safeName = crypto.randomBytes(16).toString('hex') + ext;
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-  
-  await fs.mkdir(uploadDir, { recursive: true });
-  const filePath = path.join(uploadDir, safeName);
-  await fs.writeFile(filePath, attachment.content);
-  
+  // Vercel serverless functions have a read-only filesystem.
+  // We convert attachments to Base64 Data URIs and store them directly in PostgreSQL.
+  let dataUri = '';
+  try {
+    const base64Data = attachment.content.toString('base64');
+    dataUri = `data:${attachment.contentType || 'application/octet-stream'};base64,${base64Data}`;
+  } catch (e) {
+    console.error('Failed to convert attachment to base64', e);
+    return null;
+  }
+
   return await prisma.attachment.create({
     data: {
       filename: attachment.filename || 'unknown_file',
-      url: `/uploads/${safeName}`,
+      url: dataUri,
       mimeType: attachment.contentType,
       size: attachment.size,
       messageId
