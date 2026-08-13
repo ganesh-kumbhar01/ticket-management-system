@@ -26,6 +26,11 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
+  const currentUser = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { name: true }
+  });
+
   const isAdmin = payload.role === 'ADMIN';
 
   const whereClause = isAdmin ? {} : { assignedAgentId: payload.userId };
@@ -129,14 +134,14 @@ export default async function DashboardPage() {
   };
 
   const greeting = getGreeting();
-  const roleTitle = isAdmin ? 'Admin' : 'Agent';
+  const userName = currentUser?.name || (isAdmin ? 'Admin' : 'Agent');
 
   return (
     <div className="min-h-full p-4 md:p-6">
       <div className="max-w-7xl mx-auto w-full">
         <header className="mb-4 shrink-0">
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            {greeting}, {roleTitle}
+            {greeting}, {userName}
           </h1>
           <p className="text-slate-500 mt-0.5 text-sm font-medium">
             {isAdmin ? 'Here is what\'s happening with your support system today.' : 'Here is the latest update on your assigned tickets.'}
