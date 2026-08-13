@@ -172,7 +172,7 @@ export default function LoginPage() {
             </div>
 
             {/* Remember Me & Forgot Password row */}
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center pt-1">
               <button 
                 type="button"
                 onClick={() => setValue('rememberMe', !rememberMe, { shouldValidate: true })}
@@ -183,10 +183,6 @@ export default function LoginPage() {
                   <Square className="w-4 h-4" />
                 }
                 <span className="font-medium select-none">Remember me</span>
-              </button>
-              
-              <button type="button" className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 transition-colors focus:outline-none">
-                Forgot password?
               </button>
             </div>
 
