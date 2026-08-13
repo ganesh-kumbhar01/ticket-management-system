@@ -94,7 +94,7 @@ export default function NotificationBell() {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50">
+          <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
             <h3 className="font-bold text-slate-900 dark:text-white dark:text-white">Notifications</h3>
             <div className="flex items-center gap-3">
               {unreadCount > 0 && (

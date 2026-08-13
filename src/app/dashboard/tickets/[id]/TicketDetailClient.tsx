@@ -380,7 +380,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Main Column (Scrollable) */}
-        <div className="flex-1 overflow-y-auto bg-slate-50/50 min-w-0">
+        <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-800/50 min-w-0">
           <div className="max-w-4xl mx-auto p-6 md:p-8">
             {/* Conversation Thread */}
             <div className="space-y-6 mb-10">
@@ -500,7 +500,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
             {/* Reply Box */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 flex items-center gap-2">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${replyType === 'PUBLIC' ? 'bg-slate-800 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}

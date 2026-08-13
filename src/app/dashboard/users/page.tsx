@@ -189,7 +189,7 @@ export default function UsersPage() {
 
       {/* Main Table Card */}
       <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 dark:bg-slate-900">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 dark:bg-slate-900">
           <div className="relative flex-1 max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
@@ -225,7 +225,7 @@ export default function UsersPage() {
           <div className="overflow-x-auto whitespace-nowrap min-w-0">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 bg-slate-50/50">
+                <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50">
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 w-10">
                     <button 
                       onClick={toggleAll}
@@ -300,7 +300,7 @@ export default function UsersPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex items-center justify-between">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white dark:text-white">Create New Agent</h2>
               <button 
                 onClick={() => setIsModalOpen(false)} 

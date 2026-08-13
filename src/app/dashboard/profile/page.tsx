@@ -27,7 +27,7 @@ export default async function ProfilePage() {
             </div>
           </div>
           
-          <div className="border-t border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 pt-6 space-y-4">
+          <div className="border-t border-slate-100 dark:border-slate-800/50 pt-6 space-y-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white dark:text-white">Account Information</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 dark:border-slate-800">

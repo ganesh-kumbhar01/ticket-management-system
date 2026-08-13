@@ -87,7 +87,7 @@ export default function GlobalSearch() {
             onClick={e => e.stopPropagation()}
           >
             <Command shouldFilter={false} className="w-full">
-              <div className="flex items-center border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 dark:border-slate-800 px-3">
+              <div className="flex items-center border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800 px-3">
                 <Search className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500 shrink-0" />
                 <Command.Input 
                   autoFocus

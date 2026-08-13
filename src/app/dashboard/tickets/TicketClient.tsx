@@ -358,7 +358,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white/80 backdrop-blur-2xl border border-white/50 w-full max-w-xl rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex items-center justify-between">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white dark:text-white">Create New Ticket</h2>
               <button 
                 onClick={() => setIsModalOpen(false)} 

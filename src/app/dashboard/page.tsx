@@ -183,7 +183,7 @@ export default async function DashboardPage() {
         <div className={`grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4`}>
           {/* Recent Tickets Table */}
           <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
               <h2 className="text-base font-bold text-slate-900 dark:text-white dark:text-white dark:text-white tracking-tight">
                 {isAdmin ? 'Recent System Tickets' : 'Your Active Tickets'}
               </h2>
@@ -200,7 +200,7 @@ export default async function DashboardPage() {
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10">
-                  <tr className="border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
+                  <tr className="border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">ID</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Subject</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Sender</th>
@@ -250,7 +250,7 @@ export default async function DashboardPage() {
         {/* Second Table Column */}
         {!isAdmin && (
           <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-slate-900 dark:text-white dark:text-white dark:text-white tracking-tight">
                   Unassigned Queue
@@ -271,7 +271,7 @@ export default async function DashboardPage() {
               ) : (
                 <table className="w-full text-left border-collapse">
                   <thead className="sticky top-0 z-10">
-                    <tr className="border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
+                    <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
                       <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Subject</th>
                       <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Status</th>
                       <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Time</th>
@@ -305,7 +305,7 @@ export default async function DashboardPage() {
         {/* Agent Performance Table */}
         {isAdmin && (
           <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
               <h2 className="text-base font-bold text-slate-900 dark:text-white dark:text-white dark:text-white tracking-tight">
                 Agent Performance
               </h2>
@@ -313,7 +313,7 @@ export default async function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10">
-                  <tr className="border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
+                  <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Agent</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider text-center">Assigned</th>
                     <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider text-center">Open/WIP</th>
