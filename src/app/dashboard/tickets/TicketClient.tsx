@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,6 +40,10 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    setTickets(initialTickets);
+  }, [initialTickets]);
+
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<CreateTicketFormValues>({
     resolver: zodResolver(createTicketSchema),
     mode: 'onTouched',
@@ -61,8 +65,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       toast.success(`Sync complete! Processed ${result.processedCount} new emails.`);
       // Instead of replacing the whole ticket list immediately, we just refresh the router so the parent component fetches latest data
       router.refresh();
-      // It would take a moment to reflect in 'tickets' state, let's just do a window reload for simplicity if we don't refetch from client side
-      window.location.reload();
+
     } catch (error) {
       console.error(error);
       toast.error('Something went wrong while syncing emails.');

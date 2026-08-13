@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Bell, X, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type NotificationData = {
   id: string;
@@ -14,6 +15,7 @@ type NotificationData = {
 export default function RealTimeNotifications() {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const lastTicketIdRef = useRef<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     // Helper to fetch the latest ticket
@@ -43,6 +45,8 @@ export default function RealTimeNotifications() {
             // Play a soft sound if desired (optional)
             // new Audio('/notification.mp3').play().catch(() => {});
             lastTicketIdRef.current = ticket.id;
+            // Refresh server components to show the new ticket in lists
+            router.refresh();
           }
         }
       } catch (error) {
@@ -53,10 +57,10 @@ export default function RealTimeNotifications() {
     // Initial fetch to set baseline
     fetchLatest(true);
 
-    // Poll every 15 seconds
+    // Poll every 5 seconds for faster real-time feel
     const interval = setInterval(() => {
       fetchLatest(false);
-    }, 15000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
