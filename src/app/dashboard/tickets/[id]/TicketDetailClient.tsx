@@ -316,30 +316,30 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       case 'OPEN': return 'bg-amber-100 text-amber-700 border border-amber-200';
       case 'PENDING_CUSTOMER': return 'bg-orange-100 text-orange-700 border border-orange-200';
       case 'RESOLVED': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'CLOSED': return 'bg-slate-100 text-slate-700 border border-slate-200';
-      default: return 'bg-slate-100 text-slate-700 border border-slate-200';
+      case 'CLOSED': return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
+      default: return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-800/50">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
           <Link 
             href="/dashboard/tickets"
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 hover:text-slate-900 dark:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-bold text-slate-900">{ticket.subject}</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">{ticket.subject}</h1>
               <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold ${getStatusColor(status)}`}>
                 {status}
               </span>
             </div>
-            <p className="text-sm text-slate-500 mt-1 font-medium">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
               #{ticket.id} • Created on {new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -356,7 +356,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
+            className="md:hidden px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
           >
             <Activity className="w-4 h-4" />
             Manage
@@ -385,7 +385,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
             {/* Conversation Thread */}
             <div className="space-y-6 mb-10">
               {ticket.messages.length === 0 ? (
-                <div className="text-center text-slate-500 font-medium py-10 bg-white rounded-2xl border border-slate-200">
+                <div className="text-center text-slate-500 dark:text-slate-400 font-medium py-10 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                   No messages found for this ticket.
                 </div>
               ) : (
@@ -395,7 +395,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   if (isSystem) {
                     return (
                       <div key={msg.id} className="flex justify-center my-4">
-                        <div className="bg-slate-100 border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
                           <Activity className="w-3 h-3" />
                           {msg.content}
                         </div>
@@ -415,17 +415,17 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                               {isInternal ? <Lock className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                             </div>
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 shadow-sm">
+                            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-300 shadow-sm">
                               <User className="w-4 h-4" />
                             </div>
                           )}
                         </div>
                         <div className={`flex flex-col ${isAgent ? 'items-end' : 'items-start'}`}>
                           <div className="flex items-center gap-2 mb-1 px-1">
-                            <span className="text-xs font-bold text-slate-600">
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
                               {isInternal ? 'Internal Note' : isAgent ? 'Support Team' : ticket.studentEmail}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-400">
+                            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                               {new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
@@ -434,7 +434,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                               ? 'bg-amber-50 border border-amber-200 text-amber-900 rounded-tr-sm'
                               : isAgent 
                                 ? 'bg-blue-600 text-white rounded-tr-sm' 
-                                : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+                                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-sm'
                           }`}>
                             <p className="text-sm leading-relaxed whitespace-pre-wrap">
                               {msg.content}
@@ -447,7 +447,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                                     href={att.url} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 p-2 rounded-lg bg-white/50 hover:bg-white transition-colors border border-slate-200/50"
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-white/50 dark:bg-slate-900/50 hover:bg-white dark:bg-slate-900 transition-colors border border-slate-200/50"
                                   >
                                     <Paperclip className="w-4 h-4 opacity-70" />
                                     <span className="text-xs font-medium truncate max-w-[200px]">{att.filename}</span>
@@ -499,17 +499,17 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
             </div>
 
             {/* Reply Box */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 flex items-center gap-2">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${replyType === 'PUBLIC' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${replyType === 'PUBLIC' ? 'bg-slate-800 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}
                 >
                   Reply to Customer
                 </button>
                 <button 
                   onClick={() => setReplyType('INTERNAL')} 
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${replyType === 'INTERNAL' ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${replyType === 'INTERNAL' ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}
                 >
                   <Lock className="w-3 h-3" />
                   Internal Note
@@ -534,13 +534,13 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
                       placeholder={replyType === 'INTERNAL' ? 'Type an internal note visible only to agents...' : 'Type your reply to the customer...'}
-                      className={`w-full h-24 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-slate-50 border-slate-200 text-slate-700'}`}
+                      className={`w-full h-24 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'}`}
                     />
                     {selectedFiles.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {selectedFiles.map((file, idx) => (
-                          <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200">
-                            <Paperclip className="w-3 h-3 text-slate-400" />
+                          <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-800">
+                            <Paperclip className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                             <span className="truncate max-w-[120px]">{file.name}</span>
                             <button onClick={() => removeFile(idx)} className="hover:text-rose-500 transition-colors ml-1">
                               <X className="w-3 h-3" />
@@ -560,7 +560,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                         title="Attach files"
                       />
                       <button 
-                        className="w-full h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-slate-200"
+                        className="w-full h-10 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-800"
                       >
                         <Paperclip className="w-4 h-4" />
                         Attach
@@ -604,21 +604,21 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
         </div>
 
         {/* Sidebar Info */}
-        <div className={`w-80 bg-white border-l border-slate-200 flex-col shrink-0 overflow-y-auto ${isSidebarOpen ? 'flex absolute md:relative inset-y-0 right-0 z-20 shadow-2xl md:shadow-none' : 'hidden md:flex'}`}>
+        <div className={`w-80 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex-col shrink-0 overflow-y-auto ${isSidebarOpen ? 'flex absolute md:relative inset-y-0 right-0 z-20 shadow-2xl md:shadow-none' : 'hidden md:flex'}`}>
           <div className="p-6">
-            <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider">Ticket Properties</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider">Ticket Properties</h3>
             
             <div className="space-y-5">
               {/* Assignee */}
               <div>
-                <label className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
                   <UserPlus className="w-4 h-4" />
                   Assignee
                 </label>
                 <select 
                   value={assignedAgentId}
                   onChange={(e) => handlePropsChange('assignedAgentId', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 >
                   <option value="">Unassigned</option>
                   {agents.map(agent => (
@@ -629,14 +629,14 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
               {/* Status */}
               <div>
-                <label className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
                   <Activity className="w-4 h-4" />
                   Status
                 </label>
                 <select 
                   value={status}
                   onChange={(e) => handlePropsChange('status', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 >
                   <option value="NEW">New</option>
                   <option value="OPEN">Open</option>
@@ -648,14 +648,14 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
               {/* Priority */}
               <div>
-                <label className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
                   <AlertCircle className="w-4 h-4" />
                   Priority
                 </label>
                 <select 
                   value={priority}
                   onChange={(e) => handlePropsChange('priority', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 >
                   <option value="LOW">Low</option>
                   <option value="NORMAL">Normal</option>
@@ -666,14 +666,14 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
               {/* Category */}
               <div>
-                <label className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
                   <Activity className="w-4 h-4" />
                   Category
                 </label>
                 <select 
                   value={category}
                   onChange={(e) => handlePropsChange('category', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 >
                   <option value="General">General</option>
                   <option value="Technical">Technical</option>
@@ -693,19 +693,19 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 </button>
               )}
 
-              <div className="border-t border-slate-100 pt-5 mt-5">
+              <div className="border-t border-slate-100 dark:border-slate-800/50 pt-5 mt-5">
                 <div className="mb-3">
-                  <span className="text-xs font-semibold text-slate-500 block mb-1">Customer Email</span>
-                  <div className="text-sm font-medium text-slate-900 flex items-center gap-2 truncate">
-                    <User className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Customer Email</span>
+                  <div className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2 truncate">
+                    <User className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                     <span className="truncate">{ticket.studentEmail}</span>
                   </div>
                 </div>
                 
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 block mb-1">Created At</span>
-                  <div className="text-sm font-medium text-slate-900 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Created At</span>
+                  <div className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                     {new Date(ticket.createdAt).toLocaleString('en-US')}
                   </div>
                 </div>
@@ -713,17 +713,17 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
             </div>
 
             <div className="mt-8">
-              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2 uppercase tracking-wider">
-                <History className="w-4 h-4 text-slate-400" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 uppercase tracking-wider">
+                <History className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                 Customer History
               </h3>
               {isLoadingHistory ? (
                 <div className="text-center py-4">
-                  <p className="text-xs font-medium text-slate-500 animate-pulse">Loading history...</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 animate-pulse">Loading history...</p>
                 </div>
               ) : customerTickets.length === 0 ? (
-                <div className="text-center py-6 bg-slate-50 rounded-xl border border-slate-100">
-                  <p className="text-xs font-medium text-slate-500">No previous tickets found.</p>
+                <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800/50">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">No previous tickets found.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -731,24 +731,24 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                     <Link 
                       key={t.id} 
                       href={`/dashboard/tickets/${t.id}`}
-                      className="block p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all group"
+                      className="block p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 hover:bg-blue-50/50 transition-all group"
                     >
                       <div className="flex justify-between items-start mb-1.5">
-                        <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 transition-colors">#{t.id.slice(0,8)}</span>
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 group-hover:text-blue-600 transition-colors">#{t.id.slice(0,8)}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                           t.status === 'NEW' ? 'bg-purple-100 text-purple-700' :
                           t.status === 'OPEN' ? 'bg-amber-100 text-amber-700' :
                           t.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' :
                           t.status === 'PENDING_CUSTOMER' ? 'bg-orange-100 text-orange-700' :
-                          'bg-slate-100 text-slate-700'
+                          'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                         }`}>
                           {t.status}
                         </span>
                       </div>
-                      <p className="text-sm font-bold text-slate-900 line-clamp-2 leading-tight mb-2">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white line-clamp-2 leading-tight mb-2">
                         {t.subject}
                       </p>
-                      <p className="text-[10px] font-semibold text-slate-400">
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
                         {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                     </Link>

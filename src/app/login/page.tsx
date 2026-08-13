@@ -65,16 +65,16 @@ export default function LoginPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         </div>
-        <span className="text-2xl font-black text-slate-900 tracking-tight">HelpDesk</span>
+        <span className="text-2xl font-black text-slate-900 dark:text-white dark:text-white tracking-tight">HelpDesk</span>
       </div>
 
-      <div className="w-full max-w-[440px] bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
+      <div className="w-full max-w-[440px] bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="p-8 sm:p-10">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white dark:text-white mb-2 tracking-tight">
               Welcome Back
             </h2>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm">
               Sign in to your account
             </p>
           </div>
@@ -87,14 +87,14 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700" htmlFor="email">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300" htmlFor="email">
                 Email Address
               </label>
               <input
                 id="email"
                 type="email"
                 {...register('email')}
-                className={`w-full h-12 px-4 bg-white/50 backdrop-blur-md border ${errors.email ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : 'border-white/60 focus:ring-blue-600/10 focus:border-blue-600'} rounded-xl focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-500`}
+                className={`w-full h-12 px-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border ${errors.email ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : 'border-white/60 focus:ring-blue-600/10 focus:border-blue-600'} rounded-xl focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-500 dark:text-slate-400 dark:text-slate-400`}
                 placeholder="admin@system.com"
               />
               {errors.email && (
@@ -103,7 +103,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700" htmlFor="password">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300" htmlFor="password">
                 Password
               </label>
               <div className="relative">
@@ -111,13 +111,13 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...register('password')}
-                  className={`w-full h-12 px-4 bg-white/50 backdrop-blur-md border ${errors.password ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : 'border-white/60 focus:ring-blue-600/10 focus:border-blue-600'} rounded-xl focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-500 pr-12`}
+                  className={`w-full h-12 px-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border ${errors.password ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : 'border-white/60 focus:ring-blue-600/10 focus:border-blue-600'} rounded-xl focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-500 dark:text-slate-400 dark:text-slate-400 pr-12`}
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300 dark:text-slate-300 transition-colors p-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (

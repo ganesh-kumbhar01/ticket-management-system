@@ -170,8 +170,8 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       case 'OPEN': return 'bg-amber-100 text-amber-700 border border-amber-200';
       case 'PENDING_CUSTOMER': return 'bg-orange-100 text-orange-700 border border-orange-200';
       case 'RESOLVED': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'CLOSED': return 'bg-slate-100 text-slate-700 border border-slate-200';
-      default: return 'bg-slate-100 text-slate-700 border border-slate-200';
+      case 'CLOSED': return 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800';
+      default: return 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800';
     }
   };
 
@@ -179,10 +179,10 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white dark:text-white tracking-tight">
             Support Tickets
           </h1>
-          <p className="text-slate-500 mt-1 font-medium">
+          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1 font-medium">
             Manage and respond to incoming requests.
           </p>
         </div>
@@ -190,7 +190,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
           <button 
             onClick={handleSyncEmails}
             disabled={isSyncing}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition-all shadow-sm active:scale-95 shrink-0 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 dark:text-slate-300 rounded-xl font-bold transition-all shadow-sm active:scale-95 shrink-0 disabled:opacity-50"
           >
             <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
             Sync Emails
@@ -205,43 +205,43 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
         </div>
       </div>
 
-      <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+      <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 rounded-2xl overflow-hidden shadow-sm flex flex-col">
         <div className="p-4 border-b border-white/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-transparent">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
             <button
               onClick={() => setActiveTab('MY_TICKETS')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'MY_TICKETS' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'MY_TICKETS' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800'}`}
             >
               My Tickets
             </button>
             <button
               onClick={() => setActiveTab('UNASSIGNED')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'UNASSIGNED' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'UNASSIGNED' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800'}`}
             >
               Unassigned Queue
             </button>
             <button
               onClick={() => setActiveTab('ALL')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'ALL' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'ALL' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800'}`}
             >
               All Tickets
             </button>
           </div>
 
           <div className="relative w-full max-w-sm shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
             <input 
               type="text"
               placeholder="Search tickets by ID, subject, or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/50 backdrop-blur-md border border-white/60 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-white/60 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
             />
           </div>
 
           {selectedTickets.length > 0 && (
             <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-200">
-              <span className="text-sm font-semibold text-slate-600">
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300">
                 {selectedTickets.length} selected
               </span>
               <button
@@ -259,11 +259,11 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-              <tr className="border-b border-white/50 bg-white/40">
+              <tr className="border-b border-white/50 bg-white/40 dark:bg-slate-900/40">
                 <th className="py-4 px-4 w-12 text-center">
                   <button 
                     onClick={handleSelectAll} 
-                    className="text-slate-400 hover:text-blue-600 transition-colors"
+                    className="text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-blue-600 transition-colors"
                   >
                     {selectedTickets.length === filteredTickets.length && filteredTickets.length > 0 ? (
                       <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -272,13 +272,13 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                     )}
                   </button>
                 </th>
-                <th className="py-4 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">ID</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Subject</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Customer</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Priority</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Created</th>
+                <th className="py-4 px-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">ID</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Subject</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Customer</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Category</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Priority</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Created</th>
                 <th className="py-4 px-4 w-12"></th>
               </tr>
             </thead>
@@ -286,7 +286,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
               {filteredTickets.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-12 text-center">
-                    <p className="text-slate-500 font-medium">No tickets found matching your search.</p>
+                    <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">No tickets found matching your search.</p>
                   </td>
                 </tr>
               ) : (
@@ -296,7 +296,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                   <tr 
                     key={ticket.id} 
                     onClick={() => router.push(`/dashboard/tickets/${ticket.id}`)}
-                    className={`transition-colors cursor-pointer group ${isSelected ? 'bg-blue-500/10 hover:bg-blue-500/20' : 'bg-transparent hover:bg-white/50'}`}
+                    className={`transition-colors cursor-pointer group ${isSelected ? 'bg-blue-500/10 hover:bg-blue-500/20' : 'bg-transparent hover:bg-white/50 dark:bg-slate-900/50'}`}
                   >
                     <td className="py-4 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                       <button 
@@ -310,20 +310,20 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                         )}
                       </button>
                     </td>
-                    <td className="py-4 px-4 text-sm text-slate-500 font-medium">#{ticket.id.slice(0,8)}</td>
-                    <td className="py-4 px-6 text-sm font-bold text-slate-900">
+                    <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">#{ticket.id.slice(0,8)}</td>
+                    <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white dark:text-white">
                       <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors block">
                         {ticket.subject}
                       </Link>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-500">{ticket.studentEmail}</td>
-                    <td className="py-4 px-6 text-sm text-slate-600 font-medium">{ticket.category}</td>
+                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">{ticket.studentEmail}</td>
+                    <td className="py-4 px-6 text-sm text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{ticket.category}</td>
                     <td className="py-4 px-6">
                       <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${
                         ticket.priority === 'URGENT' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
                         ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-700 border border-orange-200' :
                         ticket.priority === 'NORMAL' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                        'bg-slate-100 text-slate-700 border border-slate-200'
+                        'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800'
                       }`}>
                         {ticket.priority}
                       </span>
@@ -333,14 +333,14 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                         {ticket.status}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-500 font-medium">
+                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">
                       {new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </td>
                     <td className="py-4 px-4 text-right">
                       <button
                         onClick={(e) => handleDeleteTicket(ticket.id, e)}
                         disabled={isDeleting}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                        className="p-1.5 text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
                         title="Delete ticket"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -358,33 +358,33 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white/80 backdrop-blur-2xl border border-white/50 w-full max-w-xl rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Create New Ticket</h2>
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white dark:text-white">Create New Ticket</h2>
               <button 
                 onClick={() => setIsModalOpen(false)} 
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 hover:text-slate-600 dark:text-slate-300 dark:text-slate-300 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Subject</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Subject</label>
                 <input
                   type="text"
                   {...register('subject')}
-                  className={`w-full h-11 px-3 bg-white border ${errors.subject ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.subject ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
                   placeholder="Brief summary of the issue"
                 />
                 {errors.subject && <p className="text-red-500 text-xs font-medium mt-1">{errors.subject.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Customer Email</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Customer Email</label>
                 <input
                   type="email"
                   {...register('studentEmail')}
-                  className={`w-full h-11 px-3 bg-white border ${errors.studentEmail ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.studentEmail ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
                   placeholder="customer@example.com"
                 />
                 {errors.studentEmail && <p className="text-red-500 text-xs font-medium mt-1">{errors.studentEmail.message}</p>}
@@ -392,10 +392,10 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Category</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Category</label>
                   <select
                     {...register('category')}
-                    className={`w-full h-11 px-3 bg-white border ${errors.category ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                    className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.category ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
                   >
                     <option value="General">General Inquiry</option>
                     <option value="Technical">Technical Support</option>
@@ -406,10 +406,10 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Priority</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Priority</label>
                   <select
                     {...register('priority')}
-                    className={`w-full h-11 px-3 bg-white border ${errors.priority ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                    className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.priority ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
                   >
                     <option value="LOW">Low</option>
                     <option value="NORMAL">Normal</option>
@@ -421,10 +421,10 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Initial Message / Description</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Initial Message / Description</label>
                 <textarea
                   {...register('description')}
-                  className={`w-full min-h-[120px] p-3 bg-white border ${errors.description ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all resize-y`}
+                  className={`w-full min-h-[120px] p-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.description ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all resize-y`}
                   placeholder="Describe the customer's issue in detail..."
                 />
                 {errors.description && <p className="text-red-500 text-xs font-medium mt-1">{errors.description.message}</p>}
@@ -434,7 +434,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                  className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-slate-900 dark:text-white dark:text-white hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 rounded-xl transition-all"
                 >
                   Cancel
                 </button>

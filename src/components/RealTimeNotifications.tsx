@@ -72,16 +72,16 @@ export default function RealTimeNotifications() {
       {notifications.map((notif) => (
         <div 
           key={notif.id} 
-          className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200 p-4 transform transition-all animate-in slide-in-from-bottom-5 fade-in duration-300"
+          className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200 dark:border-slate-800 dark:border-slate-800 p-4 transform transition-all animate-in slide-in-from-bottom-5 fade-in duration-300"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
               <Bell className="w-4 h-4 text-blue-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-bold text-slate-900 mb-1">New Ticket Received!</h4>
-              <p className="text-xs text-slate-500 font-medium truncate mb-0.5">{notif.studentEmail}</p>
-              <p className="text-sm text-slate-700 line-clamp-1 mb-3">{notif.subject}</p>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white dark:text-white mb-1">New Ticket Received!</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium truncate mb-0.5">{notif.studentEmail}</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 dark:text-slate-300 line-clamp-1 mb-3">{notif.subject}</p>
               <Link 
                 href={`/dashboard/tickets/${notif.id}`}
                 onClick={() => dismissNotification(notif.id)}
@@ -92,7 +92,7 @@ export default function RealTimeNotifications() {
             </div>
             <button 
               onClick={() => dismissNotification(notif.id)}
-              className="w-6 h-6 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+              className="w-6 h-6 rounded-full hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300 dark:text-slate-300 transition-colors shrink-0"
             >
               <X className="w-3.5 h-3.5" />
             </button>

@@ -157,10 +157,10 @@ export default function UsersPage() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-4 md:space-y-6">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white dark:text-white tracking-tight">
             Manage Agents
           </h1>
-          <p className="text-slate-500 mt-1 font-medium">
+          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1 font-medium">
             Create, view, and manage agents and administrators.
           </p>
         </div>
@@ -188,18 +188,18 @@ export default function UsersPage() {
       )}
 
       {/* Main Table Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+      <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 dark:bg-slate-900">
           <div className="relative flex-1 max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-400" />
+              <Search className="h-5 w-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
             </div>
             <input
               type="text"
               placeholder="Search agents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 text-slate-900 font-medium transition-all"
+              className="w-full h-10 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 dark:border-slate-800 rounded-xl focus:bg-white dark:bg-slate-900 dark:bg-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 text-slate-900 dark:text-white dark:text-white font-medium transition-all"
             />
           </div>
           
@@ -216,20 +216,20 @@ export default function UsersPage() {
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-slate-500 font-medium">Loading staff directories...</div>
+          <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">Loading staff directories...</div>
         ) : filteredUsers.length === 0 ? (
-          <div className="p-12 text-center text-slate-500 font-medium">
+          <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">
             {searchQuery ? 'No agents match your search.' : 'No agents found.'}
           </div>
         ) : (
           <div className="overflow-x-auto whitespace-nowrap min-w-0">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 w-10">
+                <tr className="border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 bg-slate-50/50">
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 w-10">
                     <button 
                       onClick={toggleAll}
-                      className="text-slate-400 hover:text-blue-600 transition-colors"
+                      className="text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-blue-600 transition-colors"
                     >
                       {selectedIds.size > 0 && selectedIds.size === filteredUsers.length ? (
                         <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -238,11 +238,11 @@ export default function UsersPage() {
                       )}
                     </button>
                   </th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Joined Date</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Name</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Email Address</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Role</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Joined Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -250,12 +250,12 @@ export default function UsersPage() {
                   <tr 
                     key={user.id} 
                     onClick={() => router.push(`/dashboard/users/${user.id}`)}
-                    className="hover:bg-slate-50 transition-colors bg-white cursor-pointer group"
+                    className="hover:bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/50 transition-colors bg-white dark:bg-slate-900 dark:bg-slate-900 cursor-pointer group"
                   >
                     <td className="py-4 px-6">
                       <button 
                         onClick={(e) => toggleSelection(user.id, e)}
-                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400"
+                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500 dark:text-slate-500"
                       >
                         {selectedIds.has(user.id) ? (
                           <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -264,10 +264,10 @@ export default function UsersPage() {
                         )}
                       </button>
                     </td>
-                    <td className="py-4 px-6 text-sm font-bold text-slate-900">
-                      {user.name || <span className="text-slate-400 italic font-medium">Not Set</span>}
+                    <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white dark:text-white">
+                      {user.name || <span className="text-slate-400 dark:text-slate-500 dark:text-slate-500 italic font-medium">Not Set</span>}
                     </td>
-                    <td className="py-4 px-6 text-sm font-medium text-slate-600">
+                    <td className="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-300 dark:text-slate-300">
                       {user.email}
                     </td>
                     <td className="py-4 px-6">
@@ -280,12 +280,12 @@ export default function UsersPage() {
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
-                        user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                        user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800'
                       }`}>
                         {user.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-500 font-medium">
+                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">
                       {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </td>
                   </tr>
@@ -299,45 +299,45 @@ export default function UsersPage() {
       {/* Create User Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Create New Agent</h2>
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white dark:text-white">Create New Agent</h2>
               <button 
                 onClick={() => setIsModalOpen(false)} 
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 hover:text-slate-600 dark:text-slate-300 dark:text-slate-300 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name (Optional)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Full Name (Optional)</label>
                 <input
                   type="text"
                   {...register('name')}
-                  className={`w-full h-11 px-3 bg-white border ${errors.name ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-400`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.name ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500 dark:text-slate-500`}
                   placeholder="John Doe"
                 />
                 {errors.name && <p className="text-red-500 text-xs font-medium mt-1">{errors.name.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Email Address</label>
                 <input
                   type="email"
                   {...register('email')}
-                  className={`w-full h-11 px-3 bg-white border ${errors.email ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-400`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.email ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500 dark:text-slate-500`}
                   placeholder="agent@system.com"
                 />
                 {errors.email && <p className="text-red-500 text-xs font-medium mt-1">{errors.email.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Temporary Password</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Temporary Password</label>
                 <input
                   type="password"
                   {...register('password')}
-                  className={`w-full h-11 px-3 bg-white border ${errors.password ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all placeholder:text-slate-400`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.password ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500 dark:text-slate-500`}
                   placeholder="••••••••"
                 />
                 {errors.password && <p className="text-red-500 text-xs font-medium mt-1">{errors.password.message}</p>}
@@ -345,10 +345,10 @@ export default function UsersPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Role</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Role</label>
                   <select
                     {...register('role')}
-                    className={`w-full h-11 px-3 bg-white border ${errors.role ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                    className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.role ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
                   >
                     <option value="AGENT">Agent</option>
                     <option value="ADMIN">Admin</option>
@@ -356,10 +356,10 @@ export default function UsersPage() {
                   {errors.role && <p className="text-red-500 text-xs font-medium mt-1">{errors.role.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Status</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Status</label>
                   <select
                     {...register('status')}
-                    className={`w-full h-11 px-3 bg-white border ${errors.status ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 transition-all`}
+                    className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.status ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
                   >
                     <option value="ACTIVE">Active</option>
                     <option value="INACTIVE">Inactive</option>
@@ -372,7 +372,7 @@ export default function UsersPage() {
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                  className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-slate-900 dark:text-white dark:text-white hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 rounded-xl transition-all"
                 >
                   Cancel
                 </button>
