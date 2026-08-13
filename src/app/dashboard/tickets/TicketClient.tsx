@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 type Ticket = {
   id: string;
@@ -57,14 +58,14 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       const res = await fetch('/api/tickets/sync-emails', { method: 'POST' });
       if (!res.ok) throw new Error('Failed to sync emails');
       const result = await res.json();
-      alert(`Sync complete! Processed ${result.processedCount} new emails.`);
+      toast.success(`Sync complete! Processed ${result.processedCount} new emails.`);
       // Instead of replacing the whole ticket list immediately, we just refresh the router so the parent component fetches latest data
       router.refresh();
       // It would take a moment to reflect in 'tickets' state, let's just do a window reload for simplicity if we don't refetch from client side
       window.location.reload();
     } catch (error) {
       console.error(error);
-      alert('Something went wrong while syncing emails.');
+      toast.error('Something went wrong while syncing emails.');
     } finally {
       setIsSyncing(false);
     }
@@ -84,10 +85,11 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       setTickets([newTicket.ticket, ...tickets]);
       setIsModalOpen(false);
       reset();
+      toast.success('Ticket created successfully');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Something went wrong while creating the ticket.');
+      toast.error('Something went wrong while creating the ticket.');
     }
   };
 
@@ -126,10 +128,11 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       
       setTickets(tickets.filter(t => t.id !== id));
       setSelectedTickets(prev => prev.filter(tId => tId !== id));
+      toast.success('Ticket deleted');
       router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Failed to delete ticket. Please try again.');
+      toast.error('Failed to delete ticket. Please try again.');
     } finally {
       setIsDeleting(false);
     }
@@ -151,10 +154,11 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
 
       setTickets(tickets.filter(t => !selectedTickets.includes(t.id)));
       setSelectedTickets([]);
+      toast.success('Tickets deleted');
       router.refresh();
     } catch (error) {
       console.error('Bulk delete error:', error);
-      alert('Failed to delete tickets. Please try again.');
+      toast.error('Failed to delete tickets. Please try again.');
     } finally {
       setIsDeleting(false);
     }

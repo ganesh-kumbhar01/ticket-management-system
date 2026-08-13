@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send, CheckCircle, Clock, AlertCircle, User, Activity, Sparkles, UserPlus, Lock, Trash2, Bot, History, Paperclip, X, Wand2, Eye } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 type Attachment = {
   id: string;
@@ -126,10 +127,11 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
       setReplyContent('');
       setSelectedFiles([]);
+      toast.success('Reply sent successfully');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Failed to send reply');
+      toast.error('Failed to send reply');
     } finally {
       setIsSubmitting(false);
     }
@@ -164,7 +166,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       setReplyContent(data.polishedReply);
     } catch (error: unknown) {
       console.error(error);
-      alert(error instanceof Error ? error.message : String(error));
+      toast.error(error instanceof Error ? error.message : String(error));
     } finally {
       setIsPolishing(false);
     }
@@ -187,7 +189,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       setReplyType('PUBLIC');
     } catch (error: unknown) {
       console.error(error);
-      alert(error instanceof Error ? error.message : String(error));
+      toast.error(error instanceof Error ? error.message : String(error));
     } finally {
       setIsDrafting(false);
     }
@@ -209,7 +211,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       setAiSummary(data.summary);
     } catch (error: unknown) {
       console.error(error);
-      alert(error instanceof Error ? error.message : String(error));
+      toast.error(error instanceof Error ? error.message : String(error));
     } finally {
       setIsSummarizing(false);
     }
@@ -220,11 +222,12 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     try {
       const res = await fetch(`/api/tickets/${ticket.id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete ticket');
+      toast.success('Ticket deleted');
       router.push('/dashboard/tickets');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Failed to delete ticket');
+      toast.error('Failed to delete ticket');
     }
   };
 
@@ -246,10 +249,11 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       });
       if (!res.ok) throw new Error('Failed to resolve ticket');
       setStatus('RESOLVED');
+      toast.success('Ticket resolved');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Failed to resolve ticket');
+      toast.error('Failed to resolve ticket');
     } finally {
       setIsSavingProps(false);
     }
@@ -267,10 +271,11 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       if (!res.ok) throw new Error('Failed to claim ticket');
       
       setAssignedAgentId(currentUserId);
+      toast.success('Ticket claimed');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Failed to claim ticket');
+      toast.error('Failed to claim ticket');
     } finally {
       setIsSavingProps(false);
     }
@@ -295,10 +300,11 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       if (!res.ok) throw new Error('Failed to update ticket properties');
       
       setPropsChanged(false);
+      toast.success('Changes saved');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Failed to save changes');
+      toast.error('Failed to save changes');
     } finally {
       setIsSavingProps(false);
     }

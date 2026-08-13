@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Search, BookOpen, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 type Article = {
   id: string;
@@ -52,12 +53,13 @@ export default function KnowledgeClient({ initialArticles, isAdmin }: { initialA
       // Instead of relying purely on state (since ID comes from DB), let's refresh the router to fetch new list.
       setIsModalOpen(false);
       reset();
+      toast.success('Article created');
       router.refresh();
       // Small timeout to allow Next.js cache to invalidate
       setTimeout(() => window.location.reload(), 500);
     } catch (error: any) {
       console.error(error);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
