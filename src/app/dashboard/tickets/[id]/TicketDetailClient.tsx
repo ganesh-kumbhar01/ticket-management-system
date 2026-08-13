@@ -117,27 +117,6 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     fetchHistory();
   }, [ticket.studentEmail, ticket.id]);
 
-  const insertFormatting = (prefix: string, suffix: string = '') => {
-    const textarea = document.getElementById('reply-textarea') as HTMLTextAreaElement;
-    if (!textarea) return;
-    
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = replyContent;
-    
-    const before = text.substring(0, start);
-    const selection = text.substring(start, end);
-    const after = text.substring(end);
-    
-    const newText = `${before}${prefix}${selection}${suffix}${after}`;
-    setReplyContent(newText);
-    
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + prefix.length, end + prefix.length);
-    }, 0);
-  };
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -597,22 +576,6 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               >
                 <div className="flex flex-col md:flex-row gap-3">
                   <div className="flex-1 flex flex-col gap-2">
-                    <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-lg border border-slate-200 dark:border-slate-700 w-fit">
-                      <button onClick={() => insertFormatting('**', '**')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Bold">
-                        <Bold className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => insertFormatting('*', '*')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Italic">
-                        <Italic className="w-4 h-4" />
-                      </button>
-                      <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
-                      <button onClick={() => insertFormatting('- ')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Bullet List">
-                        <List className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => insertFormatting('[', '](url)')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Link">
-                        <LinkIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                    
                     <textarea
                       id="reply-textarea"
                       value={replyContent}
@@ -635,7 +598,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                     )}
                   </div>
                   
-                  <div className="flex flex-col gap-2 justify-end shrink-0 md:w-32">
+                  <div className="flex flex-col gap-2 justify-end shrink-0 md:w-40">
                     <div className="relative">
                       <input 
                         type="file"
@@ -659,7 +622,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                         {isDrafting ? 'Generating...' : 'Auto Reply'}
                       </button>
                     )}
-                    <div className="flex gap-2 w-full">
+                    <div className="flex flex-col gap-2 w-full">
                       {status !== 'RESOLVED' && replyType === 'PUBLIC' && (
                          <button 
                            onClick={handleResolveTicket}
