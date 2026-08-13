@@ -2,10 +2,22 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LayoutDashboard, Ticket, Users, FileText, Settings, BookOpen, LogOut, Menu, X } from 'lucide-react';
 
 export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+      router.refresh();
+    } catch (err) {
+      console.error('Failed to logout', err);
+    }
+  };
 
   return (
     <>
@@ -82,12 +94,10 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
       </nav>
 
       <div className="p-4 border-t border-white/40 dark:border-slate-800">
-        <form action="/api/auth/logout" method="POST">
-          <button type="submit" className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/50 hover:shadow-sm transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span>Log Out</span>
-          </button>
-        </form>
+        <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/50 hover:shadow-sm transition-colors">
+          <LogOut className="w-5 h-5" />
+          <span>Log Out</span>
+        </button>
       </div>
     </div>
     </>
