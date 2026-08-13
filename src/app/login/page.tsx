@@ -132,12 +132,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-end">
-              <Link href="/forgot-password" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors py-1">
-                Forgot Password?
-              </Link>
-            </div>
-
             <button
               type="submit"
               disabled={isSubmitting}

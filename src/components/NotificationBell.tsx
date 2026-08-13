@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell, Check, ExternalLink } from 'lucide-react';
+import { Bell, Check, ExternalLink, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 type Notification = {
@@ -65,6 +65,21 @@ export default function NotificationBell() {
     }
   };
 
+  const deleteNotification = async (id?: string) => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        fetchNotifications();
+      }
+    } catch (error) {
+      console.error('Failed to delete notification', error);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button 
@@ -81,14 +96,24 @@ export default function NotificationBell() {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h3 className="font-bold text-slate-900">Notifications</h3>
-            {unreadCount > 0 && (
-              <button 
-                onClick={() => markAsRead()}
-                className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                Mark all read
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {unreadCount > 0 && (
+                <button 
+                  onClick={() => markAsRead()}
+                  className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  Mark all read
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button 
+                  onClick={() => deleteNotification()}
+                  className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="max-h-[400px] overflow-y-auto">
@@ -138,6 +163,13 @@ export default function NotificationBell() {
                                 <Check className="w-3 h-3" />
                               </button>
                             )}
+                            <button 
+                              onClick={() => deleteNotification(notification.id)}
+                              className="text-xs text-slate-400 hover:text-rose-500 flex items-center gap-1"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
                           </div>
                         </div>
                       </div>
