@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { ImapFlow } from 'imapflow';
 import { processEmailSource } from '@/lib/emailParser';
@@ -18,9 +19,8 @@ const imapConfig = {
 export async function POST(req: Request) {
   try {
     // Verify user is an agent/admin
-    const cookieHeader = req.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/token=([^;]+)/);
-    const token = tokenMatch ? tokenMatch[1] : null;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth-token')?.value;
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
