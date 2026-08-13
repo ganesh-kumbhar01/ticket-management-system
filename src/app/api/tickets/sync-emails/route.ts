@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyJwtToken } from '@/lib/auth';
 import { ImapFlow } from 'imapflow';
 import { processEmailSource } from '@/lib/emailParser';
+import { prisma } from '@/lib/db';
 
 const imapConfig = {
   host: process.env.IMAP_HOST || 'imap.gmail.com',
@@ -47,11 +48,25 @@ export async function POST(req: Request) {
       
       if (searchResult && searchResult.length > 0) {
         for (const seq of searchResult) {
-          const message = await client.fetchOne(seq, { source: true });
-          if (message && message.source) {
-            const processed = await processEmailSource(message.source);
-            if (processed) {
-              processedCount++;
+          // First fetch only the envelope to get the messageId (very fast)
+          const msgInfo = await client.fetchOne(seq, { envelope: true });
+          const emailMessageId = msgInfo?.envelope?.messageId;
+          
+          if (emailMessageId) {
+            // Check if we already have it in the DB
+            const existing = await prisma.message.findUnique({
+              where: { emailMessageId }
+            });
+
+            // If we don't have it, fetch the full source (which includes heavy attachments)
+            if (!existing) {
+              const fullMsg = await client.fetchOne(seq, { source: true });
+              if (fullMsg && fullMsg.source) {
+                const processed = await processEmailSource(fullMsg.source);
+                if (processed) {
+                  processedCount++;
+                }
+              }
             }
           }
         }

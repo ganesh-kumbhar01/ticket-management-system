@@ -12,7 +12,7 @@ export default function AutoEmailSyncer() {
     // Polling every 10 seconds for faster updates
     const interval = setInterval(async () => {
       try {
-        const res = await fetch('/api/tickets/sync-emails', { method: 'POST' });
+        const res = await fetch('/api/tickets/sync-emails', { method: 'POST', cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.processedCount > 0) {

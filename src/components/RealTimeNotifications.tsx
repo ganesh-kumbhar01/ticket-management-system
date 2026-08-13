@@ -21,7 +21,7 @@ export default function RealTimeNotifications() {
     // Helper to fetch the latest ticket
     const fetchLatest = async (isInitial: boolean) => {
       try {
-        const res = await fetch('/api/tickets/latest');
+        const res = await fetch('/api/tickets/latest', { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         
