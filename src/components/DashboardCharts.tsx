@@ -37,10 +37,10 @@ export default function DashboardCharts({ statusStats, trendData }: DashboardCha
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
       {/* Area Chart: Ticket Trend */}
-      <div className="lg:col-span-1 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 rounded-2xl shadow-sm p-4">
+      <div className="lg:col-span-1 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl shadow-sm p-4">
         <div className="mb-2">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white dark:text-white tracking-tight">Ticket Volume</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">Last 7 days</p>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">Ticket Volume</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Last 7 days</p>
         </div>
         <div className="h-36 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -62,10 +62,10 @@ export default function DashboardCharts({ statusStats, trendData }: DashboardCha
       </div>
 
       {/* Donut Chart: Tickets by Status */}
-      <div className="lg:col-span-1 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 rounded-2xl shadow-sm p-4">
+      <div className="lg:col-span-1 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl shadow-sm p-4">
         <div className="mb-2">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white dark:text-white tracking-tight">Tickets by Status</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">Current pipeline</p>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">Tickets by Status</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Current pipeline</p>
         </div>
         <div className="h-36 w-full">
           {statusData.length > 0 ? (

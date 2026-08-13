@@ -244,7 +244,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
 
           {selectedTickets.length > 0 && (
             <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-200">
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300">
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                 {selectedTickets.length} selected
               </span>
               <button
@@ -266,7 +266,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                 <th className="py-4 px-4 w-12 text-center">
                   <button 
                     onClick={handleSelectAll} 
-                    className="text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-blue-600 transition-colors"
+                    className="text-slate-400 dark:text-slate-500 hover:text-blue-600 transition-colors"
                   >
                     {selectedTickets.length === filteredTickets.length && filteredTickets.length > 0 ? (
                       <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -275,13 +275,13 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                     )}
                   </button>
                 </th>
-                <th className="py-4 px-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">ID</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Subject</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Customer</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Category</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Priority</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Created</th>
+                <th className="py-4 px-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Subject</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Customer</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Created</th>
                 <th className="py-4 px-4 w-12"></th>
               </tr>
             </thead>
@@ -289,7 +289,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
               {filteredTickets.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-12 text-center">
-                    <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">No tickets found matching your search.</p>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium">No tickets found matching your search.</p>
                   </td>
                 </tr>
               ) : (
@@ -313,20 +313,20 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                         )}
                       </button>
                     </td>
-                    <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">#{ticket.id.slice(0,8)}</td>
-                    <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white dark:text-white">
+                    <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400 font-medium">#{ticket.id.slice(0,8)}</td>
+                    <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white">
                       <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors block">
                         {ticket.subject}
                       </Link>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">{ticket.studentEmail}</td>
-                    <td className="py-4 px-6 text-sm text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{ticket.category}</td>
+                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400">{ticket.studentEmail}</td>
+                    <td className="py-4 px-6 text-sm text-slate-600 dark:text-slate-300 font-medium">{ticket.category}</td>
                     <td className="py-4 px-6">
                       <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${
                         ticket.priority === 'URGENT' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
                         ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-700 border border-orange-200' :
                         ticket.priority === 'NORMAL' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                        'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800'
+                        'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
                       }`}>
                         {ticket.priority}
                       </span>
@@ -336,14 +336,14 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                         {ticket.status}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">
+                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 font-medium">
                       {new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </td>
                     <td className="py-4 px-4 text-right">
                       <button
                         onClick={(e) => handleDeleteTicket(ticket.id, e)}
                         disabled={isDeleting}
-                        className="p-1.5 text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                        className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
                         title="Delete ticket"
                       >
                         <Trash2 className="w-4 h-4" />

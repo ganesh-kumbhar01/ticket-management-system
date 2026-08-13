@@ -396,11 +396,11 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-800/50 min-w-0">
+        <div className="flex-1 overflow-y-auto bg-transparent min-w-0">
           <div className="max-w-4xl mx-auto p-6 md:p-8">
             <div className="space-y-6 mb-10">
               {ticket.messages.length === 0 ? (
-                <div className="text-center text-slate-500 dark:text-slate-400 font-medium py-10 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="text-center text-slate-500 dark:text-slate-400 font-medium py-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-sm">
                   No messages found for this ticket.
                 </div>
               ) : (
@@ -444,12 +444,12 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                               {new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <div className={`p-4 rounded-2xl shadow-sm ${
+                          <div className={`p-4 rounded-2xl shadow-sm backdrop-blur-xl ${
                             isInternal
-                              ? 'bg-amber-50 border border-amber-200 text-amber-900 rounded-tr-sm'
+                              ? 'bg-amber-50/80 border border-amber-200/50 text-amber-900 rounded-tr-sm'
                               : isAgent 
-                                ? 'bg-blue-600 text-white rounded-tr-sm' 
-                                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-sm'
+                                ? 'bg-blue-600/90 text-white rounded-tr-sm border border-blue-500/50' 
+                                : 'bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-800/50 text-slate-700 dark:text-slate-300 rounded-tl-sm'
                           }`}>
                             <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-a:text-blue-500 hover:prose-a:text-blue-600 prose-ul:my-1 prose-li:my-0 break-words">
                               <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -483,31 +483,31 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
             </div>
 
             <div className="mb-10">
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-6 shadow-sm">
+              <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-900/20 dark:to-purple-900/20 backdrop-blur-xl rounded-2xl border border-indigo-500/20 dark:border-indigo-500/20 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl">
+                    <div className="p-2 bg-indigo-500/20 dark:bg-indigo-500/30 text-indigo-700 dark:text-indigo-300 rounded-xl">
                       <Bot className="w-5 h-5" />
                     </div>
-                    <h4 className="font-bold text-lg text-indigo-900">AI Summary</h4>
+                    <h4 className="font-bold text-lg text-indigo-900 dark:text-indigo-100">AI Summary</h4>
                   </div>
                   <button 
                     onClick={handleGenerateSummary}
                     disabled={isSummarizing}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-indigo-200 flex items-center gap-2"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-indigo-500/20 flex items-center gap-2"
                   >
                     {isSummarizing ? 'Generating...' : 'Generate Summary'}
                   </button>
                 </div>
-                <div className="bg-white/70 rounded-xl p-5 border border-indigo-100/50 backdrop-blur-sm">
+                <div className="bg-white/50 dark:bg-slate-900/50 rounded-xl p-5 border border-indigo-500/20 backdrop-blur-md">
                   {aiSummary ? (
-                    <div className="prose prose-sm prose-indigo max-w-none">
-                      <p className="text-sm text-indigo-900 font-medium leading-relaxed whitespace-pre-wrap">
+                    <div className="prose prose-sm prose-indigo dark:prose-invert max-w-none">
+                      <p className="text-sm text-indigo-900 dark:text-indigo-100 font-medium leading-relaxed whitespace-pre-wrap">
                         {aiSummary}
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-indigo-900/70 font-medium">
+                    <p className="text-sm text-indigo-900/70 dark:text-indigo-100/70 font-medium">
                       Click "Generate Summary" to let AI analyze the conversation and provide a concise overview.
                     </p>
                   )}
@@ -515,8 +515,8 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-visible relative z-20">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2 flex-wrap">
+            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-sm overflow-visible relative z-20">
+              <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex items-center gap-2 flex-wrap bg-transparent">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${replyType === 'PUBLIC' ? 'bg-slate-800 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}
@@ -533,12 +533,12 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 <div className="flex-1"></div>
                 {replyType === 'PUBLIC' && (
                   <div className="relative">
-                    <button onClick={() => setShowCanned(!showCanned)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <button onClick={() => setShowCanned(!showCanned)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg border border-white/40 dark:border-slate-700 hover:bg-white/80 dark:hover:bg-slate-800 transition-colors">
                       <FileCheck className="w-3.5 h-3.5" />
                       Canned Responses
                     </button>
                     {showCanned && (
-                      <div className="absolute left-0 bottom-full mb-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
+                      <div className="absolute left-0 bottom-full mb-2 w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/40 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
                         {CANNED_RESPONSES.map((resp, idx) => (
                           <button 
                             key={idx} 
@@ -582,7 +582,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
                       placeholder={isDragging ? "Drop files here to attach..." : replyType === 'INTERNAL' ? 'Type an internal note visible only to agents...' : 'Type your reply to the customer... (Markdown supported)'}
-                      className={`w-full h-32 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${isDragging ? 'border-blue-400' : replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'}`}
+                      className={`w-full h-32 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${isDragging ? 'border-blue-400 bg-white/50 dark:bg-slate-900/50' : replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-white/50 dark:bg-slate-900/50 border-white/40 dark:border-slate-800 text-slate-700 dark:text-slate-300 backdrop-blur-md'}`}
                     />
                     {selectedFiles.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">

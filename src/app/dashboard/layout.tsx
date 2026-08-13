@@ -28,7 +28,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isAdmin = payload.role === 'ADMIN';
 
   return (
-    <div className="h-screen overflow-hidden flex text-slate-900 dark:text-white dark:text-white dark:text-slate-100 font-sans bg-transparent transition-colors duration-300">
+    <div className="h-screen w-full flex text-slate-900 dark:text-slate-100 font-sans overflow-hidden bg-slate-50 dark:bg-slate-950 relative">
+      {/* Global Animated Background Mesh for Dashboard */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-40 dark:opacity-20">
+        <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] rounded-full bg-blue-500/30 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[40%] -right-[20%] w-[60%] h-[60%] rounded-full bg-indigo-500/20 blur-[100px] animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="absolute -bottom-[20%] left-[20%] w-[80%] h-[80%] rounded-full bg-cyan-400/20 blur-[150px] animate-pulse" style={{ animationDuration: '10s' }} />
+      </div>
+      
+      {/* Dashboard Wrapper with relative positioning so it sits above the mesh */}
+      <div className="relative z-10 w-full h-full flex">
       {/* Sidebar Component */}
       <Sidebar isAdmin={isAdmin} />
 
@@ -47,7 +56,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </main>
       </div>
       <AutoEmailSyncer />
-      <RealTimeNotifications />
+        <RealTimeNotifications />
+      </div>
     </div>
   );
 }
