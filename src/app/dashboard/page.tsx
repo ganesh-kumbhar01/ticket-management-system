@@ -4,6 +4,7 @@ import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 import DashboardCharts from '@/components/DashboardCharts';
+import AgentFilter from '@/components/AgentFilter';
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -12,7 +13,9 @@ function getGreeting() {
   return 'Good Evening';
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ agentId?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+  const agentIdFilter = resolvedSearchParams?.agentId || 'all';
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
 
@@ -33,7 +36,23 @@ export default async function DashboardPage() {
 
   const isAdmin = payload.role === 'ADMIN';
 
-  const whereClause = isAdmin ? {} : { assignedAgentId: payload.userId };
+  let allAgents: { id: string, name: string | null, email: string }[] = [];
+  if (isAdmin) {
+    allAgents = await prisma.user.findMany({
+      where: { role: 'AGENT' },
+      select: { id: true, name: true, email: true }
+    });
+  }
+
+  // Determine ticket visibility
+  let whereClause: any = {};
+  if (!isAdmin) {
+    // Agents only see their own tickets
+    whereClause = { assignedAgentId: payload.userId };
+  } else if (agentIdFilter !== 'all') {
+    // Admins can impersonate agents or view unassigned
+    whereClause = { assignedAgentId: agentIdFilter === 'unassigned' ? null : agentIdFilter };
+  }
 
   const [totalTickets, openTickets, progressTickets, resolvedTickets, unassignedTickets] = await Promise.all([
     prisma.ticket.count({ where: whereClause }),
@@ -139,13 +158,18 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-full p-4 md:p-6">
       <div className="max-w-7xl mx-auto w-full">
-        <header className="mb-4 shrink-0">
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white dark:text-white dark:text-white tracking-tight">
-            {greeting}, {userName}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400 mt-0.5 text-sm font-medium">
-            {isAdmin ? 'Here is what\'s happening with your support system today.' : 'Here is the latest update on your assigned tickets.'}
-          </p>
+        <header className="mb-4 shrink-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              {greeting}, {userName}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-0.5 text-sm font-medium">
+              {isAdmin ? 'Here is what\'s happening with your support system today.' : 'Here is the latest update on your assigned tickets.'}
+            </p>
+          </div>
+          {isAdmin && (
+            <AgentFilter agents={allAgents} currentAgentId={agentIdFilter} />
+          )}
         </header>
 
         {/* Metric Cards */}
