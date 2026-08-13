@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send, CheckCircle, Clock, AlertCircle, User, Activity, Sparkles, UserPlus, Lock, Trash2, Bot, History, Paperclip, X, Wand2, Eye } from 'lucide-react';
+import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type Attachment = {
   id: string;
@@ -64,6 +66,15 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const [customerTickets, setCustomerTickets] = useState<HistoryTicket[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showCanned, setShowCanned] = useState(false);
+
+  const CANNED_RESPONSES = [
+    { label: 'Greeting', text: 'Hello, thank you for reaching out to our support team. How can we assist you today?' },
+    { label: 'Working on it', text: 'We have received your request and our team is currently investigating the issue. We will get back to you shortly.' },
+    { label: 'Resolved', text: 'We have resolved the issue. Please let us know if you need any further assistance. Have a great day!' },
+    { label: 'Need more info', text: 'Could you please provide more details or screenshots regarding the issue so we can assist you better?' },
+  ];
   const [activeViewers, setActiveViewers] = useState<{userId: string, userName: string}[]>([]);
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const router = useRouter();
@@ -83,10 +94,8 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       }
     };
 
-    // Ping immediately on mount
     pingPresence();
     
-    // Then ping every 10 seconds
     const interval = setInterval(pingPresence, 10000);
     return () => clearInterval(interval);
   }, [ticket.id]);
@@ -97,7 +106,6 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
         const res = await fetch(`/api/tickets/customer/${encodeURIComponent(ticket.studentEmail)}`);
         if (res.ok) {
           const data = await res.json();
-          // Filter out the current ticket
           setCustomerTickets((data.tickets || []).filter((t: HistoryTicket) => t.id !== ticket.id));
         }
       } catch (error) {
@@ -109,14 +117,52 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     fetchHistory();
   }, [ticket.studentEmail, ticket.id]);
 
-  const handleSendReply = async () => {
+  const insertFormatting = (prefix: string, suffix: string = '') => {
+    const textarea = document.getElementById('reply-textarea') as HTMLTextAreaElement;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = replyContent;
+    
+    const before = text.substring(0, start);
+    const selection = text.substring(start, end);
+    const after = text.substring(end);
+    
+    const newText = `${before}${prefix}${selection}${suffix}${after}`;
+    setReplyContent(newText);
+    
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, end + prefix.length);
+    }, 0);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.dataTransfer.files!)]);
+    }
+  };
+
+  const handleReply = async (isInternal: boolean = false) => {
     if (!replyContent.trim()) return;
     setIsSubmitting(true);
 
     try {
       const formData = new FormData();
       formData.append('content', replyContent);
-      formData.append('isInternal', replyType === 'INTERNAL' ? 'true' : 'false');
+      formData.append('isInternal', isInternal ? 'true' : 'false');
       selectedFiles.forEach(file => {
         formData.append('files', file);
       });
@@ -138,16 +184,6 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handlePolishMessage = async () => {
@@ -326,7 +362,6 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-800/50">
-      {/* Header */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
           <Link 
@@ -380,12 +415,9 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
         </div>
       </header>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Main Column (Scrollable) */}
         <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-800/50 min-w-0">
           <div className="max-w-4xl mx-auto p-6 md:p-8">
-            {/* Conversation Thread */}
             <div className="space-y-6 mb-10">
               {ticket.messages.length === 0 ? (
                 <div className="text-center text-slate-500 dark:text-slate-400 font-medium py-10 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
@@ -419,7 +451,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                             </div>
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-300 shadow-sm">
-                              <User className="w-4 h-4" />
+                              <UserIcon className="w-4 h-4" />
                             </div>
                           )}
                         </div>
@@ -439,9 +471,11 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                                 ? 'bg-blue-600 text-white rounded-tr-sm' 
                                 : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-sm'
                           }`}>
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                              {msg.content}
-                            </p>
+                            <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-a:text-blue-500 hover:prose-a:text-blue-600 prose-ul:my-1 prose-li:my-0 break-words">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {msg.content}
+                              </ReactMarkdown>
+                            </div>
                             {msg.attachments && msg.attachments.length > 0 && (
                               <div className="mt-3 space-y-2 border-t pt-2 border-slate-200/50">
                                 {msg.attachments.map(att => (
@@ -467,7 +501,6 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               )}
             </div>
 
-            {/* AI Summary Placeholder */}
             <div className="mb-10">
               <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
@@ -501,9 +534,8 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </div>
             </div>
 
-            {/* Reply Box */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2 flex-wrap">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${replyType === 'PUBLIC' ? 'bg-slate-800 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}
@@ -518,6 +550,31 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   Internal Note
                 </button>
                 <div className="flex-1"></div>
+                {replyType === 'PUBLIC' && (
+                  <div className="relative">
+                    <button onClick={() => setShowCanned(!showCanned)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <FileCheck className="w-3.5 h-3.5" />
+                      Canned Responses
+                    </button>
+                    {showCanned && (
+                      <div className="absolute right-0 bottom-full mb-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-10">
+                        {CANNED_RESPONSES.map((resp, idx) => (
+                          <button 
+                            key={idx} 
+                            onClick={() => {
+                              setReplyContent(prev => prev + (prev ? '\n\n' : '') + resp.text);
+                              setShowCanned(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0"
+                          >
+                            <p className="font-bold text-sm text-slate-900 dark:text-white mb-0.5">{resp.label}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{resp.text}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {replyType === 'PUBLIC' && replyContent.trim().length > 0 && (
                   <button
                     onClick={handlePolishMessage}
@@ -530,14 +587,37 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   </button>
                 )}
               </div>
-              <div className="p-4">
-                <div className="flex gap-3">
-                  <div className="flex-1 relative">
+              
+              <div 
+                className={`p-4 transition-all ${isDragging ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <div className="flex flex-col md:flex-row gap-3">
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-lg border border-slate-200 dark:border-slate-700 w-fit">
+                      <button onClick={() => insertFormatting('**', '**')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Bold">
+                        <Bold className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => insertFormatting('*', '*')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Italic">
+                        <Italic className="w-4 h-4" />
+                      </button>
+                      <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
+                      <button onClick={() => insertFormatting('- ')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Bullet List">
+                        <List className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => insertFormatting('[', '](url)')} className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors" title="Link">
+                        <LinkIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                    
                     <textarea
+                      id="reply-textarea"
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
-                      placeholder={replyType === 'INTERNAL' ? 'Type an internal note visible only to agents...' : 'Type your reply to the customer...'}
-                      className={`w-full h-24 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'}`}
+                      placeholder={isDragging ? "Drop files here to attach..." : replyType === 'INTERNAL' ? 'Type an internal note visible only to agents...' : 'Type your reply to the customer... (Markdown supported)'}
+                      className={`w-full h-32 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${isDragging ? 'border-blue-400' : replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'}`}
                     />
                     {selectedFiles.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -545,7 +625,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                           <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-800">
                             <Paperclip className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                             <span className="truncate max-w-[120px]">{file.name}</span>
-                            <button onClick={() => removeFile(idx)} className="hover:text-rose-500 transition-colors ml-1">
+                            <button onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))} className="hover:text-rose-500 transition-colors ml-1">
                               <X className="w-3 h-3" />
                             </button>
                           </div>
@@ -553,18 +633,17 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col gap-2 justify-end shrink-0">
+                  
+                  <div className="flex flex-col gap-2 justify-end shrink-0 md:w-32">
                     <div className="relative">
                       <input 
                         type="file"
                         multiple
-                        onChange={handleFileSelect}
+                        onChange={(e) => { if(e.target.files) setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]) }}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         title="Attach files"
                       />
-                      <button 
-                        className="w-full h-10 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-800"
-                      >
+                      <button className="w-full h-10 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-800">
                         <Paperclip className="w-4 h-4" />
                         Attach
                       </button>
