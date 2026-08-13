@@ -50,7 +50,7 @@ export async function POST(req: Request) {
         for (const seq of searchResult) {
           // First fetch only the envelope to get the messageId (very fast)
           const msgInfo = await client.fetchOne(seq, { envelope: true });
-          const emailMessageId = msgInfo?.envelope?.messageId;
+          const emailMessageId = msgInfo && typeof msgInfo !== 'boolean' ? msgInfo.envelope?.messageId : undefined;
           
           if (emailMessageId) {
             // Check if we already have it in the DB

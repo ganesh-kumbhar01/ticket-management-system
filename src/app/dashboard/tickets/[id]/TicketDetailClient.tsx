@@ -361,6 +361,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   };
 
   return (
+    <>
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-800/50">
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
@@ -670,7 +671,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                          </button>
                       )}
                       <button 
-                        onClick={handleSendReply}
+                        onClick={() => handleReply()}
                         disabled={!replyContent.trim() || isSubmitting || isDrafting}
                         className={`flex-1 h-12 px-6 text-white rounded-xl font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2 ${replyType === 'INTERNAL' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'}`}
                       >
@@ -779,7 +780,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 <div className="mb-3">
                   <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Customer Email</span>
                   <div className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2 truncate">
-                    <User className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <UserIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                     <span className="truncate">{ticket.studentEmail}</span>
                   </div>
                 </div>
