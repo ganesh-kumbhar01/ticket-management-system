@@ -9,7 +9,7 @@ export default function AutoEmailSyncer() {
   const router = useRouter();
 
   useEffect(() => {
-    // Polling every 10 seconds for faster updates
+    // Polling every 60 seconds to avoid IMAP bandwidth/rate limits (e.g. Gmail)
     const interval = setInterval(async () => {
       try {
         const res = await fetch('/api/tickets/sync-emails', { method: 'POST', cache: 'no-store' });
@@ -28,7 +28,7 @@ export default function AutoEmailSyncer() {
       } catch (err) {
         console.error('Auto sync failed', err);
       }
-    }, 10000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [router]);
