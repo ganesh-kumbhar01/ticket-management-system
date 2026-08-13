@@ -1,10 +1,32 @@
+"use client";
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Ticket, Users, FileText, Settings, BookOpen, LogOut } from 'lucide-react';
+import { LayoutDashboard, Ticket, Users, FileText, Settings, BookOpen, LogOut, Menu, X } from 'lucide-react';
 
 export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="w-64 bg-white/40 backdrop-blur-2xl border-r border-white/40 shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-screen flex flex-col shrink-0 z-20">
-      <div className="p-6">
+    <>
+      {/* Mobile Toggle Button */}
+      <button 
+        onClick={() => setIsOpen(true)}
+        className="md:hidden fixed top-3 left-4 z-50 p-2 bg-white/80 backdrop-blur-md rounded-lg shadow-sm border border-slate-200 text-slate-700 hover:bg-white transition-colors"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
+      {/* Backdrop for Mobile */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <div className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-64 bg-white/70 md:bg-white/40 backdrop-blur-2xl border-r border-white/40 shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-screen flex flex-col shrink-0 z-50`}>
+      <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
             <Ticket className="w-5 h-5 text-white" />
@@ -13,9 +35,12 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
             SupportHub
           </h1>
         </div>
+        <button onClick={() => setIsOpen(false)} className="md:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto" onClick={() => setIsOpen(false)}>
         <Link href="/dashboard" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-white/60 hover:shadow-sm hover:text-slate-900 transition-colors">
           <LayoutDashboard className="w-5 h-5 text-slate-400" />
           <span>Dashboard</span>
@@ -65,5 +90,6 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
         </form>
       </div>
     </div>
+    </>
   );
 }

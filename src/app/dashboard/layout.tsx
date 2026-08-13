@@ -29,7 +29,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <header className="h-16 bg-white/40 backdrop-blur-xl border-b border-white/40 flex items-center justify-end px-8 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.05)] z-10">
+        <header className="h-16 bg-white/40 backdrop-blur-xl border-b border-white/40 flex items-center justify-end pl-16 pr-4 md:px-8 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.05)] z-10">
           <div className="flex items-center gap-4">
             <NotificationBell />
             <Link href="/dashboard/profile" className="flex items-center space-x-2 px-3 py-1.5 bg-white/50 border border-white/50 hover:bg-white/70 backdrop-blur-md rounded-full text-sm font-semibold transition-colors text-slate-700 shadow-sm">
