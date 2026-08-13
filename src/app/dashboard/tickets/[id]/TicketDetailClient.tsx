@@ -65,7 +65,10 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [activeViewers, setActiveViewers] = useState<{userId: string, userName: string}[]>([]);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const router = useRouter();
+  
+  const allAttachments = ticket.messages.flatMap(m => m.attachments || []);
 
   useEffect(() => {
     const pingPresence = async () => {
@@ -712,6 +715,18 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </div>
             </div>
 
+            {allAttachments.length > 0 && (
+              <div className="mt-8">
+                <button
+                  onClick={() => setIsMediaModalOpen(true)}
+                  className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <Paperclip className="w-4 h-4" />
+                  View All Media ({allAttachments.length})
+                </button>
+              </div>
+            )}
+
             <div className="mt-8">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 uppercase tracking-wider">
                 <History className="w-4 h-4 text-slate-400 dark:text-slate-500" />
@@ -761,5 +776,44 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
         </div>
       </div>
     </div>
+
+    {isMediaModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Paperclip className="w-5 h-5" />
+              All Media & Attachments
+            </h2>
+            <button 
+              onClick={() => setIsMediaModalOpen(false)} 
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {allAttachments.map(att => (
+              <a 
+                key={att.id} 
+                href={att.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200 dark:border-slate-700 group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0 group-hover:scale-105 transition-transform">
+                  <Paperclip className="w-5 h-5 text-blue-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{att.filename}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 uppercase">{att.mimeType || 'UNKNOWN'}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
