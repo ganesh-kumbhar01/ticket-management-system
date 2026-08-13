@@ -535,7 +535,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-visible relative z-20">
               <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2 flex-wrap">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
@@ -558,7 +558,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                       Canned Responses
                     </button>
                     {showCanned && (
-                      <div className="absolute right-0 bottom-full mb-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-10">
+                      <div className="absolute left-0 bottom-full mb-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
                         {CANNED_RESPONSES.map((resp, idx) => (
                           <button 
                             key={idx} 
