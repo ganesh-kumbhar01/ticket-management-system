@@ -14,7 +14,7 @@ type NotificationData = {
 
 export default function RealTimeNotifications() {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const lastTicketIdRef = useRef<string | null>(null);
+  const lastTicketTimeRef = useRef<number | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,23 +28,23 @@ export default function RealTimeNotifications() {
         if (data.ticket) {
           const ticket = data.ticket;
           
+          const ticketTime = new Date(ticket.createdAt).getTime();
+
           // On initial load, just set the reference so we know what the baseline is.
           if (isInitial) {
-            lastTicketIdRef.current = ticket.id;
+            lastTicketTimeRef.current = ticketTime;
             return;
           }
 
-          // If we see a new ticket that we haven't seen before
-          if (lastTicketIdRef.current && lastTicketIdRef.current !== ticket.id) {
+          // Only show notification if the ticket was created strictly AFTER our last known ticket
+          if (lastTicketTimeRef.current && ticketTime > lastTicketTimeRef.current) {
             // Add it to our visible notifications
             setNotifications(prev => {
               // Avoid duplicates if polling overlaps
               if (prev.some(n => n.id === ticket.id)) return prev;
               return [ticket, ...prev];
             });
-            // Play a soft sound if desired (optional)
-            // new Audio('/notification.mp3').play().catch(() => {});
-            lastTicketIdRef.current = ticket.id;
+            lastTicketTimeRef.current = ticketTime;
             // Refresh server components to show the new ticket in lists
             router.refresh();
           }
