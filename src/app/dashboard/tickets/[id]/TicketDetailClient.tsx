@@ -687,7 +687,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
         </div>
 
         {/* Sidebar Info */}
-        <div className={`w-80 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex-col shrink-0 overflow-y-auto ${isSidebarOpen ? 'flex absolute md:relative inset-y-0 right-0 z-20 shadow-2xl md:shadow-none' : 'hidden md:flex'}`}>
+        <div className={`w-80 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex-col shrink-0 overflow-y-auto ${isSidebarOpen ? 'flex absolute md:relative inset-y-0 right-0 z-40 shadow-2xl md:shadow-none' : 'hidden md:flex'}`}>
           <div className="p-6">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider">Ticket Properties</h3>
             
