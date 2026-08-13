@@ -9,6 +9,7 @@ import NotificationBell from '@/components/NotificationBell';
 import LogoutButton from '@/components/LogoutButton';
 import GlobalSearch from '@/components/GlobalSearch';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import UserProfileDropdown from '@/components/UserProfileDropdown';
 import { UserCircle } from 'lucide-react';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -38,12 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <GlobalSearch />
             <ThemeToggle />
             <NotificationBell />
-            <Link href="/dashboard/profile" className="flex items-center space-x-2 px-3 py-1.5 bg-white/50 dark:bg-slate-800/50 border border-white/50 dark:border-slate-700 hover:bg-white/70 dark:hover:bg-slate-800 backdrop-blur-md rounded-full text-sm font-semibold transition-colors text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-200 shadow-sm">
-              <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
-                {payload.email[0].toUpperCase()}
-              </div>
-              <span className="pr-2">{isAdmin ? 'Admin Profile' : 'Agent Profile'}</span>
-            </Link>
+            <UserProfileDropdown email={payload.email} isAdmin={isAdmin} />
           </div>
         </header>
         <main className="flex-1 overflow-y-auto flex flex-col">
