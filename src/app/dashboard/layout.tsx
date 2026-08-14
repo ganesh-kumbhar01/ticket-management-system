@@ -12,6 +12,8 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import UserProfileDropdown from '@/components/UserProfileDropdown';
 import { UserCircle } from 'lucide-react';
 
+import CurrentSectionHeader from '@/components/CurrentSectionHeader';
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
@@ -43,8 +45,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <header className="h-16 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/40 dark:border-slate-800/50 flex items-center justify-end pl-16 pr-4 md:px-8 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.05)] z-10">
-          <div className="flex flex-1 justify-end items-center gap-2 sm:gap-4 px-4 sm:px-6">
+        <header className="h-16 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/40 dark:border-slate-800/50 flex items-center justify-between pl-16 pr-4 md:px-8 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.05)] z-10">
+          <CurrentSectionHeader />
+          <div className="flex justify-end items-center gap-2 sm:gap-4 px-2 sm:px-4">
             <GlobalSearch />
             <ThemeToggle />
             <NotificationBell />
