@@ -515,7 +515,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </div>
             </div>
 
-            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-sm overflow-visible relative z-20">
+            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-sm overflow-visible relative z-0">
               <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex items-center gap-2 flex-wrap bg-transparent">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
@@ -582,7 +582,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
                       placeholder={isDragging ? "Drop files here to attach..." : replyType === 'INTERNAL' ? 'Type an internal note visible only to agents...' : 'Type your reply to the customer... (Markdown supported)'}
-                      className={`w-full h-32 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm ${isDragging ? 'border-blue-400 bg-white/50 dark:bg-slate-900/50' : replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-white/50 dark:bg-slate-900/50 border-white/40 dark:border-slate-800 text-slate-700 dark:text-slate-300 backdrop-blur-md'}`}
+                      className={`w-full h-44 p-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none text-sm leading-relaxed ${isDragging ? 'border-blue-400 bg-white/50 dark:bg-slate-900/50' : replyType === 'INTERNAL' ? 'bg-amber-50/50 border-amber-200 text-amber-900' : 'bg-white/50 dark:bg-slate-900/50 border-white/40 dark:border-slate-800 text-slate-700 dark:text-slate-300 backdrop-blur-md'}`}
                     />
                     {selectedFiles.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -599,50 +599,62 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                     )}
                   </div>
                   
-                  <div className="flex flex-col gap-2 justify-end shrink-0 md:w-40">
-                    <div className="relative">
+                  <div className="flex flex-col gap-2 justify-end shrink-0 md:w-44">
+                    {/* Attach File Button */}
+                    <div className="relative w-full">
                       <input 
                         type="file"
                         multiple
                         onChange={(e) => { if(e.target.files) setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]) }}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         title="Attach files"
                       />
-                      <button className="w-full h-10 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-800">
-                        <Paperclip className="w-4 h-4" />
-                        Attach
+                      <button type="button" className="w-full h-10 px-4 bg-white/60 dark:bg-slate-800/60 hover:bg-white/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                        <Paperclip className="w-4 h-4 text-slate-500" />
+                        <span>Attach</span>
                       </button>
                     </div>
+
+                    {/* Auto Reply AI Button (Public only) */}
                     {replyType === 'PUBLIC' && (
                       <button 
+                        type="button"
                         onClick={handleAIDraft}
                         disabled={isDrafting || isSubmitting}
-                        className="h-10 px-4 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-purple-200"
+                        className="w-full h-10 px-4 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-bold text-xs transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-purple-500/20 shadow-sm"
                       >
-                        <Sparkles className="w-4 h-4" />
-                        {isDrafting ? 'Generating...' : 'Auto Reply'}
+                        <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <span>{isDrafting ? 'Generating...' : 'Auto Reply'}</span>
                       </button>
                     )}
-                    <div className="flex flex-col gap-2 w-full">
-                      {status !== 'RESOLVED' && replyType === 'PUBLIC' && (
-                         <button 
-                           onClick={handleResolveTicket}
-                           disabled={isSavingProps || isSubmitting || isDrafting}
-                           className="flex-1 h-12 px-4 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-emerald-200"
-                         >
-                           <CheckCircle className="w-4 h-4" />
-                           Resolve
-                         </button>
-                      )}
-                      <button 
-                        onClick={() => handleReply()}
-                        disabled={!replyContent.trim() || isSubmitting || isDrafting}
-                        className={`flex-1 h-12 px-6 text-white rounded-xl font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2 ${replyType === 'INTERNAL' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'}`}
-                      >
-                        {replyType === 'INTERNAL' ? <Lock className="w-4 h-4" /> : <Send className="w-4 h-4" />}
-                        {isSubmitting ? 'Sending...' : replyType === 'INTERNAL' ? 'Add Note' : 'Send Reply'}
-                      </button>
-                    </div>
+
+                    {/* Resolve Button (Public only) */}
+                    {status !== 'RESOLVED' && replyType === 'PUBLIC' && (
+                       <button 
+                         type="button"
+                         onClick={handleResolveTicket}
+                         disabled={isSavingProps || isSubmitting || isDrafting}
+                         className="w-full h-10 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 rounded-xl font-bold text-xs transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-emerald-500/20 shadow-sm"
+                       >
+                         <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                         <span>Resolve</span>
+                       </button>
+                    )}
+
+                    {/* Primary Action Button: Send Reply / Add Note */}
+                    <button 
+                      type="button"
+                      onClick={() => handleReply()}
+                      disabled={!replyContent.trim() || isSubmitting || isDrafting}
+                      className={`w-full h-10 px-4 text-white rounded-xl font-bold text-xs transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2 ${
+                        replyType === 'INTERNAL' 
+                          ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20' 
+                          : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
+                      }`}
+                    >
+                      {replyType === 'INTERNAL' ? <Lock className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                      <span>{isSubmitting ? 'Sending...' : replyType === 'INTERNAL' ? 'Add Note' : 'Send Reply'}</span>
+                    </button>
                   </div>
                 </div>
               </div>
