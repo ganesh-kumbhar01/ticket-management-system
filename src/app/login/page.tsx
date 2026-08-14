@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Mail, Lock, Eye, EyeOff, CheckSquare, Square, Ticket, AlertCircle } from 'lucide-react';
+import { Loader2, Eye, EyeOff, CheckSquare, Square, Ticket, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -69,67 +69,53 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-[#dbe8f7] dark:bg-slate-950 flex items-center justify-center p-3 sm:p-6 lg:p-10 font-sans">
-      {/* Outer Device Tablet Frame matching reference UI/UX */}
-      <div className="w-full max-w-5xl bg-[#1a2333] p-3 sm:p-4 md:p-5 rounded-[36px] sm:rounded-[44px] shadow-[0_25px_70px_-15px_rgba(15,23,42,0.35)] border border-slate-700/60 transition-all duration-300">
+    <main className="min-h-screen w-full bg-[#d6e5f7] dark:bg-slate-950 flex items-center justify-center p-3 sm:p-6 lg:p-10 font-sans">
+      {/* Outer Tablet Frame Matching Exact Reference UI/UX */}
+      <div className="relative w-full max-w-6xl bg-[#1a2333] p-3 sm:p-4 md:p-5 rounded-[36px] sm:rounded-[48px] shadow-[0_30px_90px_-15px_rgba(15,23,42,0.4)] border border-slate-700/60 overflow-hidden">
         
-        {/* Main Split Window Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 rounded-[28px] sm:rounded-[36px] overflow-hidden bg-[#ebf3fc] dark:bg-slate-900 border border-white/50 dark:border-slate-800 shadow-inner">
+        {/* Full Display Screen Canvas */}
+        <div className="relative w-full min-h-[580px] sm:min-h-[640px] lg:min-h-[680px] rounded-[28px] sm:rounded-[40px] overflow-hidden shadow-inner flex items-center justify-center lg:justify-end p-4 sm:p-8 lg:p-12">
           
-          {/* Left Panel: 3D Illustration Canvas (Matched to Theme) */}
-          <div className="lg:col-span-7 bg-[#d9e8f8] dark:bg-slate-900/90 relative min-h-[260px] sm:min-h-[380px] lg:min-h-[580px] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/40 dark:border-slate-800/80">
+          {/* Full Screen 3D Workspace Scene Background */}
+          <Image 
+            src="/login_scene_bg.jpg" 
+            alt="Support Specialist Workspace Scene" 
+            fill
+            priority
+            className="object-cover object-left md:object-center select-none pointer-events-none"
+            sizes="(max-width: 1280px) 100vw, 1200px"
+          />
+
+          {/* Subtle Ambient Vignette & Shadow Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent lg:hidden pointer-events-none" />
+
+          {/* Floating Sign-In Card (Exact Replica of Reference Design with Blue Theme) */}
+          <div className="relative z-10 w-full max-w-[410px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] p-7 sm:p-9 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.3)] border border-white/60 dark:border-slate-800/80 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
             
-            {/* Ambient Backlight Glow */}
-            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-indigo-400/20 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-
-            {/* 3D Character Illustration */}
-            <div className="relative w-full h-full min-h-[260px] sm:min-h-[380px] lg:min-h-[580px]">
-              <Image 
-                src="/login_illustration.jpg" 
-                alt="HelpDesk Support Specialist Workspace" 
-                fill
-                priority
-                className="object-cover object-center scale-[1.02] hover:scale-105 transition-transform duration-700 ease-out"
-                sizes="(max-width: 1024px) 100vw, 60vw"
-              />
-            </div>
-
-            {/* Subtle Pill Watermark / Tag */}
-            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 z-10">
-              <div className="flex items-center gap-2 px-3.5 py-1.5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-full border border-white/60 dark:border-slate-700/60 shadow-sm text-xs font-bold text-slate-700 dark:text-slate-200">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>AI-Powered Support Desk</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Panel: Clean Login Form */}
-          <div className="lg:col-span-5 bg-white dark:bg-slate-900 p-6 sm:p-10 md:p-12 flex flex-col justify-between min-h-[500px]">
-            
-            {/* Logo Brand Header */}
             <div>
-              <div className="flex items-center gap-2.5 mb-8">
-                <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
-                  <Ticket className="w-5 h-5 text-white" />
+              {/* Brand Logo Header */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
+                  <Ticket className="w-4.5 h-4.5 text-white" />
                 </div>
-                <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <span className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
                   HelpDesk
                 </span>
               </div>
 
-              <div className="space-y-1.5 mb-8">
+              {/* Title & Subtitle */}
+              <div className="text-center space-y-1.5 mb-7">
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Sign in
+                  Log in to account
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                   Enter your credentials to access your support dashboard.
                 </p>
               </div>
 
-              {/* Error Message Alert */}
+              {/* Error Alert */}
               {error && (
-                <div className="mb-6 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 rounded-2xl flex items-start gap-3 animate-in fade-in duration-200">
+                <div className="mb-5 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 rounded-2xl flex items-start gap-3 animate-in fade-in duration-200">
                   <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                   <p className="text-xs font-semibold text-rose-700 dark:text-rose-300 leading-relaxed">
                     {error}
@@ -137,29 +123,27 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* Login Form */}
+              {/* Form Inputs */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-                {/* Email Field */}
+                {/* Email Address Input */}
                 <div>
-                  <div className="relative">
-                    <input
-                      id="email"
-                      type="email"
-                      {...register('email')}
-                      className={`w-full h-12 px-4 bg-slate-50/80 dark:bg-slate-800/60 border ${
-                        errors.email 
-                          ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500' 
-                          : 'border-slate-200 dark:border-slate-700/80 focus:ring-blue-600/20 focus:border-blue-600'
-                      } rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm`}
-                      placeholder="Email address"
-                    />
-                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    className={`w-full h-12 px-4 bg-slate-50/80 dark:bg-slate-800/60 border ${
+                      errors.email 
+                        ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500' 
+                        : 'border-slate-200 dark:border-slate-700/80 focus:ring-blue-600/20 focus:border-blue-600'
+                    } rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm`}
+                    placeholder="Email address"
+                  />
                   {errors.email && (
                     <p className="text-rose-500 text-[11px] font-bold mt-1.5 ml-2">{errors.email.message}</p>
                   )}
                 </div>
 
-                {/* Password Field */}
+                {/* Password Input with Show/Hide Toggle */}
                 <div>
                   <div className="relative">
                     <input
@@ -188,7 +172,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Remember Me & Forgot Password Row */}
-                <div className="flex items-center justify-between pt-1 px-1 text-xs">
+                <div className="flex items-center justify-between pt-0.5 px-1 text-xs">
                   <button 
                     type="button"
                     onClick={() => setValue('rememberMe', !rememberMe, { shouldValidate: true })}
@@ -210,7 +194,7 @@ export default function LoginPage() {
                   </Link>
                 </div>
 
-                {/* Submit Action Button (Clean Solid Theme) */}
+                {/* Submit Action Button */}
                 <div className="pt-2">
                   <button
                     type="submit"
@@ -223,16 +207,16 @@ export default function LoginPage() {
                         <span>Signing in...</span>
                       </>
                     ) : (
-                      <span>Sign in</span>
+                      <span>Log in</span>
                     )}
                   </button>
                 </div>
               </form>
             </div>
 
-            {/* Bottom Compliance & Security Note */}
-            <div className="pt-8 text-center">
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed max-w-xs mx-auto">
+            {/* Bottom Compliance & Access Note */}
+            <div className="pt-6 text-center">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed font-medium">
                 Authorized Agent & Administrator Access Only · Support OS
               </p>
             </div>
