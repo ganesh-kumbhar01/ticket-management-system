@@ -780,20 +780,25 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 </button>
               )}
 
-              <div className="border-t border-slate-100 dark:border-slate-800/50 pt-5 mt-5">
-                <div className="mb-3">
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Customer Email</span>
-                  <div className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2 truncate">
+              {/* Customer Info Unified Card */}
+              <div className="mt-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-800/40 divide-y divide-slate-200/60 dark:divide-slate-800/60 overflow-hidden shadow-xs">
+                <div className="p-3.5 space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                    Customer Email
+                  </span>
+                  <div className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2 truncate">
                     <UserIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                     <span className="truncate">{ticket.studentEmail}</span>
                   </div>
                 </div>
                 
-                <div>
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Created At</span>
-                  <div className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                <div className="p-3.5 space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                    Created At
+                  </span>
+                  <div className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
-                    {new Date(ticket.createdAt).toLocaleString('en-US')}
+                    <span>{new Date(ticket.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
               </div>
