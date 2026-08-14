@@ -4,13 +4,7 @@ import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 import DashboardCharts from '@/components/DashboardCharts';
-
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 18) return 'Good Afternoon';
-  return 'Good Evening';
-}
+import DashboardGreeting from '@/components/DashboardGreeting';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -133,20 +127,12 @@ export default async function DashboardPage() {
     }
   };
 
-  const greeting = getGreeting();
   const userName = currentUser?.name || (isAdmin ? 'Admin' : 'Agent');
 
   return (
     <div className="min-h-full p-4 md:p-6">
       <div className="max-w-7xl mx-auto w-full">
-        <header className="mb-4 shrink-0">
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            {greeting}, {userName}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-0.5 text-sm font-medium">
-            {isAdmin ? 'Here is what\'s happening with your support system today.' : 'Here is the latest update on your assigned tickets.'}
-          </p>
-        </header>
+        <DashboardGreeting userName={userName} isAdmin={isAdmin} />
 
         {/* Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 shrink-0">
