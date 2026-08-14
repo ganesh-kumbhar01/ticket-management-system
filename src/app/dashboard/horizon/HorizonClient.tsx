@@ -160,11 +160,13 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                   Horizon
                 </h1>
                 <span className="px-2 py-0.5 text-xs font-black uppercase tracking-wider bg-indigo-600 text-white rounded-md shadow-sm">
-                  AI Operations
+                  {userRole === 'ADMIN' ? 'Executive AI Operations' : 'Agent AI Copilot'}
                 </span>
               </div>
               <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                Real-time situational awareness, root-cause diagnosis, and future action plans.
+                {userRole === 'ADMIN' 
+                  ? 'Real-time situational awareness, root-cause diagnosis, and future action plans.' 
+                  : 'Live shift intelligence, personal queue insights, and fast solution actions.'}
               </p>
             </div>
           </div>

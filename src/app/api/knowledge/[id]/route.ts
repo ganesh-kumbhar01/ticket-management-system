@@ -108,8 +108,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const payload = await verifyJwtToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!payload || payload.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only Administrators can delete Knowledge Base articles' }, { status: 403 });
     }
 
     const id = resolvedParams.id;

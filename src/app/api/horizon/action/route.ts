@@ -20,6 +20,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const isAdmin = payload.role === 'ADMIN';
+    const currentUserId = payload.userId;
+
     const body = await req.json();
     const { actionType, payload: actionPayload } = body;
 
@@ -33,7 +36,33 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: 'No unassigned tickets found in queue.' });
       }
 
-      // 2. Fetch active agents (excluding inactive)
+      // If AGENT or actionPayload.claimToMe is true, claim up to 3 tickets directly to this agent
+      if (!isAdmin || actionPayload?.claimToMe) {
+        const ticketsToClaim = unassignedTickets.slice(0, 3);
+        const currentUser = await prisma.user.findUnique({ where: { id: currentUserId } });
+
+        for (const ticket of ticketsToClaim) {
+          await prisma.ticket.update({
+            where: { id: ticket.id },
+            data: { assignedAgentId: currentUserId }
+          });
+
+          await prisma.message.create({
+            data: {
+              ticketId: ticket.id,
+              senderType: 'SYSTEM',
+              content: `Ticket claimed by agent ${currentUser?.name || currentUser?.email || 'Agent'} via Horizon Copilot.`
+            }
+          });
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: `Claimed ${ticketsToClaim.length} ticket(s) directly to your queue!`
+        });
+      }
+
+      // Admin logic: Round-robin across all active agents
       const agents = await prisma.user.findMany({
         where: { status: 'ACTIVE' },
         orderBy: { createdAt: 'asc' }
@@ -43,7 +72,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'No active agents available for assignment.' }, { status: 400 });
       }
 
-      // 3. Round-robin assignment
       let assignedCount = 0;
       for (let i = 0; i < unassignedTickets.length; i++) {
         const ticket = unassignedTickets[i];
@@ -89,75 +117,84 @@ export async function POST(req: Request) {
 
       let generatedContent = `# ${suggestedTitle}\n\n## Overview\nThis guide provides clear step-by-step solutions for resolving common customer inquiries regarding ${category}.\n\n### Common Solutions:\n1. **Verify Account Details:** Ensure your student profile information is up to date.\n2. **Payment & Billing:** Allow 24-48 hours for automated banking reconciliation.\n3. **Technical Support:** Clear your browser cache or try an incognito window if experiencing dashboard loading delays.\n\n*Created automatically via Horizon AI Ops Advisor.*`;
 
-      // Use AI if available to write high-quality content
+      // Try generating via Gemini
       try {
         if (process.env.GEMINI_API_KEY) {
-          const prompt = `Write a comprehensive, professional Knowledge Base article titled "${suggestedTitle}" for our support portal in category "${category}". Provide clear markdown with numbered steps and troubleshooting tips.`;
-          const aiRes = await ai.models.generateContent({
+          const res = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: prompt
+            contents: `Draft a comprehensive, helpful, structured markdown Knowledge Base article titled "${suggestedTitle}" for category "${category}". Include an Overview, Problem Scenarios, and Step-by-Step Resolution steps. Output clean Markdown only.`
           });
-          if (aiRes.text) {
-            generatedContent = aiRes.text;
+          if (res.text) {
+            generatedContent = res.text.trim();
           }
         }
       } catch (e) {
-        console.warn('AI KB generator fallback used:', e);
+        console.warn('Gemini draft generation failed, using fallback template:', e);
       }
 
-      const newArticle = await prisma.knowledgeArticle.create({
-        data: {
-          title: suggestedTitle,
-          content: generatedContent
+      // Generate embedding
+      let embeddingStr = '';
+      try {
+        if (process.env.GEMINI_API_KEY) {
+          const embRes = await ai.models.embedContent({
+            model: 'text-embedding-004',
+            contents: `Title: ${suggestedTitle}\n\nContent: ${generatedContent}`
+          });
+          const emb = embRes.embeddings?.[0]?.values;
+          if (emb) embeddingStr = `[${emb.join(',')}]`;
         }
-      });
+      } catch (e) {
+        console.warn('Embedding generation skipped:', e);
+      }
+
+      // Save to KnowledgeArticle
+      if (embeddingStr) {
+        await prisma.$executeRaw`
+          INSERT INTO "KnowledgeArticle" ("id", "title", "content", "embedding", "createdAt", "updatedAt")
+          VALUES (gen_random_uuid(), ${suggestedTitle}, ${generatedContent}, ${embeddingStr}::vector, NOW(), NOW())
+        `;
+      } else {
+        await prisma.$executeRaw`
+          INSERT INTO "KnowledgeArticle" ("id", "title", "content", "createdAt", "updatedAt")
+          VALUES (gen_random_uuid(), ${suggestedTitle}, ${generatedContent}, NOW(), NOW())
+        `;
+      }
 
       return NextResponse.json({
         success: true,
-        message: `Knowledge Base article "${newArticle.title}" created successfully!`,
-        articleId: newArticle.id
+        message: `New article "${suggestedTitle}" created and embedded into Knowledge Base!`
       });
     }
 
     if (actionType === 'ESCALATE_STALE') {
-      // Find stale tickets older than 2 hours with LOW/NORMAL priority
-      const fourHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      const staleDate = new Date();
+      staleDate.setHours(staleDate.getHours() - 24);
+      const activeStatuses: ('NEW' | 'OPEN')[] = ['NEW', 'OPEN'];
+
       const staleTickets = await prisma.ticket.findMany({
-        where: {
-          status: { in: ['NEW', 'OPEN'] },
-          priority: { in: ['LOW', 'NORMAL'] },
-          createdAt: { lte: fourHoursAgo }
-        }
+        where: isAdmin 
+          ? { status: { in: activeStatuses }, updatedAt: { lte: staleDate } }
+          : { status: { in: activeStatuses }, updatedAt: { lte: staleDate }, assignedAgentId: currentUserId }
       });
 
       if (staleTickets.length === 0) {
-        return NextResponse.json({ message: 'No stale tickets found requiring escalation.' });
+        return NextResponse.json({ message: 'No stale tickets (>24h without updates) found.' });
       }
 
-      for (const t of staleTickets) {
-        await prisma.ticket.update({
-          where: { id: t.id },
-          data: { priority: 'HIGH' }
-        });
-
-        await prisma.message.create({
-          data: {
-            ticketId: t.id,
-            senderType: 'SYSTEM',
-            content: 'Priority escalated to HIGH by Horizon AI due to wait time.'
-          }
-        });
-      }
+      await prisma.ticket.updateMany({
+        where: { id: { in: staleTickets.map(t => t.id) } },
+        data: { priority: 'URGENT' }
+      });
 
       return NextResponse.json({
         success: true,
-        message: `Escalated ${staleTickets.length} ticket(s) to High Priority.`
+        message: `Escalated ${staleTickets.length} ticket(s) to URGENT priority.`
       });
     }
 
     return NextResponse.json({ error: 'Unknown action type' }, { status: 400 });
   } catch (error: any) {
     console.error('POST /api/horizon/action error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to execute action' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

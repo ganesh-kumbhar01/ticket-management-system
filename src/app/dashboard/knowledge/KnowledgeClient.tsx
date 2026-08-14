@@ -182,15 +182,13 @@ export default function KnowledgeClient({ initialArticles, isAdmin = true }: { i
           </p>
         </div>
 
-        {isAdmin && (
-          <button 
-            onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-xl font-bold transition-all shadow-md shadow-blue-600/20 shrink-0 text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Article</span>
-          </button>
-        )}
+        <button 
+          onClick={() => setIsCreateOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-xl font-bold transition-all shadow-md shadow-blue-600/20 shrink-0 text-sm"
+        >
+          <Plus className="w-4 h-4" />
+          <span>New Article</span>
+        </button>
       </div>
 
       {/* Main Container */}
@@ -257,23 +255,24 @@ export default function KnowledgeClient({ initialArticles, isAdmin = true }: { i
                         <Eye className="w-4 h-4" />
                       </button>
 
+                      {/* Edit Button: Visible to both Admin and Agent */}
+                      <button
+                        onClick={(e) => openEditModal(article, e)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
+                        title="Edit Article"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+
+                      {/* Delete Button: Strictly Admin Only */}
                       {isAdmin && (
-                        <>
-                          <button
-                            onClick={(e) => openEditModal(article, e)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
-                            title="Edit Article"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setDeletingArticleId(article.id); }}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                            title="Delete Article"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setDeletingArticleId(article.id); }}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                          title="Delete Article"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>
