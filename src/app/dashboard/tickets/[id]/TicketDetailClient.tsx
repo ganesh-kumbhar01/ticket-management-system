@@ -515,7 +515,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </div>
             </div>
 
-            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-sm overflow-visible relative z-0">
+            <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-slate-800/60 shadow-sm overflow-visible relative z-20">
               <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex items-center gap-2 flex-wrap bg-transparent">
                 <button 
                   onClick={() => setReplyType('PUBLIC')} 
@@ -533,7 +533,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 <div className="flex-1"></div>
                 {replyType === 'PUBLIC' && (
                   <div className="relative">
-                    <button onClick={() => setShowCanned(!showCanned)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg border border-white/40 dark:border-slate-700 hover:bg-white/80 dark:hover:bg-slate-800 transition-colors">
+                    <button onClick={() => setShowCanned(!showCanned)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/70 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-200/80 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 transition-colors">
                       <FileCheck className="w-3.5 h-3.5" />
                       Canned Responses
                     </button>
@@ -543,16 +543,16 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                           className="fixed inset-0 z-40" 
                           onClick={() => setShowCanned(false)} 
                         />
-                        <div className="absolute left-0 bottom-full mb-2 w-72 sm:w-80 bg-slate-900 dark:bg-slate-950 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
-                          <div className="px-3.5 py-2 bg-slate-800/80 border-b border-slate-700/60 flex items-center justify-between">
-                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-300">
+                        <div className="absolute left-0 bottom-full mb-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                          <div className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800/90 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                               Select Canned Response
                             </span>
-                            <span className="text-[10px] text-slate-400 font-bold">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-400 font-bold">
                               {CANNED_RESPONSES.length} templates
                             </span>
                           </div>
-                          <div className="max-h-60 overflow-y-auto divide-y divide-slate-800/80">
+                          <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                             {CANNED_RESPONSES.map((resp, idx) => (
                               <button 
                                 key={idx} 
@@ -561,12 +561,12 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                                   setReplyContent(prev => prev + (prev ? '\n\n' : '') + resp.text);
                                   setShowCanned(false);
                                 }}
-                                className="w-full text-left px-4 py-3 hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors group cursor-pointer"
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50/60 dark:hover:bg-slate-800/90 transition-colors group cursor-pointer"
                               >
-                                <p className="font-bold text-xs sm:text-sm text-white group-hover:text-blue-400 transition-colors mb-0.5">
+                                <p className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-0.5">
                                   {resp.label}
                                 </p>
-                                <p className="text-xs text-slate-400 group-hover:text-slate-300 line-clamp-2 leading-relaxed">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 line-clamp-2 leading-relaxed">
                                   {resp.text}
                                 </p>
                               </button>
