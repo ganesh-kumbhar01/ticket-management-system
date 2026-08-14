@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2 } from 'lucide-react';
+import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, ChevronDown, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -702,16 +702,19 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   <UserPlus className="w-4 h-4" />
                   Assignee
                 </label>
-                <select 
-                  value={assignedAgentId}
-                  onChange={(e) => handlePropsChange('assignedAgentId', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
-                >
-                  <option value="">Unassigned</option>
-                  {agents.map(agent => (
-                    <option key={agent.id} value={agent.id}>{agent.email}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select 
+                    value={assignedAgentId}
+                    onChange={(e) => handlePropsChange('assignedAgentId', e.target.value)}
+                    className="w-full h-10 pl-3.5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">Unassigned</option>
+                    {agents.map(agent => (
+                      <option key={agent.id} value={agent.id}>{agent.email}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               {/* Status */}
@@ -720,17 +723,20 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   <Activity className="w-4 h-4" />
                   Status
                 </label>
-                <select 
-                  value={status}
-                  onChange={(e) => handlePropsChange('status', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
-                >
-                  <option value="NEW">New</option>
-                  <option value="OPEN">Open</option>
-                  <option value="PENDING_CUSTOMER">Pending Customer</option>
-                  <option value="RESOLVED">Resolved</option>
-                  <option value="CLOSED">Closed</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    value={status}
+                    onChange={(e) => handlePropsChange('status', e.target.value)}
+                    className="w-full h-10 pl-3.5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="NEW">New</option>
+                    <option value="OPEN">Open</option>
+                    <option value="PENDING_CUSTOMER">Pending Customer</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="CLOSED">Closed</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               {/* Priority */}
@@ -739,16 +745,19 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   <AlertCircle className="w-4 h-4" />
                   Priority
                 </label>
-                <select 
-                  value={priority}
-                  onChange={(e) => handlePropsChange('priority', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
-                >
-                  <option value="LOW">Low</option>
-                  <option value="NORMAL">Normal</option>
-                  <option value="HIGH">High</option>
-                  <option value="URGENT">Urgent</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    value={priority}
+                    onChange={(e) => handlePropsChange('priority', e.target.value)}
+                    className="w-full h-10 pl-3.5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               {/* Category */}
@@ -757,16 +766,19 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   <Activity className="w-4 h-4" />
                   Category
                 </label>
-                <select 
-                  value={category}
-                  onChange={(e) => handlePropsChange('category', e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
-                >
-                  <option value="General">General</option>
-                  <option value="Technical">Technical</option>
-                  <option value="Billing">Billing</option>
-                  <option value="Feature Request">Feature Request</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    value={category}
+                    onChange={(e) => handlePropsChange('category', e.target.value)}
+                    className="w-full h-10 pl-3.5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="General">General</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Billing">Billing</option>
+                    <option value="Feature Request">Feature Request</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               {propsChanged && (
