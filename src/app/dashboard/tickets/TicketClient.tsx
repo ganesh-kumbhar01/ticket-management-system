@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square } from 'lucide-react';
+import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type Ticket = {
@@ -38,11 +38,30 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activePresences, setActivePresences] = useState<{ ticketId: string; userId: string; userName: string }[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     setTickets(initialTickets);
   }, [initialTickets]);
+
+  useEffect(() => {
+    const fetchPresences = async () => {
+      try {
+        const res = await fetch('/api/tickets/presence');
+        if (res.ok) {
+          const data = await res.json();
+          setActivePresences(data.activePresences || []);
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    fetchPresences();
+    const interval = setInterval(fetchPresences, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<CreateTicketFormValues>({
     resolver: zodResolver(createTicketSchema),
@@ -315,9 +334,28 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                     </td>
                     <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400 font-medium">#{ticket.id.slice(0,8)}</td>
                     <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white">
-                      <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors block">
-                        {ticket.subject}
-                      </Link>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors">
+                          {ticket.subject}
+                        </Link>
+                        {(() => {
+                          const rowViewers = activePresences.filter(p => p.ticketId === ticket.id);
+                          if (rowViewers.length === 0) return null;
+                          return (
+                            <span 
+                              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 text-[11px] font-bold border border-amber-500/30 shrink-0" 
+                              title={`${rowViewers.map(v => v.userName).join(', ')} is currently viewing this ticket`}
+                            >
+                              <span className="relative flex h-1.5 w-1.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+                              </span>
+                              <Eye className="w-3 h-3" />
+                              <span>{rowViewers.map(v => v.userName).join(', ')}</span>
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </td>
                     <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400">{ticket.studentEmail}</td>
                     <td className="py-4 px-6 text-sm text-slate-600 dark:text-slate-300 font-medium">{ticket.category}</td>

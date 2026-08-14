@@ -96,8 +96,25 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
     pingPresence();
     
-    const interval = setInterval(pingPresence, 10000);
-    return () => clearInterval(interval);
+    // Fast 4-second presence heartbeat
+    const interval = setInterval(pingPresence, 4000);
+
+    // Clean up presence on unmount / navigation
+    const leavePresence = () => {
+      try {
+        fetch(`/api/tickets/${ticket.id}/presence`, { method: 'DELETE', keepalive: true });
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    window.addEventListener('beforeunload', leavePresence);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', leavePresence);
+      leavePresence();
+    };
   }, [ticket.id]);
 
   useEffect(() => {
@@ -380,9 +397,15 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
             Manage
           </button>
           {activeViewers.length > 0 && (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold animate-pulse">
-              <Eye className="w-3.5 h-3.5" />
-              {activeViewers.map(v => v.userName.split('@')[0]).join(', ')} {activeViewers.length === 1 ? 'is' : 'are'} also viewing this ticket
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold shadow-sm animate-in fade-in duration-200">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+              <Eye className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate max-w-[200px] sm:max-w-none">
+                {activeViewers.map(v => v.userName).join(', ')} {activeViewers.length === 1 ? 'is' : 'are'} viewing
+              </span>
             </div>
           )}
           <button
@@ -514,6 +537,30 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 </div>
               </div>
             </div>
+
+            {/* Live Teammate Collision Warning Banner */}
+            {activeViewers.length > 0 && (
+              <div className="mb-4 p-4 bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-2xl flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 animate-in fade-in slide-in-from-top-2 duration-300 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                    <Eye className="w-5 h-5 text-amber-600 dark:text-amber-400 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                        Collision Shield Active
+                      </p>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-200 text-[10px] font-black">
+                        {activeViewers.length} {activeViewers.length === 1 ? 'Teammate' : 'Teammates'} Active
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-700 dark:text-amber-300/90 font-medium mt-0.5">
+                      <strong>{activeViewers.map(v => v.userName).join(', ')}</strong> {activeViewers.length === 1 ? 'is' : 'are'} currently on this ticket. Coordinate before replying to prevent duplicate messages.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-slate-800/60 shadow-sm overflow-visible relative z-20">
               <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex items-center gap-2 flex-wrap bg-transparent">
