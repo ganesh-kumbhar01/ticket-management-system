@@ -82,6 +82,12 @@ model KnowledgeArticle {
   updatedAt DateTime               @updatedAt
 }
 
+model ProcessedEmail {
+  id             String   @id @default(uuid())
+  emailMessageId String   @unique
+  processedAt    DateTime @default(now())
+}
+
 enum Role {
   ADMIN
   AGENT

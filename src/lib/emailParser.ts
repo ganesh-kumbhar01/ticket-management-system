@@ -63,10 +63,13 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
 
     // Check if we already processed this messageId
     if (messageId) {
-      const existing = await prisma.message.findUnique({
+      const existingMessage = await prisma.message.findUnique({
         where: { emailMessageId: messageId }
       });
-      if (existing) {
+      const existingProcessed = await prisma.processedEmail.findUnique({
+        where: { emailMessageId: messageId }
+      });
+      if (existingMessage || existingProcessed) {
         console.log('Email already processed.');
         return false;
       }
@@ -135,6 +138,9 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
         });
       }
 
+      if (messageId) {
+        await prisma.processedEmail.create({ data: { emailMessageId: messageId } }).catch(() => {});
+      }
       console.log(`Appended to ticket ${ticketId}`);
       return true;
     } else {
@@ -198,6 +204,9 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
         }
       }
 
+      if (messageId) {
+        await prisma.processedEmail.create({ data: { emailMessageId: messageId } }).catch(() => {});
+      }
       console.log(`Created new ticket ${newTicket.id}`);
       return true;
     }

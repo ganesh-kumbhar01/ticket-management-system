@@ -54,12 +54,15 @@ export async function POST(req: Request) {
           
           if (emailMessageId) {
             // Check if we already have it in the DB
-            const existing = await prisma.message.findUnique({
+            const existingMessage = await prisma.message.findUnique({
+              where: { emailMessageId }
+            });
+            const existingProcessed = await prisma.processedEmail.findUnique({
               where: { emailMessageId }
             });
 
             // If we don't have it, fetch the full source (which includes heavy attachments)
-            if (!existing) {
+            if (!existingMessage && !existingProcessed) {
               const fullMsg = await client.fetchOne(seq, { source: true });
               if (fullMsg && fullMsg.source) {
                 const processed = await processEmailSource(fullMsg.source);
