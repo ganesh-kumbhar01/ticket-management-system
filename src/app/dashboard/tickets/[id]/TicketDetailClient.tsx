@@ -538,21 +538,42 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                       Canned Responses
                     </button>
                     {showCanned && (
-                      <div className="absolute left-0 bottom-full mb-2 w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/40 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
-                        {CANNED_RESPONSES.map((resp, idx) => (
-                          <button 
-                            key={idx} 
-                            onClick={() => {
-                              setReplyContent(prev => prev + (prev ? '\n\n' : '') + resp.text);
-                              setShowCanned(false);
-                            }}
-                            className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0"
-                          >
-                            <p className="font-bold text-sm text-slate-900 dark:text-white mb-0.5">{resp.label}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{resp.text}</p>
-                          </button>
-                        ))}
-                      </div>
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setShowCanned(false)} 
+                        />
+                        <div className="absolute left-0 bottom-full mb-2 w-72 sm:w-80 bg-slate-900 dark:bg-slate-950 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                          <div className="px-3.5 py-2 bg-slate-800/80 border-b border-slate-700/60 flex items-center justify-between">
+                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-300">
+                              Select Canned Response
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-bold">
+                              {CANNED_RESPONSES.length} templates
+                            </span>
+                          </div>
+                          <div className="max-h-60 overflow-y-auto divide-y divide-slate-800/80">
+                            {CANNED_RESPONSES.map((resp, idx) => (
+                              <button 
+                                key={idx} 
+                                type="button"
+                                onClick={() => {
+                                  setReplyContent(prev => prev + (prev ? '\n\n' : '') + resp.text);
+                                  setShowCanned(false);
+                                }}
+                                className="w-full text-left px-4 py-3 hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors group cursor-pointer"
+                              >
+                                <p className="font-bold text-xs sm:text-sm text-white group-hover:text-blue-400 transition-colors mb-0.5">
+                                  {resp.label}
+                                </p>
+                                <p className="text-xs text-slate-400 group-hover:text-slate-300 line-clamp-2 leading-relaxed">
+                                  {resp.text}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}
