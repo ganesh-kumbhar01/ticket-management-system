@@ -16,8 +16,8 @@ export async function GET(req: Request) {
     }
 
     const payload = await verifyJwtToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    if (!payload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 1. Gather all live data

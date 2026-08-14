@@ -26,5 +26,5 @@ export default async function KnowledgePage() {
     ORDER BY "createdAt" DESC
   `;
 
-  return <KnowledgeClient initialArticles={articles} isAdmin={isAdmin} />;
+  return <KnowledgeClient initialArticles={articles} isAdmin={true} />;
 }

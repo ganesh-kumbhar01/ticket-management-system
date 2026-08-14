@@ -38,7 +38,7 @@ const kbSchema = z.object({
 
 type KbFormValues = z.infer<typeof kbSchema>;
 
-export default function KnowledgeClient({ initialArticles, isAdmin }: { initialArticles: Article[]; isAdmin: boolean }) {
+export default function KnowledgeClient({ initialArticles, isAdmin = true }: { initialArticles: Article[]; isAdmin?: boolean }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [searchQuery, setSearchQuery] = useState('');
   

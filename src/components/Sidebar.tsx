@@ -111,27 +111,25 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
             )}
           </Link>
 
-          {/* Horizon (AI Operations) Link - Admin Only */}
-          {isAdmin && (
-            <Link 
-              href="/dashboard/horizon" 
-              className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                isHorizonActive
-                  ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold shadow-md shadow-indigo-500/30'
-                  : 'font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/20 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 border border-indigo-200/40 dark:border-indigo-800/30'
-              }`}
-            >
-              <Compass className={`w-5 h-5 ${isHorizonActive ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'}`} />
-              <span className="font-bold">Horizon</span>
-              <span className={`ml-auto px-1.5 py-0.5 text-[10px] uppercase font-black rounded ${
-                isHorizonActive 
-                  ? 'bg-white/20 text-white' 
-                  : 'bg-indigo-600 text-white'
-              }`}>
-                AI
-              </span>
-            </Link>
-          )}
+          {/* Horizon (AI Operations) Link */}
+          <Link 
+            href="/dashboard/horizon" 
+            className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 ${
+              isHorizonActive
+                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold shadow-md shadow-indigo-500/30'
+                : 'font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/20 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 border border-indigo-200/40 dark:border-indigo-800/30'
+            }`}
+          >
+            <Compass className={`w-5 h-5 ${isHorizonActive ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'}`} />
+            <span className="font-bold">Horizon</span>
+            <span className={`ml-auto px-1.5 py-0.5 text-[10px] uppercase font-black rounded ${
+              isHorizonActive 
+                ? 'bg-white/20 text-white' 
+                : 'bg-indigo-600 text-white'
+            }`}>
+              AI
+            </span>
+          </Link>
 
           {/* Agents & Users Link - Admin Only */}
           {isAdmin && (

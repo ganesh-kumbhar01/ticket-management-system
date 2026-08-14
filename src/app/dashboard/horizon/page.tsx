@@ -16,11 +16,6 @@ export default async function HorizonPage() {
     redirect('/login');
   }
 
-  // Horizon is an executive tool designed for Admins
-  if (payload.role !== 'ADMIN') {
-    redirect('/dashboard');
-  }
-
   return (
     <div className="flex-1 min-h-screen overflow-y-auto">
       <HorizonClient userRole={payload.role} userEmail={payload.email} />

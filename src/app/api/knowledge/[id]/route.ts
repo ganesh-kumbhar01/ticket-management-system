@@ -47,8 +47,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const payload = await verifyJwtToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    if (!payload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await req.json();
@@ -108,8 +108,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const payload = await verifyJwtToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    if (!payload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const id = resolvedParams.id;
