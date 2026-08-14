@@ -71,13 +71,10 @@ export default function GlobalSearch() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400 rounded-lg text-sm transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl text-sm transition-colors"
       >
         <Search className="w-4 h-4" />
-        <span className="hidden sm:inline-block">Search...</span>
-        <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-white dark:bg-slate-900 dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dark:border-slate-800 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500 font-mono">
-          Ctrl K
-        </kbd>
+        <span className="hidden sm:inline-block font-medium">Search...</span>
       </button>
 
       {open && (
