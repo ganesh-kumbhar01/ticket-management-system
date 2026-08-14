@@ -87,7 +87,7 @@ export default function LoginPage() {
       </div>
 
       {/* Floating White Login Card (Exact UI Structure & Styling matching Reference Design) */}
-      <div className="relative z-10 w-full max-w-[430px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-[36px] sm:rounded-[44px] p-8 sm:p-11 shadow-[0_25px_70px_rgba(15,23,42,0.22)] border border-white/80 dark:border-slate-800/90 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
+      <div className="relative z-10 w-full max-w-[430px] bg-white/95 backdrop-blur-2xl rounded-[36px] sm:rounded-[44px] p-8 sm:p-11 shadow-[0_25px_70px_rgba(15,23,42,0.18)] border border-white/80 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
         
         <div>
           {/* Logo Header */}
@@ -95,26 +95,26 @@ export default function LoginPage() {
             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
               <Ticket className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            <span className="text-xl font-black text-slate-900 tracking-tight">
               HelpDesk
             </span>
           </div>
 
           {/* Headline & Subtitle */}
           <div className="text-center space-y-1.5 mb-8">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Log in to account
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
               Enter your credentials to access your support workspace.
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-5 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 rounded-2xl flex items-start gap-3 animate-in fade-in duration-200">
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-              <p className="text-xs font-semibold text-rose-700 dark:text-rose-300 leading-relaxed">
+            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 animate-in fade-in duration-200">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <p className="text-xs font-semibold text-rose-700 leading-relaxed">
                 {error}
               </p>
             </div>
@@ -128,11 +128,11 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 {...register('email')}
-                className={`w-full h-12 sm:h-13 px-4 sm:px-5 bg-slate-50/90 dark:bg-slate-800/60 border ${
+                className={`w-full h-12 sm:h-13 px-4 sm:px-5 bg-slate-50/90 border ${
                   errors.email 
                     ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500' 
-                    : 'border-slate-200 dark:border-slate-700/80 focus:ring-blue-600/20 focus:border-blue-600'
-                } rounded-[18px] text-sm font-medium focus:outline-none focus:ring-4 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm`}
+                    : 'border-slate-200 focus:ring-blue-600/20 focus:border-blue-600'
+                } rounded-[18px] text-sm font-medium focus:outline-none focus:ring-4 transition-all text-slate-900 placeholder:text-slate-400 shadow-sm`}
                 placeholder="Email address"
               />
               {errors.email && (
@@ -147,17 +147,17 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...register('password')}
-                  className={`w-full h-12 sm:h-13 pl-4 sm:pl-5 pr-12 bg-slate-50/90 dark:bg-slate-800/60 border ${
+                  className={`w-full h-12 sm:h-13 pl-4 sm:pl-5 pr-12 bg-slate-50/90 border ${
                     errors.password 
                       ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500' 
-                      : 'border-slate-200 dark:border-slate-700/80 focus:ring-blue-600/20 focus:border-blue-600'
-                  } rounded-[18px] text-sm font-medium focus:outline-none focus:ring-4 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm`}
+                      : 'border-slate-200 focus:ring-blue-600/20 focus:border-blue-600'
+                  } rounded-[18px] text-sm font-medium focus:outline-none focus:ring-4 transition-all text-slate-900 placeholder:text-slate-400 shadow-sm`}
                   placeholder="Password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -173,7 +173,7 @@ export default function LoginPage() {
               <button 
                 type="button"
                 onClick={() => setValue('rememberMe', !rememberMe, { shouldValidate: true })}
-                className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors select-none font-medium"
+                className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors select-none font-medium"
               >
                 {rememberMe ? (
                   <CheckSquare className="w-4 h-4 text-blue-600" />
@@ -185,7 +185,7 @@ export default function LoginPage() {
 
               <Link 
                 href="/forgot-password"
-                className="font-bold text-blue-600 dark:text-blue-400 hover:underline transition-all"
+                className="font-bold text-blue-600 hover:underline transition-all"
               >
                 Forgot password?
               </Link>
@@ -213,7 +213,7 @@ export default function LoginPage() {
 
         {/* Bottom Compliance & Security Note */}
         <div className="pt-7 text-center">
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed font-medium">
+          <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
             Authorized Agent & Administrator Access Only · Support OS
           </p>
         </div>
