@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LayoutDashboard, Ticket, Users, FileText, Settings, BookOpen, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Ticket, Users, FileText, Settings, BookOpen, LogOut, Menu, X, Compass } from 'lucide-react';
 
 export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,31 +47,39 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
             HelpDesk
           </h1>
         </div>
-        <button onClick={() => setIsOpen(false)} className="md:hidden p-2 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-800 rounded-lg">
+        <button onClick={() => setIsOpen(false)} className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
           <X className="w-5 h-5" />
         </button>
       </div>
 
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto" onClick={() => setIsOpen(false)}>
-        <Link href="/dashboard" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:text-white dark:text-white dark:hover:text-white transition-colors">
-          <LayoutDashboard className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
+        <Link href="/dashboard" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:hover:text-white transition-colors">
+          <LayoutDashboard className="w-5 h-5 text-slate-400 dark:text-slate-500" />
           <span>Dashboard</span>
         </Link>
         
-        <Link href="/dashboard/tickets" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:text-white dark:text-white dark:hover:text-white transition-colors">
-          <Ticket className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
+        <Link href="/dashboard/tickets" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:hover:text-white transition-colors">
+          <Ticket className="w-5 h-5 text-slate-400 dark:text-slate-500" />
           <span>Tickets</span>
         </Link>
 
         {isAdmin && (
-          <Link href="/dashboard/users" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:text-white dark:text-white dark:hover:text-white transition-colors">
-            <Users className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
+          <Link href="/dashboard/horizon" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 hover:shadow-sm transition-all border border-indigo-200/40 dark:border-indigo-800/30">
+            <Compass className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <span className="font-bold">Horizon</span>
+            <span className="ml-auto px-1.5 py-0.5 text-[10px] uppercase font-black bg-indigo-600 text-white rounded">AI</span>
+          </Link>
+        )}
+
+        {isAdmin && (
+          <Link href="/dashboard/users" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Users className="w-5 h-5 text-slate-400 dark:text-slate-500" />
             <span>Agents & Users</span>
           </Link>
         )}
 
-        <Link href="/dashboard/knowledge" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:text-white dark:text-white dark:hover:text-white transition-colors">
-          <BookOpen className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />
+        <Link href="/dashboard/knowledge" className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:shadow-sm hover:text-slate-900 dark:hover:text-white transition-colors">
+          <BookOpen className="w-5 h-5 text-slate-400 dark:text-slate-500" />
           <span>Knowledge Base</span>
         </Link>
 
