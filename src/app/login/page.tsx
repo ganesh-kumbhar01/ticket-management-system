@@ -77,6 +77,8 @@ export default function LoginPage() {
           alt="Support Workspace Scene" 
           fill
           priority
+          unoptimized
+          quality={100}
           className="object-cover object-left md:object-center select-none pointer-events-none"
           sizes="100vw"
         />
