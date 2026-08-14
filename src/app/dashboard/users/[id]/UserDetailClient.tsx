@@ -152,27 +152,6 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
               </p>
             </div>
           </div>
-
-          {/* Edit / Cancel Toggle Button in Header */}
-          <div className="flex items-center gap-2">
-            {!isEditing ? (
-              <button
-                onClick={() => { setError(''); setSuccess(''); setIsEditing(true); }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-blue-600/20"
-              >
-                <Edit3 className="w-4 h-4" />
-                <span>Edit Profile</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleCancelEdit}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm transition-all shadow-sm"
-              >
-                <X className="w-4 h-4" />
-                <span>Cancel</span>
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Feedback Alerts */}
@@ -221,10 +200,10 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                 ) : (
                   <button
                     onClick={() => { setError(''); setSuccess(''); setIsEditing(true); }}
-                    className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 rounded-xl text-xs font-bold transition-all shadow-xs"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit</span>
+                    <span>Edit Profile</span>
                   </button>
                 )}
               </div>
