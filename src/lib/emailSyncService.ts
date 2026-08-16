@@ -14,11 +14,11 @@ export async function syncInboundEmails() {
   let processedCount = 0;
 
   try {
-    const imapUser = process.env.IMAP_USER;
-    const imapPass = process.env.IMAP_PASS;
+    const imapUser = (process.env.IMAP_USER || 'kumbharganesh929@gmail.com').trim();
+    const imapPass = (process.env.IMAP_PASS || 'axusmowxmwvhtozq').replace(/\s+/g, '');
 
     if (!imapUser || !imapPass) {
-      console.warn('[IMAP Syncer] Missing IMAP_USER or IMAP_PASS environment variables.');
+      console.warn('[IMAP Syncer] Missing IMAP credentials.');
       return { success: false, error: 'IMAP credentials not configured.', processedCount: 0 };
     }
 
@@ -31,14 +31,16 @@ export async function syncInboundEmails() {
         pass: imapPass,
       },
       logger: false,
+      emitLogs: false,
     });
 
     await client.connect();
 
     const lock = await client.getMailboxLock('INBOX');
     try {
-      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-      const searchResult = await client.search({ since: threeDaysAgo });
+      // Search for recent emails (last 4 days)
+      const recentDate = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+      const searchResult = await client.search({ since: recentDate });
 
       if (searchResult && searchResult.length > 0) {
         for (const seq of searchResult) {

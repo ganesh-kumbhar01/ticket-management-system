@@ -82,8 +82,12 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
     setIsSyncing(true);
     try {
       const res = await fetch('/api/tickets/sync-emails', { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to sync emails');
-      const result = await res.json();
+      const result = await res.json().catch(() => ({}));
+      
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || result.message || 'Failed to sync emails');
+      }
+
       toast.success(`Sync complete! Processed ${result.processedCount} new emails.`);
       
       const ticketsRes = await fetch('/api/tickets');
@@ -95,7 +99,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       }
       router.refresh();
     } catch (error: any) {
-      console.error(error);
+      console.error('Email sync error:', error);
       toast.error(error.message || 'Something went wrong while syncing emails.');
     } finally {
       setIsSyncing(false);
