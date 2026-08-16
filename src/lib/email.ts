@@ -1,11 +1,14 @@
 import nodemailer from 'nodemailer';
 
 export function getMailTransporter() {
-  let user = (process.env.SMTP_USER || 'kumbharganesh929@gmail.com').trim();
-  let pass = (process.env.SMTP_PASS || 'axusmowxmwvhtozq').replace(/["'\s]/g, '');
+  let user = 'kumbharganesh929@gmail.com';
+  let pass = 'axusmowxmwvhtozq';
 
-  if (user.includes('trialuser') || user.includes('815')) {
-    user = 'kumbharganesh929@gmail.com';
+  if (process.env.SMTP_USER && !process.env.SMTP_USER.includes('trialuser') && !process.env.SMTP_USER.includes('815')) {
+    user = process.env.SMTP_USER;
+    if (process.env.SMTP_PASS) {
+      pass = process.env.SMTP_PASS;
+    }
   }
 
   return nodemailer.createTransport({
@@ -13,8 +16,8 @@ export function getMailTransporter() {
     port: parseInt(process.env.SMTP_PORT || '465', 10),
     secure: true,
     auth: {
-      user,
-      pass,
+      user: user.replace(/["'\s]/g, '').trim(),
+      pass: pass.replace(/["'\s]/g, '').trim(),
     },
   });
 }
@@ -36,13 +39,17 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail(options: SendEmailOptions) {
-  let user = (process.env.SMTP_USER || 'kumbharganesh929@gmail.com').trim();
-  let pass = (process.env.SMTP_PASS || 'axusmowxmwvhtozq').replace(/["'\s]/g, '');
+  let user = 'kumbharganesh929@gmail.com';
+  let pass = 'axusmowxmwvhtozq';
 
-  if (user.includes('trialuser') || user.includes('815')) {
-    user = 'kumbharganesh929@gmail.com';
+  if (process.env.SMTP_USER && !process.env.SMTP_USER.includes('trialuser') && !process.env.SMTP_USER.includes('815')) {
+    user = process.env.SMTP_USER;
+    if (process.env.SMTP_PASS) {
+      pass = process.env.SMTP_PASS;
+    }
   }
 
+  const cleanUser = user.replace(/["'\s]/g, '').trim();
   const transporter = getMailTransporter();
 
   const headers: Record<string, string | string[]> = {};
@@ -54,7 +61,7 @@ export async function sendEmail(options: SendEmailOptions) {
   }
 
   const info = await transporter.sendMail({
-    from: `"HelpDesk Support" <${user}>`,
+    from: `"HelpDesk Support" <${cleanUser}>`,
     to: options.to,
     cc: options.cc,
     bcc: options.bcc,

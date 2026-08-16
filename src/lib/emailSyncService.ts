@@ -15,11 +15,15 @@ export async function syncInboundEmails() {
   let client: ImapFlow | null = null;
 
   try {
-    let rawUser = process.env.IMAP_USER || 'kumbharganesh929@gmail.com';
-    let rawPass = process.env.IMAP_PASS || 'axusmowxmwvhtozq';
+    let rawUser = 'kumbharganesh929@gmail.com';
+    let rawPass = 'axusmowxmwvhtozq';
 
-    if (rawUser.includes('trialuser') || rawUser.includes('815')) {
-      rawUser = 'kumbharganesh929@gmail.com';
+    // If an environment variable is set that is NOT the old trialuser or 815 mailbox, use it
+    if (process.env.IMAP_USER && !process.env.IMAP_USER.includes('trialuser') && !process.env.IMAP_USER.includes('815')) {
+      rawUser = process.env.IMAP_USER;
+      if (process.env.IMAP_PASS) {
+        rawPass = process.env.IMAP_PASS;
+      }
     }
 
     const imapUser = rawUser.replace(/["'\s]/g, '').trim();
