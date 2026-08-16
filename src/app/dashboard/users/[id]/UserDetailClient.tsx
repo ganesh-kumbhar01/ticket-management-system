@@ -249,27 +249,43 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     </div>
 
                     {/* Active Alert / Notification Email */}
-                    <div className="p-4 bg-amber-500/10 dark:bg-amber-500/15 rounded-2xl border border-amber-500/30 space-y-1 sm:col-span-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-                          <Bell className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                          <span>Active Alert & Escalation Email</span>
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200 bg-amber-500/20 px-2 py-0.5 rounded-full">
-                          SLA & Alerts Recipient
-                        </span>
-                      </div>
-                      <p className="text-sm font-black text-slate-900 dark:text-white">
-                        {savedUser.notificationEmail || (
-                          <span className="text-slate-400 dark:text-slate-500 font-medium italic">
-                            Default (Using Login Email: {savedUser.email})
+                    {savedUser.notificationEmail && savedUser.notificationEmail.trim() ? (
+                      <div className="p-4 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-2xl border border-emerald-500/30 space-y-1 sm:col-span-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+                            <Bell className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Active Alert & Escalation Mailbox</span>
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-200 bg-emerald-500/20 px-2 py-0.5 rounded-full">
+                            🟢 Active
                           </span>
-                        )}
-                      </p>
-                      <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">
-                        3-Hour unassigned ticket SLA breach alerts and urgent notifications are delivered to this address.
-                      </p>
-                    </div>
+                        </div>
+                        <p className="text-sm font-black text-slate-900 dark:text-white">
+                          {savedUser.notificationEmail}
+                        </p>
+                        <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80 font-medium">
+                          3-Hour SLA breach alerts, 7 PM Daily EOD spreadsheets and escalation notices are delivered here.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-amber-500/10 dark:bg-amber-500/15 rounded-2xl border border-amber-500/30 space-y-1 sm:col-span-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                            <span>Alert Mailbox Status</span>
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200 bg-amber-500/20 px-2 py-0.5 rounded-full">
+                            ⚠️ Not Configured
+                          </span>
+                        </div>
+                        <p className="text-xs text-amber-900 dark:text-amber-200 font-bold">
+                          No Alert Email is configured. This user will NOT receive any 7:00 PM Daily reports or SLA alerts.
+                        </p>
+                        <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">
+                          Click "Edit Profile" above to configure an alert mailbox.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Role */}
                     <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/60 space-y-1">

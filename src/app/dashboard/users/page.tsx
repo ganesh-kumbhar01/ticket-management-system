@@ -276,10 +276,15 @@ export default function UsersPage() {
                     </td>
                     <td className="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-300">
                       <div>{user.email}</div>
-                      {user.notificationEmail && (
-                        <div className="text-[11px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1 mt-0.5" title="Active Alert & SLA Breach Email">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      {user.notificationEmail && user.notificationEmail.trim() ? (
+                        <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1 mt-0.5" title="Active Alert & SLA Breach Email">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                           <span>Alerts: {user.notificationEmail}</span>
+                        </div>
+                      ) : (
+                        <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1 mt-0.5" title="No alert mailbox configured">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          <span>⚠️ Alert Mail Not Set</span>
                         </div>
                       )}
                     </td>

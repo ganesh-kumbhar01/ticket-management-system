@@ -75,7 +75,7 @@ export default function ProfileClient({ user }: { user: UserData }) {
   };
 
   const displayName = savedData.name || savedData.email.split('@')[0];
-  const activeAlertEmail = savedData.notificationEmail || savedData.email;
+  const hasAlertEmail = Boolean(savedData.notificationEmail && savedData.notificationEmail.trim());
 
   return (
     <div className="p-4 sm:p-8 bg-slate-50 dark:bg-slate-950 min-h-full">
@@ -150,20 +150,39 @@ export default function ProfileClient({ user }: { user: UserData }) {
                   <p className="font-bold text-slate-900 dark:text-white">{savedData.email}</p>
                 </div>
 
-                <div className="bg-amber-500/10 dark:bg-amber-500/15 p-4 rounded-xl border border-amber-500/30 sm:col-span-2 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <Bell className="w-3.5 h-3.5" /> Active Report & SLA Notification Mailbox
+                {hasAlertEmail ? (
+                  <div className="bg-emerald-500/10 dark:bg-emerald-500/15 p-4 rounded-xl border border-emerald-500/30 sm:col-span-2 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <Bell className="w-3.5 h-3.5 text-emerald-600" /> Active Alert & Report Mailbox
+                      </p>
+                      <span className="text-[10px] font-black text-emerald-800 dark:text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full">
+                        🟢 Active
+                      </span>
+                    </div>
+                    <p className="font-black text-slate-900 dark:text-white">{savedData.notificationEmail}</p>
+                    <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80 font-medium">
+                      Automated 7:00 PM Daily EOD Reports, CSV sheets & SLA breach alerts are delivered to this address.
                     </p>
-                    <span className="text-[10px] font-black text-amber-800 dark:text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded">
-                      Active
-                    </span>
                   </div>
-                  <p className="font-black text-slate-900 dark:text-white">{activeAlertEmail}</p>
-                  <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">
-                    Automated 7:00 PM Daily EOD Reports, CSV sheets & critical SLA breach alerts are delivered to this address.
-                  </p>
-                </div>
+                ) : (
+                  <div className="bg-amber-500/10 dark:bg-amber-500/15 p-4 rounded-xl border border-amber-500/30 sm:col-span-2 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Alert Mailbox Status
+                      </p>
+                      <span className="text-[10px] font-black text-amber-800 dark:text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full">
+                        ⚠️ Not Configured
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-900 dark:text-amber-200 font-bold">
+                      No Alert Email is set. You will NOT receive any 7:00 PM Daily EOD Reports or SLA breach alerts.
+                    </p>
+                    <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">
+                      Click the <strong>"Edit Profile & Alerts"</strong> button above to set your alert mailbox.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           ) : (

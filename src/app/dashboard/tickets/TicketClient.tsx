@@ -228,7 +228,11 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       const res = await fetch('/api/reports/daily-eod', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to dispatch daily report');
-      toast.success(`📊 ${data.message || 'Daily EOD Report & CSV sent to all staff alert mailboxes!'}`);
+      if (data.success === false) {
+        toast.error(`⚠️ ${data.message || 'No alert mailboxes configured.'}`);
+        return;
+      }
+      toast.success(`📊 ${data.message || 'Daily EOD Report & CSV sent to configured alert mailboxes!'}`);
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || 'Failed to send daily report');
