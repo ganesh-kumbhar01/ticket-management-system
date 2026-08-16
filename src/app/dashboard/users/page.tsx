@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { Trash2, UserPlus, Shield, User, Plus, X, Search, CheckSquare, Square, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Trash2, UserPlus, Shield, User, Plus, X, Search, CheckSquare, Square, AlertCircle, CheckCircle2, Layers } from 'lucide-react';
 
 const createUserSchema = z.object({
   name: z.string().optional(),
@@ -13,6 +13,7 @@ const createUserSchema = z.object({
   notificationEmail: z.string().email('Invalid alert email address').optional().or(z.literal('')),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.enum(['ADMIN', 'AGENT']),
+  supportTier: z.enum(['TIER_1', 'TIER_2', 'TIER_3']),
   status: z.enum(['ACTIVE', 'INACTIVE']),
 });
 
@@ -24,6 +25,7 @@ type UserType = {
   email: string;
   notificationEmail?: string | null;
   role: string;
+  supportTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | string;
   status: string;
   createdAt: string;
 };
@@ -55,6 +57,7 @@ export default function UsersPage() {
       notificationEmail: '',
       password: '',
       role: 'AGENT',
+      supportTier: 'TIER_1',
       status: 'ACTIVE',
     },
   });
@@ -241,24 +244,25 @@ export default function UsersPage() {
                       )}
                     </button>
                   </th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Name</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Email Address</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Role</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">Joined Date</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email Address</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Support Tier</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredUsers.map((user) => (
                   <tr 
                     key={user.id} 
                     onClick={() => router.push(`/dashboard/users/${user.id}`)}
-                    className="hover:bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/50 transition-colors bg-white dark:bg-slate-900 dark:bg-slate-900 cursor-pointer group"
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-white dark:bg-slate-900 cursor-pointer group"
                   >
                     <td className="py-4 px-6">
                       <button 
                         onClick={(e) => toggleSelection(user.id, e)}
-                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500 dark:text-slate-500"
+                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500"
                       >
                         {selectedIds.has(user.id) ? (
                           <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -267,10 +271,10 @@ export default function UsersPage() {
                         )}
                       </button>
                     </td>
-                    <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white dark:text-white">
-                      {user.name || <span className="text-slate-400 dark:text-slate-500 dark:text-slate-500 italic font-medium">Not Set</span>}
+                    <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white">
+                      {user.name || <span className="text-slate-400 dark:text-slate-500 italic font-medium">Not Set</span>}
                     </td>
-                    <td className="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-300 dark:text-slate-300">
+                    <td className="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-300">
                       <div>{user.email}</div>
                       {user.notificationEmail && (
                         <div className="text-[11px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1 mt-0.5" title="Active Alert & SLA Breach Email">
@@ -281,20 +285,38 @@ export default function UsersPage() {
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
-                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-blue-100 text-blue-700 border border-blue-200'
+                        user.role === 'ADMIN' ? 'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800' : 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                       }`}>
                         {user.role === 'ADMIN' ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
                         {user.role}
                       </span>
                     </td>
                     <td className="py-4 px-6">
+                      {user.supportTier === 'TIER_3' ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                          <Layers className="w-3 h-3" />
+                          Layer 3 (L3 Dev)
+                        </span>
+                      ) : user.supportTier === 'TIER_2' ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                          <Layers className="w-3 h-3" />
+                          Layer 2 (L2 Tech)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <Layers className="w-3 h-3" />
+                          Layer 1 (L1 Frontline)
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
-                        user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800'
+                        user.status === 'ACTIVE' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
                       }`}>
                         {user.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">
+                    <td className="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 font-medium">
                       {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </td>
                   </tr>
@@ -308,34 +330,34 @@ export default function UsersPage() {
       {/* Create User Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white dark:text-white">Create New Agent</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Create New Agent</h2>
               <button 
                 onClick={() => setIsModalOpen(false)} 
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 hover:text-slate-600 dark:text-slate-300 dark:text-slate-300 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-600 dark:text-slate-300 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Full Name (Optional)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name (Optional)</label>
                 <input
                   type="text"
                   {...register('name')}
-                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.name ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500 dark:text-slate-500`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 border ${errors.name ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500`}
                   placeholder="John Doe"
                 />
                 {errors.name && <p className="text-red-500 text-xs font-medium mt-1">{errors.name.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Login Email Address</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Login Email Address</label>
                 <input
                   type="email"
                   {...register('email')}
-                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.email ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500 dark:text-slate-500`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 border ${errors.email ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500`}
                   placeholder="agent@system.com"
                 />
                 {errors.email && <p className="text-red-500 text-xs font-medium mt-1">{errors.email.message}</p>}
@@ -355,22 +377,22 @@ export default function UsersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Temporary Password</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Temporary Password</label>
                 <input
                   type="password"
                   {...register('password')}
-                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.password ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500 dark:text-slate-500`}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 border ${errors.password ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500`}
                   placeholder="••••••••"
                 />
                 {errors.password && <p className="text-red-500 text-xs font-medium mt-1">{errors.password.message}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Role</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Role</label>
                   <select
                     {...register('role')}
-                    className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.role ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
+                    className={`w-full h-11 px-2.5 bg-white dark:bg-slate-900 border ${errors.role ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white text-xs font-bold transition-all`}
                   >
                     <option value="AGENT">Agent</option>
                     <option value="ADMIN">Admin</option>
@@ -378,10 +400,22 @@ export default function UsersPage() {
                   {errors.role && <p className="text-red-500 text-xs font-medium mt-1">{errors.role.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Status</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Support Tier</label>
+                  <select
+                    {...register('supportTier')}
+                    className={`w-full h-11 px-2 bg-white dark:bg-slate-900 border ${errors.supportTier ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white text-xs font-bold transition-all`}
+                  >
+                    <option value="TIER_1">L1 (Frontline)</option>
+                    <option value="TIER_2">L2 (Technical)</option>
+                    <option value="TIER_3">L3 (Engineering)</option>
+                  </select>
+                  {errors.supportTier && <p className="text-red-500 text-xs font-medium mt-1">{errors.supportTier.message}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Status</label>
                   <select
                     {...register('status')}
-                    className={`w-full h-11 px-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border ${errors.status ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white dark:text-white transition-all`}
+                    className={`w-full h-11 px-2.5 bg-white dark:bg-slate-900 border ${errors.status ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white text-xs font-bold transition-all`}
                   >
                     <option value="ACTIVE">Active</option>
                     <option value="INACTIVE">Inactive</option>

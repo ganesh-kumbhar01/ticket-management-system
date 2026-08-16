@@ -28,7 +28,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const body = await req.json();
-    const { name, email, notificationEmail, role, status, password } = body;
+    const { name, email, notificationEmail, role, supportTier, status, password } = body;
 
     // Verify user exists
     const existingUser = await prisma.user.findUnique({ where: { id } });
@@ -49,6 +49,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (email !== undefined) updateData.email = email;
     if (notificationEmail !== undefined) updateData.notificationEmail = notificationEmail ? notificationEmail.trim() : null;
     if (role !== undefined) updateData.role = role;
+    if (supportTier !== undefined && ['TIER_1', 'TIER_2', 'TIER_3'].includes(supportTier)) {
+      updateData.supportTier = supportTier;
+    }
     if (status !== undefined) updateData.status = status;
 
     if (password) {
@@ -64,6 +67,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         email: true,
         notificationEmail: true,
         role: true,
+        supportTier: true,
         status: true,
         createdAt: true,
       }

@@ -39,9 +39,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   }
 
   const agents = await prisma.user.findMany({
-    where: { role: { in: ['AGENT', 'ADMIN'] } },
-    select: { id: true, email: true }
+    where: { role: { in: ['AGENT', 'ADMIN'] }, status: 'ACTIVE' },
+    select: { id: true, name: true, email: true, supportTier: true }
   });
 
-  return <TicketDetailClient ticket={ticket} agents={agents} currentUserId={payload.userId} isAdmin={payload.role === 'ADMIN'} />;
+  return <TicketDetailClient ticket={ticket} agents={agents as any} currentUserId={payload.userId} isAdmin={payload.role === 'ADMIN'} />;
 }

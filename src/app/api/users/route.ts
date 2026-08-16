@@ -30,6 +30,7 @@ export async function GET() {
         email: true,
         notificationEmail: true,
         role: true,
+        supportTier: true,
         status: true,
         createdAt: true,
       },
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
-    const { name, email, notificationEmail, password, role, status } = await req.json();
+    const { name, email, notificationEmail, password, role, supportTier, status } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
         notificationEmail: notificationEmail?.trim() || null,
         passwordHash: hashedPassword,
         role: role === 'ADMIN' ? 'ADMIN' : 'AGENT',
+        supportTier: supportTier && ['TIER_1', 'TIER_2', 'TIER_3'].includes(supportTier) ? supportTier : 'TIER_1',
         status: status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
       },
       select: {
@@ -81,6 +83,7 @@ export async function POST(req: Request) {
         email: true,
         notificationEmail: true,
         role: true,
+        supportTier: true,
         status: true,
         createdAt: true,
       },

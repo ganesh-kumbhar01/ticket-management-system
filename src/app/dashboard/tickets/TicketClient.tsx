@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle, Sparkles, FileSpreadsheet } from 'lucide-react';
+import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle, Sparkles, FileSpreadsheet, Layers } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type Ticket = {
@@ -17,6 +17,7 @@ type Ticket = {
   priority: string;
   studentEmail: string;
   assignedAgentId: string | null;
+  currentTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | string;
   isSlaBreached?: boolean;
   slaBreachedAt?: Date | string | null;
   createdAt: Date;
@@ -394,6 +395,22 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                     <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400 font-medium">#{ticket.id.slice(0,8)}</td>
                     <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white">
                       <div className="flex items-center gap-2 flex-wrap">
+                        {ticket.currentTier === 'TIER_3' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-[10px] font-black border border-purple-200 dark:border-purple-800 shrink-0" title="Tier 3 (L3 Engineering / Senior)">
+                            <Layers className="w-3 h-3" />
+                            L3
+                          </span>
+                        ) : ticket.currentTier === 'TIER_2' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 text-[10px] font-black border border-sky-200 dark:border-sky-800 shrink-0" title="Tier 2 (L2 Technical Specialist)">
+                            <Layers className="w-3 h-3" />
+                            L2
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-black border border-emerald-200 dark:border-emerald-800 shrink-0" title="Tier 1 (L1 Frontline Support)">
+                            <Layers className="w-3 h-3" />
+                            L1
+                          </span>
+                        )}
                         <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors">
                           {ticket.subject}
                         </Link>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, ChevronDown, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2, AlertTriangle } from 'lucide-react';
+import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, ChevronDown, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2, AlertTriangle, Layers, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -32,6 +32,8 @@ type Ticket = {
   priority: string;
   studentEmail: string;
   assignedAgentId: string | null;
+  currentTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | string;
+  escalationReason?: string | null;
   isSlaBreached?: boolean;
   slaBreachedAt?: Date | string | null;
   createdAt: Date;
@@ -40,7 +42,9 @@ type Ticket = {
 
 type Agent = {
   id: string;
+  name?: string | null;
   email: string;
+  supportTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | string;
 };
 
 type HistoryTicket = {
@@ -57,6 +61,12 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isPolishing, setIsPolishing] = useState(false);
   const [isRunningAiResponse, setIsRunningAiResponse] = useState(false);
+  const [currentTier, setCurrentTier] = useState(ticket.currentTier || 'TIER_1');
+  const [isEscalateModalOpen, setIsEscalateModalOpen] = useState(false);
+  const [targetTier, setTargetTier] = useState<'TIER_2' | 'TIER_3'>('TIER_2');
+  const [targetAgentId, setTargetAgentId] = useState<string>('unassigned');
+  const [handoverNote, setHandoverNote] = useState('');
+  const [isEscalating, setIsEscalating] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [status, setStatus] = useState(ticket.status);
   const [priority, setPriority] = useState(ticket.priority);
@@ -311,6 +321,41 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     } finally {
       setIsRunningAiResponse(false);
     }
+  };  const handleEscalateTicket = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!handoverNote.trim()) {
+      toast.error('Please write a handover note explaining what you already tried.');
+      return;
+    }
+    setIsEscalating(true);
+    try {
+      const res = await fetch(`/api/tickets/${ticket.id}/escalate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetTier,
+          assignedAgentId: targetAgentId,
+          handoverNote: handoverNote.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to escalate ticket');
+
+      toast.success(`🔺 Escalated to ${targetTier === 'TIER_2' ? 'Layer 2 (L2)' : 'Layer 3 (L3)'} with CC email notification!`);
+      setCurrentTier(targetTier);
+      if (data.ticket?.assignedAgentId) {
+        setAssignedAgentId(data.ticket.assignedAgentId);
+      }
+      setIsEscalateModalOpen(false);
+      setHandoverNote('');
+      router.refresh();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to escalate ticket');
+    } finally {
+      setIsEscalating(false);
+    }
   };
 
   const handleClaimTicket = async () => {
@@ -349,34 +394,32 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const handleSaveChanges = async () => {
     setIsSavingProps(true);
     try {
-      const updateData = {
-        status,
-        priority,
-        category,
-        assignedAgentId: assignedAgentId === '' ? null : assignedAgentId,
-      };
-      
       const res = await fetch(`/api/tickets/${ticket.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData),
+        body: JSON.stringify({
+          status,
+          priority,
+          category,
+          assignedAgentId: assignedAgentId || null,
+        }),
       });
 
-      if (!res.ok) throw new Error('Failed to update ticket properties');
-      
+      if (!res.ok) throw new Error('Failed to update ticket');
+
+      toast.success('Ticket updated');
       setPropsChanged(false);
-      toast.success('Changes saved');
       router.refresh();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to save changes');
+      toast.error('Failed to update ticket');
     } finally {
       setIsSavingProps(false);
     }
   };
 
-  const getStatusColor = (s: string) => {
-    switch (s) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
       case 'NEW': return 'bg-purple-100 text-purple-700 border border-purple-200';
       case 'OPEN': return 'bg-amber-100 text-amber-700 border border-amber-200';
       case 'PENDING_CUSTOMER': return 'bg-orange-100 text-orange-700 border border-orange-200';
@@ -398,10 +441,20 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               <h1 className="text-xl font-bold text-slate-900 dark:text-white">{ticket.subject}</h1>
               <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold ${getStatusColor(status)}`}>
                 {status}
+              </span>
+              <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold flex items-center gap-1.5 ${
+                currentTier === 'TIER_3'
+                  ? 'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                  : currentTier === 'TIER_2'
+                  ? 'bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+                  : 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+              }`}>
+                <Layers className="w-3 h-3" />
+                {currentTier === 'TIER_3' ? 'Layer 3 (L3 Dev)' : currentTier === 'TIER_2' ? 'Layer 2 (L2 Tech)' : 'Layer 1 (L1 Frontline)'}
               </span>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -410,6 +463,16 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {/* Escalate Button */}
+          <button
+            onClick={() => setIsEscalateModalOpen(true)}
+            className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white rounded-xl text-xs font-black transition-all shadow-md shadow-rose-600/20 active:scale-95 flex items-center gap-1.5"
+            title="Escalate ticket with Handover Note and CC email dispatch"
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>🔺 Escalate</span>
+          </button>
+
           {!assignedAgentId && (
             <button
               onClick={handleClaimTicket}
@@ -418,7 +481,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               title="Claim this ticket with atomic concurrency protection"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>{isSavingProps ? 'Claiming...' : '⚡ Claim Ticket'}</span>
+              <span>{isSavingProps ? 'Claiming...' : '⚡ Claim'}</span>
             </button>
           )}
           <button
@@ -862,6 +925,33 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 )}
               </div>
 
+              {/* Support Layer / Tier Box */}
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-indigo-500" />
+                    Support Tier
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${
+                    currentTier === 'TIER_3'
+                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
+                      : currentTier === 'TIER_2'
+                      ? 'bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300'
+                      : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                  }`}>
+                    {currentTier === 'TIER_3' ? 'Layer 3 (L3 Dev)' : currentTier === 'TIER_2' ? 'Layer 2 (L2 Tech)' : 'Layer 1 (L1 Frontline)'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEscalateModalOpen(true)}
+                  className="w-full py-2 px-3 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+                >
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>🔺 Escalate to Next Tier</span>
+                </button>
+              </div>
+
               {/* Status */}
               <div>
                 <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
@@ -908,7 +998,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               {/* Category */}
               <div>
                 <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
-                  <Activity className="w-4 h-4" />
+                  <Tag className="w-4 h-4" />
                   Category
                 </label>
                 <div className="relative">
@@ -1058,6 +1148,117 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </a>
             ))}
           </div>
+        </div>
+      </div>
+    )}
+
+    {/* Escalation Modal with Handover Note & CC Notification */}
+    {isEscalateModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+          {/* Header */}
+          <div className="p-6 bg-gradient-to-r from-amber-500 to-rose-600 text-white flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-black leading-tight">🔺 Escalate Support Ticket</h2>
+                <p className="text-xs opacity-90 font-medium">Handover to Next Support Layer with Automated CC Email</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsEscalateModalOpen(false)} 
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleEscalateTicket} className="p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Target Tier Selection */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Target Tier / Layer
+                </label>
+                <select
+                  value={targetTier}
+                  onChange={(e) => setTargetTier(e.target.value as any)}
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 cursor-pointer"
+                >
+                  <option value="TIER_2">Layer 2 (L2 Technical)</option>
+                  <option value="TIER_3">Layer 3 (L3 Engineering)</option>
+                </select>
+              </div>
+
+              {/* Target Assignee (Filtered by Tier) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Assignee
+                </label>
+                <select
+                  value={targetAgentId}
+                  onChange={(e) => setTargetAgentId(e.target.value)}
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 cursor-pointer"
+                >
+                  <option value="unassigned">Unassigned ({targetTier === 'TIER_2' ? 'L2 Pool' : 'L3 Pool'})</option>
+                  {agents
+                    .filter((a) => a.supportTier === targetTier || isAdmin)
+                    .map((agent) => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.name ? `${agent.name} (${agent.email})` : agent.email}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Handover Note Textarea */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Handover Note & Troubleshooting Summary <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={4}
+                required
+                value={handoverNote}
+                onChange={(e) => setHandoverNote(e.target.value)}
+                placeholder="Explain what troubleshooting steps you already tried, error details, customer symptoms, and why this ticket requires L2/L3 intervention..."
+                className="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 placeholder:text-slate-400"
+              />
+            </div>
+
+            {/* CC Informational Callout */}
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-amber-800 dark:text-amber-300 space-y-1">
+              <p className="font-bold flex items-center gap-1.5">
+                <span>📬 Automated Escalation Email with CC Dispatch:</span>
+              </p>
+              <p className="opacity-90">
+                The target assignee will receive an instant handover email. <strong>All Admins and you</strong> will automatically be kept in <strong>CC</strong> for full visibility.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsEscalateModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isEscalating || !handoverNote.trim()}
+                className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white rounded-xl text-xs font-black shadow-md shadow-rose-600/20 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2"
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span>{isEscalating ? 'Escalating...' : 'Confirm Escalation'}</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     )}

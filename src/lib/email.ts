@@ -11,7 +11,9 @@ const transporter = nodemailer.createTransport({
 });
 
 interface SendEmailOptions {
-  to: string;
+  to: string | string[];
+  cc?: string | string[];
+  bcc?: string | string[];
   subject: string;
   text: string;
   html?: string;
@@ -41,6 +43,8 @@ export async function sendEmail(options: SendEmailOptions) {
   const info = await transporter.sendMail({
     from: `"HelpDesk" <${process.env.SMTP_USER}>`,
     to: options.to,
+    cc: options.cc,
+    bcc: options.bcc,
     subject: options.subject,
     text: options.text,
     html: options.html,

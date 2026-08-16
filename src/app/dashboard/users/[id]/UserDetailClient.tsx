@@ -18,7 +18,8 @@ import {
   Calendar, 
   ChevronDown, 
   Activity,
-  Check
+  Check,
+  Layers
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -28,6 +29,7 @@ type SafeUser = {
   email: string;
   notificationEmail?: string | null;
   role: string;
+  supportTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | string;
   status: string;
   createdAt: string;
   assignedTickets: Array<{
@@ -47,6 +49,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
   const [email, setEmail] = useState(user.email);
   const [notificationEmail, setNotificationEmail] = useState(user.notificationEmail || '');
   const [role, setRole] = useState(user.role);
+  const [supportTier, setSupportTier] = useState(user.supportTier || 'TIER_1');
   const [status, setStatus] = useState(user.status);
   const [password, setPassword] = useState('');
 
@@ -56,6 +59,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
     email: user.email,
     notificationEmail: user.notificationEmail || '',
     role: user.role,
+    supportTier: user.supportTier || 'TIER_1',
     status: user.status
   });
 
@@ -71,6 +75,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
     setEmail(savedUser.email);
     setNotificationEmail(savedUser.notificationEmail);
     setRole(savedUser.role);
+    setSupportTier(savedUser.supportTier);
     setStatus(savedUser.status);
     setPassword('');
     setError('');
@@ -89,6 +94,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
         email: email.trim(),
         notificationEmail: notificationEmail.trim() || null,
         role,
+        supportTier,
         status
       };
       if (password) {
@@ -112,6 +118,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
         email: email.trim(),
         notificationEmail: notificationEmail.trim(),
         role,
+        supportTier,
         status
       });
 
@@ -282,8 +289,32 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                       </div>
                     </div>
 
-                    {/* Status */}
+                    {/* Support Layer / Tier */}
                     <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/60 space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                        <Layers className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Support Layer / Tier</span>
+                      </div>
+                      <div className="pt-0.5">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold ${
+                          savedUser.supportTier === 'TIER_3'
+                            ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60'
+                            : savedUser.supportTier === 'TIER_2'
+                            ? 'bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60'
+                            : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+                        }`}>
+                          <Layers className="w-3.5 h-3.5" />
+                          {savedUser.supportTier === 'TIER_3'
+                            ? 'Layer 3 (L3 Engineering)'
+                            : savedUser.supportTier === 'TIER_2'
+                            ? 'Layer 2 (L2 Technical)'
+                            : 'Layer 1 (L1 Frontline)'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/60 space-y-1 sm:col-span-2">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                         <Activity className="w-3.5 h-3.5 text-slate-400" />
                         <span>Account Status</span>
@@ -327,7 +358,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          placeholder="e.g. Rahul Sharma"
+                          placeholder="e.g. Alex Johnson"
                           className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
                         />
                       </div>
@@ -336,7 +367,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     {/* Email Address Input */}
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                        Login Email Address
+                        Login Email Address <span className="text-rose-500">*</span>
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -390,8 +421,28 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                       </div>
                     </div>
 
-                    {/* Status Dropdown */}
+                    {/* Support Tier Dropdown */}
                     <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                        Support Layer / Tier
+                      </label>
+                      <div className="relative">
+                        <Layers className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <select
+                          value={supportTier}
+                          onChange={(e) => setSupportTier(e.target.value)}
+                          className="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white appearance-none cursor-pointer"
+                        >
+                          <option value="TIER_1">Layer 1 (L1 — Frontline / Freshers)</option>
+                          <option value="TIER_2">Layer 2 (L2 — Technical Specialist)</option>
+                          <option value="TIER_3">Layer 3 (L3 — Senior / Engineering)</option>
+                        </select>
+                        <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Status Dropdown */}
+                    <div className="sm:col-span-2">
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                         Account Status
                       </label>
