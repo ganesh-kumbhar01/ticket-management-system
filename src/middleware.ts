@@ -10,6 +10,7 @@ const publicRoutes = [
   '/api/auth/forgot-password',
   '/api/auth/reset-password',
   '/api/cron/daily-report',
+  '/api/sync-test',
 ];
 
 export async function middleware(request: NextRequest) {
