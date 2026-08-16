@@ -31,7 +31,34 @@ export async function DELETE(req: Request) {
 
     const { ticketIds } = parsed.data;
 
-    // Verify permissions if needed here (for now we allow agents/admins to delete)
+    // 1. Fetch tickets and messages to track emailMessageIds
+    const ticketsToDelete = await prisma.ticket.findMany({
+      where: { id: { in: ticketIds } },
+      include: {
+        messages: {
+          select: { id: true, emailMessageId: true },
+        },
+      },
+    });
+
+    const emailIdsToBlock = [
+      ...ticketsToDelete.map((t) => t.emailMessageId),
+      ...ticketsToDelete.flatMap((t) => t.messages.map((m) => m.emailMessageId)),
+    ].filter(Boolean) as string[];
+
+    if (emailIdsToBlock.length > 0) {
+      await prisma.processedEmail.createMany({
+        data: emailIdsToBlock.map((emailMessageId) => ({ emailMessageId })),
+        skipDuplicates: true,
+      });
+    }
+
+    const msgIds = ticketsToDelete.flatMap((t) => t.messages.map((m) => m.id));
+    if (msgIds.length > 0) {
+      await prisma.attachment.deleteMany({
+        where: { messageId: { in: msgIds } },
+      });
+    }
 
     // Delete associated messages first
     await prisma.message.deleteMany({

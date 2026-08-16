@@ -153,15 +153,47 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     const id = resolvedParams.id;
 
-    // Delete associated messages first
-    await prisma.message.deleteMany({
-      where: { ticketId: id },
+    // 1. Fetch ticket and messages to track emailMessageIds
+    const ticketToDelete = await prisma.ticket.findUnique({
+      where: { id },
+      include: {
+        messages: {
+          select: { id: true, emailMessageId: true },
+        },
+      },
     });
 
-    // Delete the ticket
-    await prisma.ticket.delete({
-      where: { id },
-    });
+    if (ticketToDelete) {
+      const emailIdsToBlock = [
+        ticketToDelete.emailMessageId,
+        ...ticketToDelete.messages.map((m) => m.emailMessageId),
+      ].filter(Boolean) as string[];
+
+      if (emailIdsToBlock.length > 0) {
+        await prisma.processedEmail.createMany({
+          data: emailIdsToBlock.map((emailMessageId) => ({ emailMessageId })),
+          skipDuplicates: true,
+        });
+      }
+
+      // Delete attachments for these messages
+      const msgIds = ticketToDelete.messages.map((m) => m.id);
+      if (msgIds.length > 0) {
+        await prisma.attachment.deleteMany({
+          where: { messageId: { in: msgIds } },
+        });
+      }
+
+      // Delete messages
+      await prisma.message.deleteMany({
+        where: { ticketId: id },
+      });
+
+      // Delete the ticket
+      await prisma.ticket.delete({
+        where: { id },
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
