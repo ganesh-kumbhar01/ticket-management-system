@@ -1,5 +1,6 @@
 import { simpleParser } from 'mailparser';
 import { prisma } from '@/lib/db';
+import { triggerAiFirstResponse } from '@/lib/aiFirstResponder';
 
 
 async function saveAttachment(attachment: any, messageId: string) {
@@ -121,9 +122,9 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
         }
       }
 
-      // Re-open ticket if it was resolved/closed
+      // Re-open ticket if it was pending customer, resolved, or closed
       const oldTicket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-      if (oldTicket && (oldTicket.status === 'RESOLVED' || oldTicket.status === 'CLOSED')) {
+      if (oldTicket && (oldTicket.status === 'PENDING_CUSTOMER' || oldTicket.status === 'RESOLVED' || oldTicket.status === 'CLOSED')) {
         await prisma.ticket.update({
           where: { id: ticketId },
           data: { status: 'OPEN' }
@@ -133,7 +134,7 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
           data: {
             ticketId,
             senderType: 'SYSTEM' as any,
-            content: `Status changed to OPEN because the customer replied.`
+            content: `Status changed to OPEN because the customer replied. Escalated to live agent queue.`
           }
         });
       }
@@ -207,6 +208,12 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
       if (messageId) {
         await prisma.processedEmail.create({ data: { emailMessageId: messageId } }).catch(() => {});
       }
+
+      // 🤖 Trigger Autonomous AI Knowledge First-Response to customer
+      triggerAiFirstResponse(newTicket.id).catch((err) =>
+        console.error('[AI First-Responder] Async trigger error:', err)
+      );
+
       console.log(`Created new ticket ${newTicket.id}`);
       return true;
     }

@@ -56,6 +56,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const [isDrafting, setIsDrafting] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isPolishing, setIsPolishing] = useState(false);
+  const [isRunningAiResponse, setIsRunningAiResponse] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [status, setStatus] = useState(ticket.status);
   const [priority, setPriority] = useState(ticket.priority);
@@ -296,6 +297,22 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     }
   };
 
+  const handleTriggerAiResponse = async () => {
+    setIsRunningAiResponse(true);
+    try {
+      const res = await fetch(`/api/tickets/${ticket.id}/ai-respond`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to dispatch AI response');
+      toast.success('🤖 AI Knowledge First-Response sent to customer!');
+      router.refresh();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to run AI First-Responder');
+    } finally {
+      setIsRunningAiResponse(false);
+    }
+  };
+
   const handleClaimTicket = async () => {
     setIsSavingProps(true);
     try {
@@ -481,13 +498,18 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   }
 
                   const isInternal = msg.senderType === 'INTERNAL_NOTE';
-                  const isAgent = msg.senderType === 'AGENT' || msg.senderType === 'AI_DRAFT' || isInternal;
+                  const isAi = msg.senderType === 'AI_DRAFT';
+                  const isAgent = msg.senderType === 'AGENT' || isAi || isInternal;
                   
                   return (
                     <div key={msg.id} className={`flex ${isAgent ? 'justify-end' : 'justify-start'}`}>
                       <div className={`flex gap-3 max-w-[85%] ${isAgent ? 'flex-row-reverse' : 'flex-row'}`}>
                         <div className="shrink-0 mt-1">
-                          {isAgent ? (
+                          {isAi ? (
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-md bg-gradient-to-tr from-indigo-500 to-purple-600 text-white">
+                              <Bot className="w-4 h-4" />
+                            </div>
+                          ) : isAgent ? (
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${isInternal ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
                               {isInternal ? <Lock className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                             </div>
@@ -499,25 +521,39 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                         </div>
                         <div className={`flex flex-col ${isAgent ? 'items-end' : 'items-start'}`}>
                           <div className="flex items-center gap-2 mb-1 px-1">
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-                              {isInternal ? 'Internal Note' : isAgent ? 'Support Team' : ticket.studentEmail}
+                            <span className={`text-xs font-bold ${isAi ? 'text-indigo-600 dark:text-indigo-400 flex items-center gap-1' : 'text-slate-600 dark:text-slate-300'}`}>
+                              {isAi && <Sparkles className="w-3 h-3 text-amber-500" />}
+                              {isAi ? 'AI Knowledge First-Responder' : isInternal ? 'Internal Note' : isAgent ? 'Support Team' : ticket.studentEmail}
                             </span>
                             <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                               {new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
                           <div className={`p-4 rounded-2xl shadow-sm backdrop-blur-xl ${
-                            isInternal
-                              ? 'bg-amber-50/80 border border-amber-200/50 text-amber-900 rounded-tr-sm'
-                              : isAgent 
-                                ? 'bg-blue-600/90 text-white rounded-tr-sm border border-blue-500/50' 
-                                : 'bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-800/50 text-slate-700 dark:text-slate-300 rounded-tl-sm'
+                            isAi
+                              ? 'bg-gradient-to-br from-indigo-50/95 via-purple-50/90 to-indigo-50/70 dark:from-indigo-950/60 dark:via-purple-950/50 dark:to-slate-900/60 border border-indigo-200/80 dark:border-indigo-800/80 text-slate-800 dark:text-slate-100 rounded-tr-sm'
+                              : isInternal
+                                ? 'bg-amber-50/80 border border-amber-200/50 text-amber-900 rounded-tr-sm'
+                                : isAgent 
+                                  ? 'bg-blue-600/90 text-white rounded-tr-sm border border-blue-500/50' 
+                                  : 'bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-800/50 text-slate-700 dark:text-slate-300 rounded-tl-sm'
                           }`}>
                             <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-a:text-blue-500 hover:prose-a:text-blue-600 prose-ul:my-1 prose-li:my-0 break-words">
                               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {msg.content}
                               </ReactMarkdown>
                             </div>
+                            {isAi && (
+                              <div className="mt-3 pt-2.5 border-t border-indigo-200/60 dark:border-indigo-800/60 flex items-center justify-between text-[11px] text-indigo-700 dark:text-indigo-300 font-bold">
+                                <span className="flex items-center gap-1">
+                                  <Sparkles className="w-3 h-3 text-amber-500" />
+                                  Auto-dispatched to customer for self-service resolution
+                                </span>
+                                <span className="bg-indigo-500/15 text-indigo-800 dark:text-indigo-200 px-2 py-0.5 rounded-full text-[10px] font-black">
+                                  KB Synthesized
+                                </span>
+                              </div>
+                            )}
                             {msg.attachments && msg.attachments.length > 0 && (
                               <div className="mt-3 space-y-2 border-t pt-2 border-slate-200/50">
                                 {msg.attachments.map(att => (
@@ -731,15 +767,28 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
                     {/* Auto Reply AI Button (Public only) */}
                     {replyType === 'PUBLIC' && (
-                      <button 
-                        type="button"
-                        onClick={handleAIDraft}
-                        disabled={isDrafting || isSubmitting}
-                        className="w-full h-10 px-4 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-bold text-xs transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-purple-500/20 shadow-sm"
-                      >
-                        <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                        <span>{isDrafting ? 'Generating...' : 'Auto Reply'}</span>
-                      </button>
+                      <>
+                        <button 
+                          type="button"
+                          onClick={handleAIDraft}
+                          disabled={isDrafting || isSubmitting || isRunningAiResponse}
+                          className="w-full h-10 px-4 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-bold text-xs transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-purple-500/20 shadow-sm"
+                        >
+                          <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <span>{isDrafting ? 'Generating...' : 'Auto Reply'}</span>
+                        </button>
+
+                        <button 
+                          type="button"
+                          onClick={handleTriggerAiResponse}
+                          disabled={isRunningAiResponse || isSubmitting || isDrafting}
+                          className="w-full h-10 px-4 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 rounded-xl font-bold text-xs transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm"
+                          title="Auto-synthesize Knowledge Base steps and send directly to customer email"
+                        >
+                          <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                          <span>{isRunningAiResponse ? 'Dispatching...' : 'AI First-Responder'}</span>
+                        </button>
+                      </>
                     )}
 
                     {/* Resolve Button (Public only) */}
