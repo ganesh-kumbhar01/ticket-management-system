@@ -12,17 +12,13 @@ export async function syncInboundEmails() {
 
   isSyncInProgress = true;
   let processedCount = 0;
+  let client: ImapFlow | null = null;
 
   try {
     const imapUser = (process.env.IMAP_USER || 'kumbharganesh929@gmail.com').trim();
     const imapPass = (process.env.IMAP_PASS || 'axusmowxmwvhtozq').replace(/\s+/g, '');
 
-    if (!imapUser || !imapPass) {
-      console.warn('[IMAP Syncer] Missing IMAP credentials.');
-      return { success: false, error: 'IMAP credentials not configured.', processedCount: 0 };
-    }
-
-    const client = new ImapFlow({
+    client = new ImapFlow({
       host: process.env.IMAP_HOST || 'imap.gmail.com',
       port: parseInt(process.env.IMAP_PORT || '993', 10),
       secure: true,
@@ -30,20 +26,39 @@ export async function syncInboundEmails() {
         user: imapUser,
         pass: imapPass,
       },
+      tls: {
+        rejectUnauthorized: false,
+      },
       logger: false,
       emitLogs: false,
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 30000,
     });
 
     await client.connect();
 
     const lock = await client.getMailboxLock('INBOX');
     try {
-      // Search for recent emails (last 4 days)
-      const recentDate = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
-      const searchResult = await client.search({ since: recentDate });
+      let searchResult: number[] = [];
+      try {
+        const recentDate = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+        const res = await client.search({ since: recentDate });
+        if (Array.isArray(res)) {
+          searchResult = res;
+        }
+      } catch (searchErr) {
+        console.warn('[IMAP Syncer] Search with date failed, falling back to all messages:', searchErr);
+        const res = await client.search({ all: true });
+        if (Array.isArray(res)) {
+          searchResult = res;
+        }
+      }
 
       if (searchResult && searchResult.length > 0) {
-        for (const seq of searchResult) {
+        const reversedSeqs = [...searchResult].reverse();
+
+        for (const seq of reversedSeqs) {
           try {
             const msgInfo = await client.fetchOne(seq, { envelope: true });
             const emailMessageId = msgInfo && typeof msgInfo !== 'boolean' ? msgInfo.envelope?.messageId : undefined;
@@ -77,7 +92,11 @@ export async function syncInboundEmails() {
       lock.release();
     }
 
-    await client.logout();
+    try {
+      await client.logout();
+    } catch (logoutErr) {
+      // ignore
+    }
 
     // Trigger SLA breach check in background
     checkAndEscalateSlaBreaches().catch((err) => console.error('[IMAP Syncer] SLA background check error:', err));
@@ -85,6 +104,13 @@ export async function syncInboundEmails() {
     return { success: true, processedCount };
   } catch (error: any) {
     console.error('[IMAP Syncer] Fatal sync error:', error);
+    if (client) {
+      try {
+        await client.logout();
+      } catch (e) {
+        // ignore
+      }
+    }
     return { success: false, error: error.message || 'Failed to sync emails', processedCount: 0 };
   } finally {
     isSyncInProgress = false;
