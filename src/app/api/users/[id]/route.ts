@@ -4,20 +4,18 @@ import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
-async function checkAdminAccess() {
+async function checkUserAccess() {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
   if (!token) return null;
   
   const payload = await verifyJwtToken(token);
-  if (!payload || payload.role !== 'ADMIN') return null;
-  
   return payload;
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const payload = await checkAdminAccess();
+    const payload = await checkUserAccess();
     if (!payload) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
@@ -25,6 +23,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const { id } = await Promise.resolve(params);
     if (!id) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    // Only allow admin or the user themselves
+    if (payload.role !== 'ADMIN' && payload.userId !== id) {
+      return NextResponse.json({ error: 'Forbidden: You can only edit your own profile' }, { status: 403 });
     }
 
     const body = await req.json();
@@ -81,8 +84,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const payload = await checkAdminAccess();
-    if (!payload) {
+    const payload = await checkUserAccess();
+    if (!payload || payload.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
