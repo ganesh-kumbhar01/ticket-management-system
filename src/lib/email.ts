@@ -1,8 +1,13 @@
 import nodemailer from 'nodemailer';
 
 export function getMailTransporter() {
-  const user = (process.env.SMTP_USER || 'kumbharganesh929@gmail.com').trim();
-  const pass = (process.env.SMTP_PASS || 'axusmowxmwvhtozq').replace(/\s+/g, '');
+  let user = (process.env.SMTP_USER || 'kumbharganesh929@gmail.com').trim();
+  let pass = (process.env.SMTP_PASS || 'axusmowxmwvhtozq').replace(/["'\s]/g, '');
+
+  if (user.includes('trialuser') || user.includes('815')) {
+    user = 'kumbharganesh929@gmail.com';
+  }
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '465', 10),
@@ -31,12 +36,11 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail(options: SendEmailOptions) {
-  const user = (process.env.SMTP_USER || 'kumbharganesh929@gmail.com').trim();
-  const pass = (process.env.SMTP_PASS || 'axusmowxmwvhtozq').replace(/\s+/g, '');
+  let user = (process.env.SMTP_USER || 'kumbharganesh929@gmail.com').trim();
+  let pass = (process.env.SMTP_PASS || 'axusmowxmwvhtozq').replace(/["'\s]/g, '');
 
-  if (!user || !pass) {
-    console.warn('SMTP credentials missing, skipping email send to:', options.to);
-    return null;
+  if (user.includes('trialuser') || user.includes('815')) {
+    user = 'kumbharganesh929@gmail.com';
   }
 
   const transporter = getMailTransporter();

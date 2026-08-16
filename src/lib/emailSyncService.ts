@@ -15,8 +15,12 @@ export async function syncInboundEmails() {
   let client: ImapFlow | null = null;
 
   try {
-    const rawUser = process.env.IMAP_USER || 'kumbharganesh929@gmail.com';
-    const rawPass = process.env.IMAP_PASS || 'axusmowxmwvhtozq';
+    let rawUser = process.env.IMAP_USER || 'kumbharganesh929@gmail.com';
+    let rawPass = process.env.IMAP_PASS || 'axusmowxmwvhtozq';
+
+    if (rawUser.includes('trialuser') || rawUser.includes('815')) {
+      rawUser = 'kumbharganesh929@gmail.com';
+    }
 
     const imapUser = rawUser.replace(/["'\s]/g, '').trim();
     const imapPass = rawPass.replace(/["'\s]/g, '').trim();
