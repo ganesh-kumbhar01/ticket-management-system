@@ -85,12 +85,18 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       if (!res.ok) throw new Error('Failed to sync emails');
       const result = await res.json();
       toast.success(`Sync complete! Processed ${result.processedCount} new emails.`);
-      // Instead of replacing the whole ticket list immediately, we just refresh the router so the parent component fetches latest data
+      
+      const ticketsRes = await fetch('/api/tickets');
+      if (ticketsRes.ok) {
+        const ticketsData = await ticketsRes.json();
+        if (ticketsData.tickets) {
+          setTickets(ticketsData.tickets);
+        }
+      }
       router.refresh();
-
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error('Something went wrong while syncing emails.');
+      toast.error(error.message || 'Something went wrong while syncing emails.');
     } finally {
       setIsSyncing(false);
     }
