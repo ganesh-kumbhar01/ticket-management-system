@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle } from 'lucide-react';
+import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type Ticket = {
@@ -159,6 +159,37 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       toast.error('Failed to delete ticket. Please try again.');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const [claimingTicketId, setClaimingTicketId] = useState<string | null>(null);
+
+  const handleClaimTicket = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setClaimingTicketId(id);
+    try {
+      const res = await fetch(`/api/tickets/${id}/claim`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          toast.error(`⚠️ ${data.message || 'This ticket was already claimed by another teammate!'}`);
+          router.refresh();
+          return;
+        }
+        throw new Error(data.error || data.message || 'Failed to claim ticket');
+      }
+
+      toast.success('🎉 Ticket successfully claimed by you!');
+      setTickets(prev => prev.map(t => t.id === id ? { ...t, assignedAgentId: currentUserId, status: 'OPEN' } : t));
+      router.refresh();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to claim ticket');
+    } finally {
+      setClaimingTicketId(null);
     }
   };
 
@@ -393,14 +424,27 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                       {new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <button
-                        onClick={(e) => handleDeleteTicket(ticket.id, e)}
-                        disabled={isDeleting}
-                        className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
-                        title="Delete ticket"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {!ticket.assignedAgentId && (
+                          <button
+                            onClick={(e) => handleClaimTicket(ticket.id, e)}
+                            disabled={claimingTicketId === ticket.id}
+                            className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-600 hover:text-white text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-black transition-all flex items-center gap-1 active:scale-95 shadow-sm shrink-0"
+                            title="Claim this ticket (Assign to me)"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            <span>{claimingTicketId === ticket.id ? 'Claiming...' : 'Claim'}</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => handleDeleteTicket(ticket.id, e)}
+                          disabled={isDeleting}
+                          className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                          title="Delete ticket"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )})

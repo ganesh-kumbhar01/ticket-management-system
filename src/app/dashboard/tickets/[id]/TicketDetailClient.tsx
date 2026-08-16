@@ -299,20 +299,31 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const handleClaimTicket = async () => {
     setIsSavingProps(true);
     try {
-      const res = await fetch(`/api/tickets/${ticket.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assignedAgentId: currentUserId }),
+      const res = await fetch(`/api/tickets/${ticket.id}/claim`, {
+        method: 'POST',
       });
 
-      if (!res.ok) throw new Error('Failed to claim ticket');
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          toast.error(`⚠️ ${data.message || 'This ticket was already claimed by another teammate!'}`);
+          if (data.assignedAgent?.id) {
+            setAssignedAgentId(data.assignedAgent.id);
+          }
+          router.refresh();
+          return;
+        }
+        throw new Error(data.error || data.message || 'Failed to claim ticket');
+      }
       
       setAssignedAgentId(currentUserId);
-      toast.success('Ticket claimed');
+      setStatus('OPEN');
+      toast.success('🎉 Ticket successfully claimed by you!');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error('Failed to claim ticket');
+      toast.error(error.message || 'Failed to claim ticket');
     } finally {
       setIsSavingProps(false);
     }
@@ -382,13 +393,15 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {!assignedAgentId && !isAdmin && (
+          {!assignedAgentId && (
             <button
               onClick={handleClaimTicket}
               disabled={isSavingProps}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-black transition-all shadow-md shadow-blue-600/25 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+              title="Claim this ticket with atomic concurrency protection"
             >
-              {isSavingProps ? 'Claiming...' : 'Claim Ticket'}
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>{isSavingProps ? 'Claiming...' : '⚡ Claim Ticket'}</span>
             </button>
           )}
           <button
@@ -788,6 +801,16 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                   </select>
                   <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
+                {!assignedAgentId && (
+                  <button
+                    onClick={handleClaimTicket}
+                    disabled={isSavingProps}
+                    className="w-full mt-2 py-2 px-3 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>{isSavingProps ? 'Claiming...' : '⚡ Claim Ticket (Assign to Me)'}</span>
+                  </button>
+                )}
               </div>
 
               {/* Status */}
