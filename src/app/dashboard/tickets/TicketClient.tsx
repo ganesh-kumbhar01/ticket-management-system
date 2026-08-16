@@ -37,7 +37,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'ALL' | 'MY_TICKETS' | 'UNASSIGNED'>(isAdmin ? 'ALL' : 'MY_TICKETS');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'UNASSIGNED' | 'MY_TICKETS'>('ALL');
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -301,22 +301,55 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
         <div className="p-4 border-b border-white/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-transparent">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
             <button
-              onClick={() => setActiveTab('MY_TICKETS')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'MY_TICKETS' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800'}`}
+              onClick={() => setActiveTab('ALL')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'ALL'
+                  ? 'bg-slate-900 text-white dark:bg-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
             >
-              My Tickets
+              <span>All Tickets</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+                activeTab === 'ALL'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              }`}>
+                {tickets.length}
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('UNASSIGNED')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'UNASSIGNED' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'UNASSIGNED'
+                  ? 'bg-slate-900 text-white dark:bg-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
             >
-              Unassigned Queue
+              <span>Unassigned Queue</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+                activeTab === 'UNASSIGNED'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
+              }`}>
+                {tickets.filter(t => t.assignedAgentId === null).length}
+              </span>
             </button>
             <button
-              onClick={() => setActiveTab('ALL')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'ALL' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:bg-slate-800'}`}
+              onClick={() => setActiveTab('MY_TICKETS')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'MY_TICKETS'
+                  ? 'bg-slate-900 text-white dark:bg-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
             >
-              All Tickets
+              <span>My Tickets</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+                activeTab === 'MY_TICKETS'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              }`}>
+                {tickets.filter(t => t.assignedAgentId === currentUserId).length}
+              </span>
             </button>
           </div>
 
