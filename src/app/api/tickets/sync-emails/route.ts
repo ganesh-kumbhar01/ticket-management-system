@@ -6,17 +6,6 @@ import { processEmailSource } from '@/lib/emailParser';
 import { prisma } from '@/lib/db';
 import { checkAndEscalateSlaBreaches } from '@/lib/slaService';
 
-const imapConfig = {
-  host: process.env.IMAP_HOST || 'imap.gmail.com',
-  port: parseInt(process.env.IMAP_PORT || '993', 10),
-  secure: process.env.IMAP_SECURE === 'true' || true,
-  auth: {
-    user: process.env.IMAP_USER || '',
-    pass: process.env.IMAP_PASS || '',
-  },
-  logger: false as const,
-};
-
 export async function POST(req: Request) {
   try {
     // Verify user is an agent/admin
@@ -32,46 +21,63 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!imapConfig.auth.user || !imapConfig.auth.pass) {
+    const imapUser = process.env.IMAP_USER;
+    const imapPass = process.env.IMAP_PASS;
+
+    if (!imapUser || !imapPass) {
       return NextResponse.json({ error: 'IMAP credentials not configured.' }, { status: 500 });
     }
 
-    const client = new ImapFlow(imapConfig);
+    const client = new ImapFlow({
+      host: process.env.IMAP_HOST || 'imap.gmail.com',
+      port: parseInt(process.env.IMAP_PORT || '993', 10),
+      secure: true,
+      auth: {
+        user: imapUser,
+        pass: imapPass,
+      },
+      logger: false,
+    });
     
     await client.connect();
     let processedCount = 0;
     
-    let lock = await client.getMailboxLock('INBOX');
+    const lock = await client.getMailboxLock('INBOX');
     try {
-      // Search for recent emails (last 2 days) to avoid missing any that were marked as read by other clients
-      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-      const searchResult = await client.search({ since: twoDaysAgo });
+      // Search for recent emails (last 3 days)
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      const searchResult = await client.search({ since: threeDaysAgo });
       
       if (searchResult && searchResult.length > 0) {
         for (const seq of searchResult) {
-          // First fetch only the envelope to get the messageId (very fast)
-          const msgInfo = await client.fetchOne(seq, { envelope: true });
-          const emailMessageId = msgInfo && typeof msgInfo !== 'boolean' ? msgInfo.envelope?.messageId : undefined;
-          
-          if (emailMessageId) {
-            // Check if we already have it in the DB
-            const existingMessage = await prisma.message.findUnique({
-              where: { emailMessageId }
-            });
-            const existingProcessed = await prisma.processedEmail.findUnique({
-              where: { emailMessageId }
-            });
+          try {
+            // First fetch only envelope to check messageId
+            const msgInfo = await client.fetchOne(seq, { envelope: true });
+            const emailMessageId = msgInfo && typeof msgInfo !== 'boolean' ? msgInfo.envelope?.messageId : undefined;
+            
+            if (emailMessageId) {
+              const existingMessage = await prisma.message.findUnique({
+                where: { emailMessageId },
+                select: { id: true },
+              });
+              const existingProcessed = await prisma.processedEmail.findUnique({
+                where: { emailMessageId },
+                select: { id: true },
+              });
 
-            // If we don't have it, fetch the full source (which includes heavy attachments)
-            if (!existingMessage && !existingProcessed) {
-              const fullMsg = await client.fetchOne(seq, { source: true });
-              if (fullMsg && fullMsg.source) {
-                const processed = await processEmailSource(fullMsg.source);
-                if (processed) {
-                  processedCount++;
+              // If new, fetch full source and create ticket
+              if (!existingMessage && !existingProcessed) {
+                const fullMsg = await client.fetchOne(seq, { source: true });
+                if (fullMsg && fullMsg.source) {
+                  const processed = await processEmailSource(fullMsg.source);
+                  if (processed) {
+                    processedCount++;
+                  }
                 }
               }
             }
+          } catch (itemErr) {
+            console.error(`Error processing email seq ${seq}:`, itemErr);
           }
         }
       }
@@ -82,11 +88,11 @@ export async function POST(req: Request) {
     await client.logout();
 
     // Trigger SLA breach check in background
-    checkAndEscalateSlaBreaches().catch(err => console.error('SLA background check error:', err));
+    checkAndEscalateSlaBreaches().catch((err) => console.error('SLA background check error:', err));
 
     return NextResponse.json({ success: true, processedCount });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error syncing emails:', err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
 }
