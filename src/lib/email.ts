@@ -17,6 +17,11 @@ interface SendEmailOptions {
   html?: string;
   replyToMessageId?: string;
   references?: string[];
+  attachments?: Array<{
+    filename: string;
+    content: string | Buffer;
+    contentType?: string;
+  }>;
 }
 
 export async function sendEmail(options: SendEmailOptions) {
@@ -40,6 +45,7 @@ export async function sendEmail(options: SendEmailOptions) {
     text: options.text,
     html: options.html,
     headers,
+    attachments: options.attachments,
   });
 
   return info.messageId;
