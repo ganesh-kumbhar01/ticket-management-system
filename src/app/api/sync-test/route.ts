@@ -23,14 +23,17 @@ export async function GET() {
 
     const totalCount = await prisma.ticket.count();
 
+    const imapUserEnv = process.env.IMAP_USER || '';
+    const imapPassEnv = process.env.IMAP_PASS || '';
+
     return NextResponse.json({
       success: true,
       syncResult: syncRes,
       totalTicketsInDatabase: totalCount,
       recentTickets: tickets,
       envCheck: {
-        hasImapUser: Boolean(process.env.IMAP_USER),
-        hasImapPass: Boolean(process.env.IMAP_PASS),
+        imapUserConfiguredInVercel: imapUserEnv,
+        imapPassLength: imapPassEnv.length,
         hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
       }
     });
