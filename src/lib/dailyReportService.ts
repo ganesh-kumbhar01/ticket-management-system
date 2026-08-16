@@ -37,11 +37,12 @@ export async function generateAndSendDailyReport() {
       },
     });
 
-    // 2. Fetch active staff (Admins and Agents) to get their active alert mailboxes
+    // 2. Fetch active staff (Admins and Agents) who explicitly set an Alert / Notification Email
     const staffMembers = await prisma.user.findMany({
       where: {
         role: { in: ['ADMIN', 'AGENT'] },
         status: 'ACTIVE',
+        notificationEmail: { not: null },
       },
       select: {
         id: true,
@@ -55,13 +56,16 @@ export async function generateAndSendDailyReport() {
     const recipientEmails = Array.from(
       new Set(
         staffMembers
-          .map((user) => (user.notificationEmail && user.notificationEmail.trim() ? user.notificationEmail.trim() : user.email.trim()))
-          .filter(Boolean)
+          .map((user) => user.notificationEmail?.trim())
+          .filter((email): email is string => Boolean(email && email.length > 0))
       )
     );
 
     if (recipientEmails.length === 0) {
-      return { error: 'No active staff recipients found.' };
+      return { 
+        success: false, 
+        message: 'No alert emails configured. Please set an Alert/Notification Email in your Profile (Dashboard > Profile) or User Management.' 
+      };
     }
 
     // 3. Compute High-Level Metrics
