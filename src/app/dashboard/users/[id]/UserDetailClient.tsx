@@ -6,6 +6,7 @@ import {
   ArrowLeft, 
   User, 
   Mail, 
+  Bell,
   Shield, 
   Save, 
   Key, 
@@ -15,7 +16,7 @@ import {
   Edit3, 
   X, 
   Calendar, 
-  ChevronDown,
+  ChevronDown, 
   Activity,
   Check
 } from 'lucide-react';
@@ -25,6 +26,7 @@ type SafeUser = {
   id: string;
   name: string | null;
   email: string;
+  notificationEmail?: string | null;
   role: string;
   status: string;
   createdAt: string;
@@ -43,6 +45,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
   // Form states
   const [name, setName] = useState(user.name || '');
   const [email, setEmail] = useState(user.email);
+  const [notificationEmail, setNotificationEmail] = useState(user.notificationEmail || '');
   const [role, setRole] = useState(user.role);
   const [status, setStatus] = useState(user.status);
   const [password, setPassword] = useState('');
@@ -51,6 +54,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
   const [savedUser, setSavedUser] = useState({
     name: user.name || '',
     email: user.email,
+    notificationEmail: user.notificationEmail || '',
     role: user.role,
     status: user.status
   });
@@ -65,6 +69,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
     // Revert to saved values
     setName(savedUser.name);
     setEmail(savedUser.email);
+    setNotificationEmail(savedUser.notificationEmail);
     setRole(savedUser.role);
     setStatus(savedUser.status);
     setPassword('');
@@ -82,6 +87,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
       const payload: any = {
         name: name.trim() || null,
         email: email.trim(),
+        notificationEmail: notificationEmail.trim() || null,
         role,
         status
       };
@@ -104,6 +110,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
       setSavedUser({
         name: name.trim(),
         email: email.trim(),
+        notificationEmail: notificationEmail.trim(),
         role,
         status
       });
@@ -227,10 +234,33 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/60 space-y-1">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                         <Mail className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Email Address</span>
+                        <span>Login Email Address</span>
                       </div>
                       <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                         {savedUser.email}
+                      </p>
+                    </div>
+
+                    {/* Active Alert / Notification Email */}
+                    <div className="p-4 bg-amber-500/10 dark:bg-amber-500/15 rounded-2xl border border-amber-500/30 space-y-1 sm:col-span-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                          <Bell className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                          <span>Active Alert & Escalation Email</span>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200 bg-amber-500/20 px-2 py-0.5 rounded-full">
+                          SLA & Alerts Recipient
+                        </span>
+                      </div>
+                      <p className="text-sm font-black text-slate-900 dark:text-white">
+                        {savedUser.notificationEmail || (
+                          <span className="text-slate-400 dark:text-slate-500 font-medium italic">
+                            Default (Using Login Email: {savedUser.email})
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">
+                        3-Hour unassigned ticket SLA breach alerts and urgent notifications are delivered to this address.
                       </p>
                     </div>
 
@@ -306,7 +336,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     {/* Email Address Input */}
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                        Email Address
+                        Login Email Address
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -319,6 +349,26 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                           className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
                         />
                       </div>
+                    </div>
+
+                    {/* Active Alert / Notification Email Input */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                        Active Alert & Notification Email (For SLA Escalations)
+                      </label>
+                      <div className="relative">
+                        <Bell className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="email"
+                          value={notificationEmail}
+                          onChange={(e) => setNotificationEmail(e.target.value)}
+                          placeholder="e.g. personal.alerts@gmail.com (Leave blank to use login email)"
+                          className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
+                        3-Hour SLA breach alerts and critical ticket notifications will be sent directly to this address.
+                      </p>
                     </div>
 
                     {/* Role Dropdown */}

@@ -28,7 +28,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const body = await req.json();
-    const { name, email, role, status, password } = body;
+    const { name, email, notificationEmail, role, status, password } = body;
 
     // Verify user exists
     const existingUser = await prisma.user.findUnique({ where: { id } });
@@ -47,6 +47,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
+    if (notificationEmail !== undefined) updateData.notificationEmail = notificationEmail ? notificationEmail.trim() : null;
     if (role !== undefined) updateData.role = role;
     if (status !== undefined) updateData.status = status;
 
@@ -61,6 +62,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         id: true,
         name: true,
         email: true,
+        notificationEmail: true,
         role: true,
         status: true,
         createdAt: true,

@@ -28,6 +28,7 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
+        notificationEmail: true,
         role: true,
         status: true,
         createdAt: true,
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
-    const { name, email, password, role, status } = await req.json();
+    const { name, email, notificationEmail, password, role, status } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
       data: {
         name: name || null,
         email,
+        notificationEmail: notificationEmail?.trim() || null,
         passwordHash: hashedPassword,
         role: role === 'ADMIN' ? 'ADMIN' : 'AGENT',
         status: status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
@@ -77,6 +79,7 @@ export async function POST(req: Request) {
         id: true,
         name: true,
         email: true,
+        notificationEmail: true,
         role: true,
         status: true,
         createdAt: true,

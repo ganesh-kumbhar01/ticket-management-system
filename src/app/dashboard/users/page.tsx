@@ -10,6 +10,7 @@ import { Trash2, UserPlus, Shield, User, Plus, X, Search, CheckSquare, Square, A
 const createUserSchema = z.object({
   name: z.string().optional(),
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  notificationEmail: z.string().email('Invalid alert email address').optional().or(z.literal('')),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.enum(['ADMIN', 'AGENT']),
   status: z.enum(['ACTIVE', 'INACTIVE']),
@@ -21,6 +22,7 @@ type UserType = {
   id: string;
   name: string | null;
   email: string;
+  notificationEmail?: string | null;
   role: string;
   status: string;
   createdAt: string;
@@ -50,6 +52,7 @@ export default function UsersPage() {
     defaultValues: {
       name: '',
       email: '',
+      notificationEmail: '',
       password: '',
       role: 'AGENT',
       status: 'ACTIVE',
@@ -268,7 +271,13 @@ export default function UsersPage() {
                       {user.name || <span className="text-slate-400 dark:text-slate-500 dark:text-slate-500 italic font-medium">Not Set</span>}
                     </td>
                     <td className="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-300 dark:text-slate-300">
-                      {user.email}
+                      <div>{user.email}</div>
+                      {user.notificationEmail && (
+                        <div className="text-[11px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1 mt-0.5" title="Active Alert & SLA Breach Email">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          <span>Alerts: {user.notificationEmail}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
@@ -322,7 +331,7 @@ export default function UsersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Email Address</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Login Email Address</label>
                 <input
                   type="email"
                   {...register('email')}
@@ -330,6 +339,19 @@ export default function UsersPage() {
                   placeholder="agent@system.com"
                 />
                 {errors.email && <p className="text-red-500 text-xs font-medium mt-1">{errors.email.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Active Alert / Notification Email (Optional)
+                </label>
+                <input
+                  type="email"
+                  {...register('notificationEmail')}
+                  className={`w-full h-11 px-3 bg-white dark:bg-slate-900 border ${errors.notificationEmail ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-300 dark:border-slate-700 focus:ring-blue-600/10 focus:border-blue-600'} rounded-lg focus:outline-none focus:ring-4 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:text-slate-500`}
+                  placeholder="alerts@gmail.com (for SLA breach & ticket notifications)"
+                />
+                {errors.notificationEmail && <p className="text-red-500 text-xs font-medium mt-1">{errors.notificationEmail.message}</p>}
               </div>
 
               <div>
