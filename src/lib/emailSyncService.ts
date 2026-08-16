@@ -15,8 +15,11 @@ export async function syncInboundEmails() {
   let client: ImapFlow | null = null;
 
   try {
-    const imapUser = (process.env.IMAP_USER || 'kumbharganesh929@gmail.com').trim();
-    const imapPass = (process.env.IMAP_PASS || 'axusmowxmwvhtozq').replace(/\s+/g, '');
+    const rawUser = process.env.IMAP_USER || 'kumbharganesh929@gmail.com';
+    const rawPass = process.env.IMAP_PASS || 'axusmowxmwvhtozq';
+
+    const imapUser = rawUser.replace(/["'\s]/g, '').trim();
+    const imapPass = rawPass.replace(/["'\s]/g, '').trim();
 
     client = new ImapFlow({
       host: process.env.IMAP_HOST || 'imap.gmail.com',
@@ -26,14 +29,20 @@ export async function syncInboundEmails() {
         user: imapUser,
         pass: imapPass,
       },
+      disableCompression: true,
       tls: {
         rejectUnauthorized: false,
+        servername: 'imap.gmail.com',
+      },
+      clientInfo: {
+        name: 'HelpDeskApp',
+        version: '1.0.0',
       },
       logger: false,
       emitLogs: false,
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 30000,
+      connectionTimeout: 25000,
+      greetingTimeout: 25000,
+      socketTimeout: 35000,
     });
 
     await client.connect();
@@ -111,7 +120,12 @@ export async function syncInboundEmails() {
         // ignore
       }
     }
-    return { success: false, error: error.message || 'Failed to sync emails', processedCount: 0 };
+    const detail = error.responseText || error.response || error.command || error.message || 'Command failed';
+    return {
+      success: false,
+      error: `IMAP Error: ${detail}`,
+      processedCount: 0
+    };
   } finally {
     isSyncInProgress = false;
   }
