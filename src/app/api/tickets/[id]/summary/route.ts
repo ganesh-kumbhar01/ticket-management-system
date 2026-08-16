@@ -43,7 +43,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     `;
 
     const aiResponse = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt
     });
 

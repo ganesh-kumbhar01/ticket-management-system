@@ -146,7 +146,7 @@ Format your output in clean, professional markdown with exactly these 3 brief se
 `;
 
         const aiRes = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           contents: prompt,
         });
 
