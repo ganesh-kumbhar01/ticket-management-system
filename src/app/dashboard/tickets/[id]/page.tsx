@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import TicketDetailClient from './TicketDetailClient';
 import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
+import { checkAndEscalateSlaBreaches } from '@/lib/slaService';
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -12,6 +13,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
   const payload = await verifyJwtToken(token);
   if (!payload) redirect('/login');
+
+  // Trigger background SLA check non-blockingly
+  checkAndEscalateSlaBreaches().catch(() => {});
 
   const ticket = await prisma.ticket.findUnique({
     where: { id: resolvedParams.id },

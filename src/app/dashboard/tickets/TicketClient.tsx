@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye } from 'lucide-react';
+import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type Ticket = {
@@ -17,6 +17,8 @@ type Ticket = {
   priority: string;
   studentEmail: string;
   assignedAgentId: string | null;
+  isSlaBreached?: boolean;
+  slaBreachedAt?: Date | string | null;
   createdAt: Date;
 };
 
@@ -352,6 +354,19 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                               </span>
                               <Eye className="w-3 h-3" />
                               <span>{rowViewers.map(v => v.userName).join(', ')}</span>
+                            </span>
+                          );
+                        })()}
+                        {(() => {
+                          const isBreached = ticket.isSlaBreached || (!ticket.assignedAgentId && ['URGENT', 'HIGH'].includes(ticket.priority) && (Date.now() - new Date(ticket.createdAt).getTime() > 3 * 3600 * 1000));
+                          if (!isBreached) return null;
+                          return (
+                            <span 
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-400 text-[10px] font-black border border-rose-500/30 animate-pulse shrink-0" 
+                              title="SLA Breached (>3h unassigned). Escalation email sent to Admin."
+                            >
+                              <AlertTriangle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                              <span>SLA BREACH (3h+)</span>
                             </span>
                           );
                         })()}

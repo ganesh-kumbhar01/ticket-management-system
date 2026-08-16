@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, ChevronDown, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2 } from 'lucide-react';
+import { Send, Clock, User as UserIcon, AlertCircle, Paperclip, CheckCircle, Tag, MessageSquare, Plus, Users, History, FileText, ChevronLeft, ChevronDown, Trash2, X, Bold, Italic, List, Link as LinkIcon, FileCheck, ArrowLeft, Activity, Sparkles, UserPlus, Lock, Bot, Eye, Wand2, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -32,6 +32,8 @@ type Ticket = {
   priority: string;
   studentEmail: string;
   assignedAgentId: string | null;
+  isSlaBreached?: boolean;
+  slaBreachedAt?: Date | string | null;
   createdAt: Date;
   messages: Message[];
 };
@@ -421,6 +423,30 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto bg-transparent min-w-0">
           <div className="max-w-4xl mx-auto p-6 md:p-8">
+            {/* SLA Breach Escalation Warning Banner */}
+            {(ticket.isSlaBreached || (!ticket.assignedAgentId && ['URGENT', 'HIGH'].includes(ticket.priority) && (Date.now() - new Date(ticket.createdAt).getTime() > 3 * 3600 * 1000))) && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-rose-500/10 via-orange-500/10 to-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center justify-between gap-4 text-rose-900 dark:text-rose-200 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-black uppercase tracking-wider text-rose-700 dark:text-rose-400">
+                        3-Hour SLA Breach Escalation Active
+                      </p>
+                      <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-800 dark:text-rose-200 text-[10px] font-black">
+                        Critical Unassigned
+                      </span>
+                    </div>
+                    <p className="text-xs text-rose-800 dark:text-rose-300/90 font-medium mt-0.5">
+                      This ticket has remained unassigned for over 3 hours. An automated escalation alert has been dispatched to the Admin team's active alert mailbox.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-6 mb-10">
               {ticket.messages.length === 0 ? (
                 <div className="text-center text-slate-500 dark:text-slate-400 font-medium py-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-sm">

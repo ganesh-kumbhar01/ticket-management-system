@@ -4,6 +4,7 @@ import { verifyJwtToken } from '@/lib/auth';
 import { ImapFlow } from 'imapflow';
 import { processEmailSource } from '@/lib/emailParser';
 import { prisma } from '@/lib/db';
+import { checkAndEscalateSlaBreaches } from '@/lib/slaService';
 
 const imapConfig = {
   host: process.env.IMAP_HOST || 'imap.gmail.com',
@@ -79,6 +80,9 @@ export async function POST(req: Request) {
     }
 
     await client.logout();
+
+    // Trigger SLA breach check in background
+    checkAndEscalateSlaBreaches().catch(err => console.error('SLA background check error:', err));
 
     return NextResponse.json({ success: true, processedCount });
   } catch (err) {

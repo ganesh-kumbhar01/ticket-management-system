@@ -3,6 +3,7 @@ import TicketClient from './TicketClient';
 import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { checkAndEscalateSlaBreaches } from '@/lib/slaService';
 
 export default async function TicketsPage() {
   const cookieStore = await cookies();
@@ -16,6 +17,9 @@ export default async function TicketsPage() {
   if (!payload) {
     redirect('/login');
   }
+
+  // Trigger background SLA check non-blockingly
+  checkAndEscalateSlaBreaches().catch(() => {});
 
   const tickets = await prisma.ticket.findMany({
     orderBy: { createdAt: 'desc' },
