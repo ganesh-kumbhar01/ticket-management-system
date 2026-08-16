@@ -96,11 +96,15 @@ INSTRUCTIONS:
 
     let aiReplyText = '';
     if (process.env.GEMINI_API_KEY) {
-      const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: prompt,
-      });
-      aiReplyText = response.text || '';
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-1.5-flash',
+          contents: prompt,
+        });
+        aiReplyText = response.text || '';
+      } catch (genErr) {
+        // Fallback gracefully without error
+      }
     }
 
     // Fallback if Gemini generation is empty or unavailable
