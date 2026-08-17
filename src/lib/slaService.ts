@@ -46,11 +46,11 @@ export async function checkAndEscalateSlaBreaches() {
       return { breachedCount: breachedTickets.length, message: 'No active admins configured.' };
     }
 
-    // Extract unique active alert mailboxes (strictly using explicit notificationEmail only)
+    // Extract unique active alert mailboxes (priority: notificationEmail -> admin email)
     const adminAlertEmails = Array.from(
       new Set(
         admins
-          .map((admin) => admin.notificationEmail?.trim())
+          .map((admin) => admin.notificationEmail?.trim() || admin.email?.trim())
           .filter((email): email is string => Boolean(email && email.length > 0))
       )
     );

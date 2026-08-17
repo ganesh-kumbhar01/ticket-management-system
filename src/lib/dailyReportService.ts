@@ -37,12 +37,11 @@ export async function generateAndSendDailyReport() {
       },
     });
 
-    // 2. Fetch active staff (Admins and Agents) who explicitly set an Alert / Notification Email
+    // 2. Fetch active staff (Admins and Agents) who set an Alert / Notification Email or Admin email
     const staffMembers = await prisma.user.findMany({
       where: {
         role: { in: ['ADMIN', 'AGENT'] },
         status: 'ACTIVE',
-        notificationEmail: { not: null },
       },
       select: {
         id: true,
@@ -56,7 +55,7 @@ export async function generateAndSendDailyReport() {
     const recipientEmails = Array.from(
       new Set(
         staffMembers
-          .map((user) => user.notificationEmail?.trim())
+          .map((user) => user.notificationEmail?.trim() || (user.role === 'ADMIN' ? user.email?.trim() : ''))
           .filter((email): email is string => Boolean(email && email.length > 0))
       )
     );
