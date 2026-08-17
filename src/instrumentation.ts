@@ -1,9 +1,11 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { generateAndSendDailyReport } = await import('@/lib/dailyReportService');
+    const { generateAndSendWeeklyReport } = await import('@/lib/weeklyReportService');
     const { syncInboundEmails } = await import('@/lib/emailSyncService');
 
-    let lastSentDateStr = '';
+    let lastDailySentDateStr = '';
+    let lastWeeklySentDateStr = '';
 
     // 1. Inbound Email Auto-Syncer: runs on the server every 20 seconds
     setInterval(async () => {
@@ -14,12 +16,13 @@ export async function register() {
       }
     }, 20000);
 
-    // 2. Scheduled 7:00 PM (19:00) IST Daily Operations Report
+    // 2. Scheduled Reports Background Watcher
     setInterval(async () => {
       try {
         const now = new Date();
         const istFormatter = new Intl.DateTimeFormat('en-US', {
           timeZone: 'Asia/Kolkata',
+          weekday: 'short',
           hour: 'numeric',
           minute: 'numeric',
           hour12: false,
@@ -29,6 +32,7 @@ export async function register() {
         });
 
         const parts = istFormatter.formatToParts(now);
+        const weekdayPart = parts.find((p) => p.type === 'weekday')?.value; // e.g. 'Mon'
         const hourPart = parts.find((p) => p.type === 'hour')?.value;
         const minutePart = parts.find((p) => p.type === 'minute')?.value;
         const dayPart = parts.find((p) => p.type === 'day')?.value;
@@ -39,17 +43,27 @@ export async function register() {
         const currentHour = parseInt(hourPart || '0', 10);
         const currentMinute = parseInt(minutePart || '0', 10);
 
-        // 7:00 PM IST window
+        // A. Daily 7:00 PM (19:00) IST Report
         if (currentHour === 19 && currentMinute >= 0 && currentMinute <= 5) {
-          if (lastSentDateStr !== todayIstKey) {
+          if (lastDailySentDateStr !== todayIstKey) {
             console.log(`[Auto-Cron] ⏰ 7:00 PM IST reached (${todayIstKey}). Dispatching Daily EOD Operations Report with attached CSV...`);
-            lastSentDateStr = todayIstKey;
+            lastDailySentDateStr = todayIstKey;
             const result = await generateAndSendDailyReport();
-            console.log('[Auto-Cron] Report Dispatch Result:', result);
+            console.log('[Auto-Cron] Daily Report Dispatch Result:', result);
+          }
+        }
+
+        // B. Weekly Monday 9:00 AM (09:00) IST Executive Report
+        if (weekdayPart === 'Mon' && currentHour === 9 && currentMinute >= 0 && currentMinute <= 5) {
+          if (lastWeeklySentDateStr !== todayIstKey) {
+            console.log(`[Auto-Cron] 📈 Monday 9:00 AM IST reached (${todayIstKey}). Dispatching Weekly Executive Report with attached CSV...`);
+            lastWeeklySentDateStr = todayIstKey;
+            const result = await generateAndSendWeeklyReport();
+            console.log('[Auto-Cron] Weekly Report Dispatch Result:', result);
           }
         }
       } catch (err) {
-        console.error('[Auto-Cron] Error running scheduled daily report check:', err);
+        console.error('[Auto-Cron] Error running scheduled report check:', err);
       }
     }, 30000);
   }

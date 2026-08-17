@@ -268,6 +268,93 @@ export default function ProfileClient({ user }: { user: UserData }) {
             </form>
           )}
         </div>
+
+        {/* Executive Automated Reports Section for Admins */}
+        {user.role === 'ADMIN' && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-slate-900 dark:text-white">
+                  Executive Operations & Performance Reports
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Automated email summaries with full CSV spreadsheets delivered to your alert mailbox.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {/* Daily Report Card */}
+              <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-4 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-black text-slate-900 dark:text-white">📅 Daily EOD Report</span>
+                    <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full">Active Daily</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Dispatched automatically every day at <strong>7:00 PM IST</strong> with today&apos;s tickets, pending queue, and attached CSV.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const tId = toast.loading('Generating & sending Daily Report...');
+                    try {
+                      const res = await fetch('/api/cron/daily-report', { method: 'POST' });
+                      const data = await res.json();
+                      if (res.ok && data.success) {
+                        toast.success('✅ Daily report sent to your mailbox!', { id: tId });
+                      } else {
+                        throw new Error(data.error || data.message || 'Failed to dispatch');
+                      }
+                    } catch (e: any) {
+                      toast.error(e.message || 'Failed to dispatch', { id: tId });
+                    }
+                  }}
+                  className="w-full py-2 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95"
+                >
+                  Send Daily Report Now &rarr;
+                </button>
+              </div>
+
+              {/* Weekly Report Card */}
+              <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-4 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-black text-slate-900 dark:text-white">📈 Weekly Executive Report</span>
+                    <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-full">Every Monday</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Dispatched automatically every Monday at <strong>9:00 AM IST</strong> with 7-day KPIs, agent leaderboard, SLA health & attached CSV.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const tId = toast.loading('Generating & sending Weekly Executive Report...');
+                    try {
+                      const res = await fetch('/api/reports/weekly', { method: 'POST' });
+                      const data = await res.json();
+                      if (res.ok && data.success) {
+                        toast.success('✅ Weekly executive report sent to your mailbox!', { id: tId });
+                      } else {
+                        throw new Error(data.error || data.message || 'Failed to dispatch');
+                      }
+                    } catch (e: any) {
+                      toast.error(e.message || 'Failed to dispatch', { id: tId });
+                    }
+                  }}
+                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-black transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
+                >
+                  Send Weekly Report Now &rarr;
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
