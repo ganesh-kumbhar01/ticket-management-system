@@ -206,7 +206,12 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                   </div>
                 </div>
 
-                {isEditing ? (
+                {user.role === 'ADMIN' ? (
+                  <span className="px-3 py-1 bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5" />
+                    Admin (Read-Only)
+                  </span>
+                ) : isEditing ? (
                   <span className="px-2.5 py-1 bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 rounded-full text-xs font-bold flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                     Editing

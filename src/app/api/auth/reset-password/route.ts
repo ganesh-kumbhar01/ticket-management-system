@@ -24,6 +24,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid or expired reset token' }, { status: 400 });
     }
 
+    // ADMIN PROTECTION: Password reset is disabled for Admin accounts
+    if (user.role === 'ADMIN') {
+      return NextResponse.json({ 
+        error: 'Password reset is disabled for Administrator accounts.' 
+      }, { status: 403 });
+    }
+
     // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 

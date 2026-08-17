@@ -14,9 +14,9 @@ export async function POST(req: Request) {
       where: { email },
     });
 
-    if (!user) {
-      // For security, don't reveal if the user exists or not
-      return NextResponse.json({ message: 'If the email exists, a reset link has been sent.' }, { status: 200 });
+    // ADMIN PROTECTION: Do not generate reset links for Admin accounts
+    if (!user || user.role === 'ADMIN') {
+      return NextResponse.json({ message: 'If the email exists and is eligible, a reset link has been sent.' }, { status: 200 });
     }
 
     // Generate a secure random token
@@ -32,17 +32,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // Simulate sending email by printing to the console
     const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-    console.log('\n---------------------------------------------------------');
-    console.log(`[SIMULATED EMAIL TO: ${email}]`);
-    console.log('Password Reset Link:');
-    console.log(resetLink);
-    console.log('---------------------------------------------------------\n');
 
-    // For development testing: return the link in the response so it's easy to copy
     return NextResponse.json({
-      message: 'If the email exists, a reset link has been sent.',
+      message: 'If the email exists and is eligible, a reset link has been sent.',
       devResetLink: process.env.NODE_ENV !== 'production' ? resetLink : undefined
     }, { status: 200 });
   } catch (error) {

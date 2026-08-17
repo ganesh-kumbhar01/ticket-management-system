@@ -140,6 +140,8 @@ export default function UsersPage() {
 
   const toggleSelection = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    const targetUser = users.find(u => u.id === id);
+    if (targetUser?.role === 'ADMIN') return; // Cannot select Admin
     const newSet = new Set(selectedIds);
     if (newSet.has(id)) newSet.delete(id);
     else newSet.add(id);
@@ -147,10 +149,11 @@ export default function UsersPage() {
   };
 
   const toggleAll = () => {
-    if (selectedIds.size === filteredUsers.length && filteredUsers.length > 0) {
+    const selectableUsers = filteredUsers.filter(u => u.role !== 'ADMIN');
+    if (selectedIds.size === selectableUsers.length && selectableUsers.length > 0) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(filteredUsers.map(u => u.id)));
+      setSelectedIds(new Set(selectableUsers.map(u => u.id)));
     }
   };
 
@@ -277,16 +280,22 @@ export default function UsersPage() {
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-white dark:bg-slate-900 cursor-pointer group"
                   >
                     <td className="py-4 px-6">
-                      <button 
-                        onClick={(e) => toggleSelection(user.id, e)}
-                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500"
-                      >
-                        {selectedIds.has(user.id) ? (
-                          <CheckSquare className="w-5 h-5 text-blue-600" />
-                        ) : (
-                          <Square className="w-5 h-5" />
-                        )}
-                      </button>
+                      {user.role === 'ADMIN' ? (
+                        <div title="System Administrator (Read-Only & Protected from deletion)" className="text-slate-300 dark:text-slate-700">
+                          <Square className="w-5 h-5 opacity-30 cursor-not-allowed" />
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={(e) => toggleSelection(user.id, e)}
+                          className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500"
+                        >
+                          {selectedIds.has(user.id) ? (
+                            <CheckSquare className="w-5 h-5 text-blue-600" />
+                          ) : (
+                            <Square className="w-5 h-5" />
+                          )}
+                        </button>
+                      )}
                     </td>
                     <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white">
                       {user.name || <span className="text-slate-400 dark:text-slate-500 italic font-medium">Not Set</span>}

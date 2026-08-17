@@ -39,7 +39,31 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // If email is changing, ensure it doesn't collide
+    // ADMIN LOCK: Admin accounts cannot have password, email, role, or status modified
+    if (existingUser.role === 'ADMIN') {
+      if (password) {
+        return NextResponse.json({ 
+          error: 'Admin password cannot be modified (Admin account is permanent and read-only).' 
+        }, { status: 403 });
+      }
+      if (email && email.toLowerCase() !== existingUser.email.toLowerCase()) {
+        return NextResponse.json({ 
+          error: 'Admin login email cannot be modified.' 
+        }, { status: 403 });
+      }
+      if (role && role !== 'ADMIN') {
+        return NextResponse.json({ 
+          error: 'Admin role cannot be changed.' 
+        }, { status: 403 });
+      }
+      if (status && status !== 'ACTIVE') {
+        return NextResponse.json({ 
+          error: 'Admin account cannot be deactivated.' 
+        }, { status: 403 });
+      }
+    }
+
+    // If email is changing on an agent, ensure it doesn't collide
     if (email && email !== existingUser.email) {
       const collision = await prisma.user.findUnique({ where: { email } });
       if (collision) {
@@ -57,7 +81,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
     if (status !== undefined) updateData.status = status;
 
-    if (password) {
+    if (password && existingUser.role !== 'ADMIN') {
       updateData.passwordHash = await bcrypt.hash(password, 10);
     }
 
@@ -89,8 +113,6 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
-    // Fix: We need to await params in Next.js 15+, but since this might be 14, we just use it.
-    // Actually, in app router Next 15, params is a promise. It's safe to await it if it's a promise.
     const { id } = await Promise.resolve(params);
 
     if (!id) {
@@ -106,6 +128,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // ADMIN LOCK: Admin accounts cannot be deleted
+    if (user.role === 'ADMIN') {
+      return NextResponse.json({ error: 'Admin accounts cannot be deleted.' }, { status: 403 });
     }
 
     // Safely unassign tickets currently assigned to this user
