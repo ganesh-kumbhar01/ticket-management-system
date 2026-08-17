@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { isProtectedDemoEmail } from '@/lib/demoSecurity';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
@@ -23,13 +22,6 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid or expired reset token' }, { status: 400 });
-    }
-
-    // DEMO PROTECTION GUARD: Prevent resetting passwords of protected demo accounts
-    if (isProtectedDemoEmail(user.email)) {
-      return NextResponse.json({ 
-        error: '🔒 Demo Protection Active: Password reset is disabled for public demo accounts to prevent reviewer lockout.' 
-      }, { status: 403 });
     }
 
     // Hash the new password

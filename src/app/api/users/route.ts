@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { isProtectedDemoEmail } from '@/lib/demoSecurity';
 import bcrypt from 'bcryptjs';
 
+// Middleware-like function to check admin access
 async function checkAdminAccess() {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
@@ -16,10 +16,10 @@ async function checkAdminAccess() {
   return payload;
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const payload = await checkAdminAccess();
-    if (!payload) {
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
@@ -34,7 +34,9 @@ export async function GET(req: Request) {
         status: true,
         createdAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json({ users }, { status: 200 });
@@ -46,8 +48,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const payload = await checkAdminAccess();
-    if (!payload) {
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
@@ -57,25 +59,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
       data: {
-        name,
+        name: name || null,
         email,
-        notificationEmail: notificationEmail ? notificationEmail.trim() : null,
+        notificationEmail: notificationEmail?.trim() || null,
         passwordHash: hashedPassword,
-        role: role || 'AGENT',
-        supportTier: supportTier || 'TIER_1',
-        status: status || 'ACTIVE',
+        role: role === 'ADMIN' ? 'ADMIN' : 'AGENT',
+        supportTier: supportTier && ['TIER_1', 'TIER_2', 'TIER_3'].includes(supportTier) ? supportTier : 'TIER_1',
+        status: status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
       },
       select: {
         id: true,
@@ -111,19 +111,6 @@ export async function DELETE(req: Request) {
     // Prevent admin from deleting themselves
     if (ids.includes(payload.userId)) {
       return NextResponse.json({ error: 'You cannot delete your own account in a bulk action' }, { status: 400 });
-    }
-
-    // Verify if any target user is a protected demo account
-    const targetUsers = await prisma.user.findMany({
-      where: { id: { in: ids } },
-      select: { id: true, email: true },
-    });
-
-    const hasProtected = targetUsers.some((u) => isProtectedDemoEmail(u.email));
-    if (hasProtected) {
-      return NextResponse.json({ 
-        error: '🔒 Demo Protection Active: One or more selected accounts are core demo accounts and cannot be deleted.' 
-      }, { status: 403 });
     }
 
     // Safely unassign tickets currently assigned to these users

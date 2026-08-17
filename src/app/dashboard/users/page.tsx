@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Trash2, UserPlus, Shield, User, Plus, X, Search, CheckSquare, Square, AlertCircle, CheckCircle2, Layers } from 'lucide-react';
-import { isProtectedDemoEmail } from '@/lib/demoSecurity';
 
 const createUserSchema = z.object({
   name: z.string().optional(),
@@ -278,32 +277,19 @@ export default function UsersPage() {
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-white dark:bg-slate-900 cursor-pointer group"
                   >
                     <td className="py-4 px-6">
-                      {isProtectedDemoEmail(user.email) ? (
-                        <div title="Core Demo Account (Deletion Protected)" className="text-slate-300 dark:text-slate-600">
-                          <Square className="w-5 h-5 opacity-40 cursor-not-allowed" />
-                        </div>
-                      ) : (
-                        <button 
-                          onClick={(e) => toggleSelection(user.id, e)}
-                          className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500"
-                        >
-                          {selectedIds.has(user.id) ? (
-                            <CheckSquare className="w-5 h-5 text-blue-600" />
-                          ) : (
-                            <Square className="w-5 h-5" />
-                          )}
-                        </button>
-                      )}
+                      <button 
+                        onClick={(e) => toggleSelection(user.id, e)}
+                        className="text-slate-300 hover:text-blue-600 transition-colors group-hover:text-slate-400 dark:text-slate-500"
+                      >
+                        {selectedIds.has(user.id) ? (
+                          <CheckSquare className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <Square className="w-5 h-5" />
+                        )}
+                      </button>
                     </td>
                     <td className="py-4 px-6 text-sm font-bold text-slate-900 dark:text-white">
-                      <div className="flex items-center gap-2">
-                        <span>{user.name || <span className="text-slate-400 dark:text-slate-500 italic font-medium">Not Set</span>}</span>
-                        {isProtectedDemoEmail(user.email) && (
-                          <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-1.5 py-0.5 rounded">
-                            🔒 Demo
-                          </span>
-                        )}
-                      </div>
+                      {user.name || <span className="text-slate-400 dark:text-slate-500 italic font-medium">Not Set</span>}
                     </td>
                     <td className="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-300">
                       <div>{user.email}</div>
