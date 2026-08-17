@@ -150,7 +150,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 shrink-0">
           <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl p-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
             <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
-              {isAdmin ? 'Total System Tickets' : 'My Total Tickets'}
+              Total Tickets
             </h3>
             <p className="text-2xl font-black text-slate-900 dark:text-white">{totalTickets}</p>
           </div>
