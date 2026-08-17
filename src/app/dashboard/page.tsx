@@ -7,7 +7,6 @@ import DashboardCharts from '@/components/DashboardCharts';
 import DashboardGreeting from '@/components/DashboardGreeting';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -37,7 +36,7 @@ export default async function DashboardPage() {
     prisma.ticket.count({ where: { ...whereClause, status: { in: ['NEW', 'OPEN'] } } }),
     prisma.ticket.count({ where: { ...whereClause, status: 'PENDING_CUSTOMER' } }),
     prisma.ticket.count({ where: { ...whereClause, status: { in: ['RESOLVED', 'CLOSED'] } } }),
-    prisma.ticket.count({ where: { assignedAgentId: null, status: { notIn: ['RESOLVED', 'CLOSED'] } } })
+    prisma.ticket.count({ where: { assignedAgentId: null } })
   ]);
 
   const recentTickets = await prisma.ticket.findMany({
@@ -49,7 +48,7 @@ export default async function DashboardPage() {
   let unassignedRecentTickets: any[] = [];
   if (!isAdmin) {
     unassignedRecentTickets = await prisma.ticket.findMany({
-      where: { assignedAgentId: null, status: { notIn: ['RESOLVED', 'CLOSED'] } },
+      where: { assignedAgentId: null },
       orderBy: { createdAt: 'desc' },
       take: 5,
     });
