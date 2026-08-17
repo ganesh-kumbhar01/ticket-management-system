@@ -94,6 +94,17 @@ model ProcessedEmail {
   processedAt    DateTime @default(now())
 }
 
+model AgentPresence {
+  id        String   @id @default(uuid())
+  ticketId  String
+  userId    String
+  userName  String
+  userRole  String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([ticketId, userId])
+}
+
 enum Role {
   ADMIN
   AGENT
