@@ -1126,8 +1126,16 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
                 Customer History
               </h3>
               {isLoadingHistory ? (
-                <div className="text-center py-4">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 animate-pulse">Loading history...</p>
+                <div className="space-y-2.5 animate-pulse">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800/50 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                        <div className="h-4 w-14 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                      </div>
+                      <div className="h-3.5 w-full bg-slate-200 dark:bg-slate-800 rounded"></div>
+                    </div>
+                  ))}
                 </div>
               ) : customerTickets.length === 0 ? (
                 <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800/50">
