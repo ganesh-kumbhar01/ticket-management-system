@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { isProtectedDemoEmail } from '@/lib/demoSecurity';
 import bcrypt from 'bcryptjs';
 
 async function checkUserAccess() {
@@ -39,7 +40,31 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // If email is changing, ensure it doesn't collide
+    // DEMO PROTECTION GUARD: Prevent password/login email/role change on protected demo accounts
+    if (isProtectedDemoEmail(existingUser.email)) {
+      if (password) {
+        return NextResponse.json({ 
+          error: '🔒 Demo Protection Active: Password change is disabled for demo accounts to prevent lockout for other reviewers.' 
+        }, { status: 403 });
+      }
+      if (email && email.toLowerCase() !== existingUser.email.toLowerCase()) {
+        return NextResponse.json({ 
+          error: '🔒 Demo Protection Active: Primary login email cannot be changed for demo accounts.' 
+        }, { status: 403 });
+      }
+      if (status && status !== 'ACTIVE') {
+        return NextResponse.json({ 
+          error: '🔒 Demo Protection Active: Core demo accounts cannot be deactivated.' 
+        }, { status: 403 });
+      }
+      if (role && role !== existingUser.role) {
+        return NextResponse.json({ 
+          error: '🔒 Demo Protection Active: Core demo roles cannot be changed.' 
+        }, { status: 403 });
+      }
+    }
+
+    // If email is changing on a custom user, ensure it doesn't collide
     if (email && email !== existingUser.email) {
       const collision = await prisma.user.findUnique({ where: { email } });
       if (collision) {
@@ -89,8 +114,6 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
 
-    // Fix: We need to await params in Next.js 15+, but since this might be 14, we just use it.
-    // Actually, in app router Next 15, params is a promise. It's safe to await it if it's a promise.
     const { id } = await Promise.resolve(params);
 
     if (!id) {
@@ -106,6 +129,13 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // DEMO PROTECTION GUARD: Prevent deleting protected demo accounts
+    if (isProtectedDemoEmail(user.email)) {
+      return NextResponse.json({ 
+        error: '🔒 Demo Protection Active: Core demo accounts cannot be deleted to keep the platform accessible for reviewers.' 
+      }, { status: 403 });
     }
 
     // Safely unassign tickets currently assigned to this user

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Bell, Shield, KeyRound, Check, Edit3, X, Save, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { isProtectedDemoEmail } from '@/lib/demoSecurity';
 
 type UserData = {
   id: string;
@@ -190,6 +191,16 @@ export default function ProfileClient({ user }: { user: UserData }) {
             <form onSubmit={handleSave} className="border-t border-slate-100 dark:border-slate-800/80 pt-6 space-y-5">
               <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Edit Account & Notification Settings</h3>
 
+              {isProtectedDemoEmail(savedData.email) && (
+                <div className="p-4 bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/30 rounded-xl text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2.5">
+                  <Shield className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block font-bold mb-0.5">🔒 Demo Protection Active</strong>
+                    <span>Password and primary login email modifications are locked for this demo account to prevent public lockout. All reports, alerts, and operational features are 100% active.</span>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">
                   Full Name
@@ -206,13 +217,19 @@ export default function ProfileClient({ user }: { user: UserData }) {
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">
                   Login Email Address <span className="text-rose-500">*</span>
+                  {isProtectedDemoEmail(savedData.email) && (
+                    <span className="ml-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full">
+                      🔒 Locked (Demo)
+                    </span>
+                  )}
                 </label>
                 <input
                   type="email"
                   required
+                  disabled={isProtectedDemoEmail(savedData.email)}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                  className="w-full h-11 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -237,14 +254,20 @@ export default function ProfileClient({ user }: { user: UserData }) {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">
-                  New Password (leave blank to keep current)
+                  New Password {isProtectedDemoEmail(savedData.email) ? '(Locked for Demo)' : '(leave blank to keep current)'}
+                  {isProtectedDemoEmail(savedData.email) && (
+                    <span className="ml-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full">
+                      🔒 Locked (Demo)
+                    </span>
+                  )}
                 </label>
                 <input
                   type="password"
+                  disabled={isProtectedDemoEmail(savedData.email)}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full h-11 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                  placeholder={isProtectedDemoEmail(savedData.email) ? 'Password change locked for demo accounts' : '••••••••'}
+                  className="w-full h-11 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
 

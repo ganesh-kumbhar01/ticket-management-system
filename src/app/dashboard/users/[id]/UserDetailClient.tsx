@@ -22,6 +22,7 @@ import {
   Layers
 } from 'lucide-react';
 import Link from 'next/link';
+import { isProtectedDemoEmail } from '@/lib/demoSecurity';
 
 type SafeUser = {
   id: string;
@@ -362,6 +363,16 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
               ) : (
                 /* EDIT MODE FORM */
                 <form onSubmit={handleSave} className="p-6 space-y-6">
+                  {isProtectedDemoEmail(user.email) && (
+                    <div className="p-4 bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/30 rounded-2xl text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2.5">
+                      <Shield className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="block font-bold mb-0.5">🔒 Demo Protected Account</strong>
+                        <span>This is a core demo account. Password, primary email, role, and status modifications are locked to prevent reviewer lockouts.</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Full Name Input */}
                     <div>
@@ -384,16 +395,22 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                         Login Email Address <span className="text-rose-500">*</span>
+                        {isProtectedDemoEmail(user.email) && (
+                          <span className="ml-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full">
+                            🔒 Locked
+                          </span>
+                        )}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                           type="email"
                           required
+                          disabled={isProtectedDemoEmail(user.email)}
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="agent@company.com"
-                          className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
+                          className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -422,13 +439,19 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                         System Role
+                        {isProtectedDemoEmail(user.email) && (
+                          <span className="ml-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full">
+                            🔒 Locked
+                          </span>
+                        )}
                       </label>
                       <div className="relative">
                         <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <select
                           value={role}
+                          disabled={isProtectedDemoEmail(user.email)}
                           onChange={(e) => setRole(e.target.value)}
-                          className="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white appearance-none cursor-pointer"
+                          className="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <option value="AGENT">AGENT — Support Agent</option>
                           <option value="ADMIN">ADMIN — Administrator</option>
@@ -461,13 +484,19 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                         Account Status
+                        {isProtectedDemoEmail(user.email) && (
+                          <span className="ml-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full">
+                            🔒 Locked
+                          </span>
+                        )}
                       </label>
                       <div className="relative">
                         <Activity className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <select
                           value={status}
+                          disabled={isProtectedDemoEmail(user.email)}
                           onChange={(e) => setStatus(e.target.value)}
-                          className="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white appearance-none cursor-pointer"
+                          className="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <option value="ACTIVE">ACTIVE — Active Staff</option>
                           <option value="INACTIVE">INACTIVE — Inactive / Away</option>
@@ -481,20 +510,26 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                   {/* Password Reset Field (Optional) */}
                   <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60">
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                      Reset Password (Optional)
+                      Reset Password {isProtectedDemoEmail(user.email) ? '(Locked for Demo)' : '(Optional)'}
+                      {isProtectedDemoEmail(user.email) && (
+                        <span className="ml-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full">
+                          🔒 Locked
+                        </span>
+                      )}
                     </label>
                     <div className="relative max-w-md">
                       <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input
                         type="password"
+                        disabled={isProtectedDemoEmail(user.email)}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter new password (leave blank to keep current)"
-                        className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
+                        placeholder={isProtectedDemoEmail(user.email) ? 'Password change locked for demo accounts' : 'Enter new password (leave blank to keep current)'}
+                        className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
-                      Leave this blank if you do not want to change the agent's password.
+                      {isProtectedDemoEmail(user.email) ? 'Password modification is disabled to protect demo access.' : 'Leave this blank if you do not want to change the agent\'s password.'}
                     </p>
                   </div>
 
