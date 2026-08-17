@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { generateGeminiContent } from '@/lib/gemini';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -117,16 +118,14 @@ export async function POST(req: Request) {
 
       let generatedContent = `# ${suggestedTitle}\n\n## Overview\nThis guide provides clear step-by-step solutions for resolving common customer inquiries regarding ${category}.\n\n### Common Solutions:\n1. **Verify Account Details:** Ensure your student profile information is up to date.\n2. **Payment & Billing:** Allow 24-48 hours for automated banking reconciliation.\n3. **Technical Support:** Clear your browser cache or try an incognito window if experiencing dashboard loading delays.\n\n*Created automatically via Horizon AI Ops Advisor.*`;
 
-      // Try generating via Gemini
+      // Generate via robust Gemini
       try {
-        if (process.env.GEMINI_API_KEY) {
-          const res = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: `Draft a comprehensive, helpful, structured markdown Knowledge Base article titled "${suggestedTitle}" for category "${category}". Include an Overview, Problem Scenarios, and Step-by-Step Resolution steps. Output clean Markdown only.`
-          });
-          if (res.text) {
-            generatedContent = res.text.trim();
-          }
+        const resText = await generateGeminiContent(
+          `Draft a comprehensive, helpful, structured markdown Knowledge Base article titled "${suggestedTitle}" for category "${category}". Include an Overview, Problem Scenarios, and Step-by-Step Resolution steps. Output clean Markdown only.`,
+          { temperature: 0.3 }
+        );
+        if (resText && resText.trim().length > 0) {
+          generatedContent = resText.trim();
         }
       } catch (e) {
         console.warn('Gemini draft generation failed, using fallback template:', e);

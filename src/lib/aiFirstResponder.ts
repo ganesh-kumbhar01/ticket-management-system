@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
+import { generateGeminiContent } from '@/lib/gemini';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
@@ -94,23 +95,11 @@ INSTRUCTIONS:
 5. Do NOT include placeholders like "[Your Name]" or "[Support Team]". End warmly as "Support AI Assistant".
 `;
 
-    let aiReplyText = '';
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
-          contents: prompt,
-        });
-        aiReplyText = response.text || '';
-      } catch (genErr) {
-        // Fallback gracefully without error
-      }
-    }
-
-    // Fallback if Gemini generation is empty or unavailable
-    if (!aiReplyText) {
-      aiReplyText = `Hello,\n\nThank you for reaching out to our support team regarding "${ticket.subject}".\n\nHere are a few quick steps that resolve most common issues:\n\n1. **Verify Credentials & Session:** Please try logging out, clearing your browser cache/cookies, and logging back in.\n2. **Password / Token Reset:** If you are experiencing access issues, request a fresh password reset link.\n3. **Network & Device:** Ensure you are not connected to a restrictive VPN or firewall.\n\nIf these steps do not solve your problem, simply reply to this email or let us know, and a live support agent will assist you directly!`;
-    }
+    const aiReplyText = await generateGeminiContent(prompt, {
+      systemInstruction: 'You are an empathetic, highly skilled customer support copilot who provides instant, practical, and tailored troubleshooting advice.',
+      temperature: 0.2,
+      maxTokens: 1000,
+    });
 
     // 4. Save the AI Response message to the ticket thread
     await prisma.message.create({

@@ -1,44 +1,37 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyJwtToken } from '@/lib/auth';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { generateGeminiContent } from '@/lib/gemini';
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const payload = await verifyJwtToken(token);
-    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const body = await req.json();
+    const { text, tone } = body;
 
-    const { content } = await req.json();
-
-    if (!content || !content.trim()) {
-      return NextResponse.json({ error: 'Content is required' }, { status: 400 });
+    if (!text || !text.trim()) {
+      return NextResponse.json({ error: 'Text is required' }, { status: 400 });
     }
 
     const prompt = `
-    You are an expert customer support agent.
-    Your task is to polish and enhance the following drafted response to a customer.
-    Make it sound professional, empathetic, and grammatically correct, while preserving the original meaning and intent.
-    Do not add extra information or promises that are not in the original draft.
-    Output ONLY the polished response.
+    You are an expert communication coach and customer service writing specialist.
+    Rewrite and polish the following draft response intended for a customer.
+    
+    Target Tone: ${tone || 'Professional & Empathetic'}
+    
+    Rules:
+    - Keep the core information intact.
+    - Improve clarity, grammar, formatting, and professionalism.
+    - Do NOT wrap the answer in quotes or markdown intro fluff. Just return the polished text.
 
-    --- ORIGINAL DRAFT ---
-    ${content}
+    --- DRAFT TEXT ---
+    ${text}
+    ------------------
     `;
 
-    const aiResponse = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: prompt
+    const polishedText = await generateGeminiContent(prompt, {
+      systemInstruction: 'You are a communication polishing specialist.',
+      temperature: 0.2,
     });
 
-    const polishedReply = aiResponse.text;
-
-    return NextResponse.json({ polishedReply }, { status: 200 });
+    return NextResponse.json({ polishedText }, { status: 200 });
   } catch (error: any) {
     console.error('Polish API Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

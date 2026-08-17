@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyJwtToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { generateGeminiContent } from '@/lib/gemini';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -322,13 +323,12 @@ Respond ONLY with valid, raw JSON (no markdown formatting, no code block backtic
 Ensure the output is 100% valid JSON, simple to understand, and contains 2 to 3 insights.
 `;
 
-        const aiResponse = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: prompt
+        const resText = await generateGeminiContent(prompt, {
+          temperature: 0.2,
         });
 
-        if (aiResponse.text) {
-          const cleanedText = aiResponse.text.replace(/```json/gi, '').replace(/```/gi, '').trim();
+        if (resText) {
+          const cleanedText = resText.replace(/```json/gi, '').replace(/```/gi, '').trim();
           const parsed = JSON.parse(cleanedText);
           if (parsed && parsed.dailySummary && parsed.insights) {
             analysisResult = parsed;
