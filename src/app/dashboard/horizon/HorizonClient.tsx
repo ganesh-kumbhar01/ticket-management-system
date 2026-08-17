@@ -23,8 +23,13 @@ import {
   RotateCcw,
   Flame,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Inbox,
+  UserCheck,
+  Target,
+  Sparkle
 } from 'lucide-react';
+import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface InsightItem {
@@ -67,7 +72,7 @@ interface SimulationResult {
     riskLevel: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
     queueDelayHours: string;
     backlogSurgeCount: string;
-    teamStressIndex: 'EXTREME' | 'ELEVATED' | 'MODERATE' | 'STABLE';
+    teamStressIndex: 'EXTREME' | 'ELEVATED' | 'MODERATE' | 'STABLE' | 'OPTIMAL';
   };
   blastRadiusSummary: string;
   tacticalActionPlan: {
@@ -82,7 +87,7 @@ interface SimulationResult {
   };
 }
 
-const PRESET_SCENARIOS = [
+const ADMIN_PRESET_SCENARIOS = [
   { label: '⚡ 3x Ticket Surge (Course Launch)', text: '500 students face payment failures and access delays during course launch.' },
   { label: '💳 Payment Gateway Downtime (4 hrs)', text: 'Payment gateway API goes down for 4 hours; students get charged but orders stay pending.' },
   { label: '👥 50% Staff Emergency Leave', text: 'Half of our active support agents take emergency sick leave for 3 days.' },
@@ -90,7 +95,16 @@ const PRESET_SCENARIOS = [
   { label: '🎟️ Promo Code & Discount Glitch', text: 'Flash sale coupon code fails at checkout, generating 200 angry customer queries.' },
 ];
 
+const AGENT_PRESET_SCENARIOS = [
+  { label: '🎯 Clear All My Urgent Tickets', text: 'What if I prioritize and resolve all urgent/high-priority tickets in my queue in the next 2 hours?' },
+  { label: '📥 Claim 3 Unassigned Tickets', text: 'What if I claim 3 high-priority unassigned tickets from the team pool into my shift queue?' },
+  { label: '🔺 Escalate Complex Bug to L2', text: 'What if I escalate a complex technical playback error with full internal handover notes to Tier 2?' },
+  { label: '✍️ Draft Knowledge Base Guide', text: 'What if I publish a step-by-step Knowledge Base solution for recurring student invoice queries?' },
+];
+
 export default function HorizonClient({ userRole, userEmail }: { userRole: string; userEmail: string }) {
+  const isAdmin = userRole === 'ADMIN';
+
   const [data, setData] = useState<HorizonData | null>(null);
   const [metrics, setMetrics] = useState<RawMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,6 +115,8 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
   const [customScenario, setCustomScenario] = useState('');
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+
+  const presetScenarios = isAdmin ? ADMIN_PRESET_SCENARIOS : AGENT_PRESET_SCENARIOS;
 
   const fetchHorizonData = async (showToast = false) => {
     try {
@@ -137,7 +153,11 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
 
     setIsSimulating(true);
     setCustomScenario(textToSimulate);
-    const toastId = toast.loading('Simulating impact against live database baseline...');
+    const toastId = toast.loading(
+      isAdmin 
+        ? 'Simulating team impact against live database baseline...'
+        : 'Projecting personal shift productivity and SLA impact...'
+    );
 
     try {
       const res = await fetch('/api/horizon/simulate', {
@@ -149,7 +169,12 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
       const json = await res.json();
       if (res.ok && json.success && json.data) {
         setSimulationResult(json.data);
-        toast.success('🎯 Simulation complete! Projected impact and action plan ready.', { id: toastId });
+        toast.success(
+          isAdmin 
+            ? '🎯 Simulation complete! Projected impact & mitigation plan ready.' 
+            : '🎯 Shift projection complete! Next-best actions ready.',
+          { id: toastId }
+        );
       } else {
         throw new Error(json.error || 'Simulation failed');
       }
@@ -235,16 +260,16 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Horizon
+                  {isAdmin ? 'Horizon' : 'Horizon Agent Copilot'}
                 </h1>
                 <span className="px-2 py-0.5 text-xs font-black uppercase tracking-wider bg-indigo-600 text-white rounded-md shadow-sm">
-                  {userRole === 'ADMIN' ? 'Executive AI Operations' : 'Agent AI Copilot'}
+                  {isAdmin ? 'Executive AI Operations' : 'Agent Shift Copilot'}
                 </span>
               </div>
               <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                {userRole === 'ADMIN' 
+                {isAdmin 
                   ? 'Real-time operational diagnosis, interactive crisis stress-testing, and automated mitigations.' 
-                  : 'Live shift intelligence, personal queue insights, and fast solution actions.'}
+                  : 'Personal shift intelligence, next-best action recommendations, and queue acceleration.'}
               </p>
             </div>
           </div>
@@ -257,7 +282,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
             className="flex items-center gap-2 px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/40 dark:border-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl hover:bg-white/80 dark:hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-indigo-600' : ''}`} />
-            <span>{isRefreshing ? 'Analyzing Live Data...' : 'Refresh Analysis'}</span>
+            <span>{isRefreshing ? 'Analyzing Live Shift...' : 'Refresh Copilot'}</span>
           </button>
         </div>
       </div>
@@ -270,7 +295,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
         </div>
       ) : data ? (
         <>
-          {/* SECTION 1: Daily Executive Briefing & Health Score */}
+          {/* SECTION 1: Daily Briefing & Health Score (Admin Executive vs Agent Shift) */}
           <div className="bg-gradient-to-br from-white/60 via-white/40 to-indigo-50/30 dark:from-slate-900/60 dark:via-slate-900/40 dark:to-indigo-950/20 backdrop-blur-2xl rounded-3xl border border-white/50 dark:border-slate-800/60 p-6 md:p-8 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -279,7 +304,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                 <div className="flex items-center gap-2">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-indigo-500 animate-ping"></span>
                   <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                    Daily Executive Briefing
+                    {isAdmin ? 'Daily Executive Briefing' : 'Personal Shift Briefing'}
                   </span>
                   <span className="text-xs text-slate-400 dark:text-slate-500">• Today</span>
                 </div>
@@ -301,7 +326,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                 </div>
               </div>
 
-              {/* System Health Score Badge */}
+              {/* Health Score / Shift Index Badge */}
               <div className="flex items-center gap-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl p-4 md:p-5 rounded-2xl border border-white/50 dark:border-slate-800/60 self-stretch sm:self-auto shrink-0 justify-center">
                 <div className="text-center">
                   <div className="flex items-baseline justify-center gap-1">
@@ -311,37 +336,45 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                     <span className="text-xs font-bold text-slate-400">/100</span>
                   </div>
                   <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider border ${getHealthColor(data.healthStatus)}`}>
-                    {data.healthStatus}
+                    {isAdmin ? data.healthStatus : data.healthStatus === 'HEALTHY' ? 'ON TRACK' : 'NEEDS ACTION'}
                   </span>
                 </div>
                 <div className="w-[1px] h-12 bg-slate-200 dark:bg-slate-800"></div>
                 <div className="text-xs space-y-1 text-slate-500 dark:text-slate-400">
-                  <p className="font-semibold text-slate-700 dark:text-slate-300">Operational Index</p>
-                  <p>{metrics?.resolutionRate || 0}% Resolution Rate</p>
-                  <p>{metrics?.unassignedCount || 0} Unassigned in Queue</p>
+                  <p className="font-semibold text-slate-700 dark:text-slate-300">
+                    {isAdmin ? 'Operational Index' : 'My Shift Index'}
+                  </p>
+                  <p>{metrics?.resolutionRate || 0}% {isAdmin ? 'Team Resolution' : 'My Resolution Rate'}</p>
+                  <p>{metrics?.activeTicketsCount || 0} {isAdmin ? 'Unassigned in Queue' : 'Open in My Queue'}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SECTION 2: Interactive "What-If" Predictive Scenario Simulator & Stress-Testing Sandbox */}
+          {/* SECTION 2: What-If Simulator (Admin Executive Crisis Sandbox vs Agent Shift Copilot) */}
           <div className="bg-gradient-to-r from-indigo-900/10 via-purple-900/10 to-blue-900/10 dark:from-indigo-950/40 dark:via-purple-950/30 dark:to-blue-950/40 backdrop-blur-2xl rounded-3xl border border-indigo-500/30 dark:border-indigo-500/20 p-6 md:p-8 shadow-sm space-y-6">
             
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-600/30">
-                  <Sliders className="w-5 h-5" />
+                  {isAdmin ? <Sliders className="w-5 h-5" /> : <Target className="w-5 h-5" />}
                 </div>
                 <div>
                   <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <span>Predictive Scenario: &quot;What-If&quot; Stress-Testing Simulator</span>
+                    <span>
+                      {isAdmin 
+                        ? 'Predictive Scenario: "What-If" Stress-Testing Simulator' 
+                        : 'Shift Simulator: "What-If" Personal Productivity Projection'}
+                    </span>
                     <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 rounded-full">
-                      Interactive Sandbox
+                      {isAdmin ? 'Executive Sandbox' : 'Agent Copilot'}
                     </span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Input any hypothetical crisis, traffic surge, or staff shortage to simulate blast radius & generate a 3-phase action plan.
+                    {isAdmin
+                      ? 'Input any hypothetical crisis, traffic surge, or staff shortage to simulate blast radius & generate a 3-phase action plan.'
+                      : 'Simulate personal queue actions (clearing urgent tickets, claiming from pool, escalating bugs) to project shift output.'}
                   </p>
                 </div>
               </div>
@@ -372,7 +405,11 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                       handleRunSimulation();
                     }
                   }}
-                  placeholder="Type your scenario (e.g., 'What if 500 payment failed tickets arrive during launch?' or '2 agents go on leave?')..."
+                  placeholder={
+                    isAdmin
+                      ? "Type your scenario (e.g., 'What if 500 payment failed tickets arrive during launch?' or '2 agents go on leave?')..."
+                      : "Type your shift goal (e.g., 'What if I clear 4 pending tickets before lunch?' or 'What if I escalate ticket #12 to L2?')..."
+                  }
                   className="flex-1 px-4 py-3 bg-white/80 dark:bg-slate-900/80 border border-slate-300/80 dark:border-slate-700/80 rounded-2xl text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/30 focus:border-indigo-600 shadow-sm"
                 />
                 <button
@@ -383,12 +420,12 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                   {isSimulating ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Simulating...</span>
+                      <span>{isAdmin ? 'Simulating...' : 'Projecting Shift...'}</span>
                     </>
                   ) : (
                     <>
                       <Zap className="w-4 h-4" />
-                      <span>Run Simulation &rarr;</span>
+                      <span>{isAdmin ? 'Run Simulation &rarr;' : 'Project Output &rarr;'}</span>
                     </>
                   )}
                 </button>
@@ -396,8 +433,10 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
 
               {/* Quick Scenario Preset Chips */}
               <div className="flex items-center gap-2 flex-wrap pt-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">Quick Presets:</span>
-                {PRESET_SCENARIOS.map((preset, idx) => (
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                  {isAdmin ? 'Crisis Presets:' : 'Shift Action Presets:'}
+                </span>
+                {presetScenarios.map((preset, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -423,7 +462,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                       <span>{simulationResult.scenarioTitle}</span>
                     </h4>
                     <span className={`px-3 py-1 text-xs font-black uppercase tracking-wider rounded-full shadow-sm ${getRiskBadgeColor(simulationResult.impactMetrics.riskLevel)} self-start sm:self-auto`}>
-                      Risk Level: {simulationResult.impactMetrics.riskLevel}
+                      {isAdmin ? `Risk Level: ${simulationResult.impactMetrics.riskLevel}` : `Shift Score: ${simulationResult.impactMetrics.riskLevel === 'LOW' ? 'OPTIMAL' : 'ACTION REQUIRED'}`}
                     </span>
                   </div>
 
@@ -431,7 +470,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/20 rounded-2xl p-3.5 text-center">
                       <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 block">
-                        SLA Breach Risk
+                        {isAdmin ? 'SLA Breach Risk' : 'My SLA Breach Risk'}
                       </span>
                       <p className="text-2xl font-black text-rose-700 dark:text-rose-300 mt-0.5">
                         {simulationResult.impactMetrics.slaBreachRisk}%
@@ -440,7 +479,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
 
                     <div className="bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/20 rounded-2xl p-3.5 text-center">
                       <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
-                        Projected Queue Delay
+                        {isAdmin ? 'Projected Queue Delay' : 'Wait Time Reduction'}
                       </span>
                       <p className="text-2xl font-black text-amber-700 dark:text-amber-300 mt-0.5">
                         {simulationResult.impactMetrics.queueDelayHours}
@@ -449,7 +488,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
 
                     <div className="bg-purple-500/10 dark:bg-purple-950/30 border border-purple-500/20 rounded-2xl p-3.5 text-center">
                       <span className="text-[10px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 block">
-                        Backlog Surge
+                        {isAdmin ? 'Backlog Surge' : 'Expected Output'}
                       </span>
                       <p className="text-2xl font-black text-purple-700 dark:text-purple-300 mt-0.5">
                         {simulationResult.impactMetrics.backlogSurgeCount}
@@ -458,7 +497,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
 
                     <div className="bg-indigo-500/10 dark:bg-indigo-950/30 border border-indigo-500/20 rounded-2xl p-3.5 text-center">
                       <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block">
-                        Team Stress Index
+                        {isAdmin ? 'Team Stress Index' : 'Personal Shift Stress'}
                       </span>
                       <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300 mt-0.5">
                         {simulationResult.impactMetrics.teamStressIndex}
@@ -466,9 +505,11 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                     </div>
                   </div>
 
-                  {/* Blast Radius Summary */}
+                  {/* Blast Radius / Impact Summary */}
                   <div className="p-4 bg-white/70 dark:bg-slate-900/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-xs md:text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
-                    <span className="font-bold text-slate-900 dark:text-white mr-1.5">💥 Blast Radius Analysis:</span>
+                    <span className="font-bold text-slate-900 dark:text-white mr-1.5">
+                      {isAdmin ? '💥 Blast Radius Analysis:' : '💡 Shift Output Analysis:'}
+                    </span>
                     {simulationResult.blastRadiusSummary}
                   </div>
                 </div>
@@ -477,7 +518,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                 <div className="space-y-3">
                   <h5 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                    <span>3-Phase Tactical Mitigation Playbook</span>
+                    <span>{isAdmin ? '3-Phase Tactical Mitigation Playbook' : 'Recommended 3-Step Shift Plan'}</span>
                   </h5>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -525,7 +566,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                       </div>
                       <div>
                         <span className="text-xs font-bold text-indigo-200 block uppercase tracking-wider">
-                          Recommended Instant AI Mitigation
+                          {isAdmin ? 'Recommended Instant AI Mitigation' : 'Recommended Next Action for Your Shift'}
                         </span>
                         <p className="text-sm font-black text-white">
                           {simulationResult.oneClickAction.label}
@@ -543,7 +584,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                       className="w-full sm:w-auto px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      <span>{executingActionId === 'simulation-action' ? 'Executing...' : 'Execute Mitigation Now'}</span>
+                      <span>{executingActionId === 'simulation-action' ? 'Executing...' : 'Execute Action Now'}</span>
                     </button>
                   </div>
                 )}
@@ -553,16 +594,22 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
 
           </div>
 
-          {/* SECTION 3: The 3-Step Operations Matrix (Operational Diagnosis of Present State) */}
+          {/* SECTION 3: The 3-Step Operations Matrix (Admin System Bottlenecks vs Agent Personal Queue Triage) */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                   <Activity className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span>3-Stage Operational Diagnosis (Present State)</span>
+                  <span>
+                    {isAdmin 
+                      ? '3-Stage Operational Diagnosis (Present State)' 
+                      : 'Personal Queue Triage & Fast Actions (My Assigned Tickets)'}
+                  </span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Live System Bottleneck &rarr; Root Cause (Why) &rarr; Recommended 1-Click Action Plan
+                  {isAdmin 
+                    ? 'Live System Bottleneck → Root Cause (Why) → Recommended 1-Click Action Plan'
+                    : 'Personal Queue Status → Waiting Root Cause → Instant Resolution Action'}
                 </p>
               </div>
             </div>
@@ -570,7 +617,9 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
             <div className="grid grid-cols-1 gap-4">
               {data.insights.length === 0 ? (
                 <div className="p-10 text-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-slate-800 text-slate-500">
-                  No active operational bottlenecks. All systems running at optimal capacity!
+                  {isAdmin 
+                    ? 'No active operational bottlenecks. All systems running at optimal capacity!'
+                    : 'Your assigned queue is completely clear! Great job on your shift.'}
                 </div>
               ) : (
                 data.insights.map((item) => (
@@ -584,7 +633,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                         {item.tag}
                       </span>
                       <span className="text-[11px] text-slate-400 font-medium">
-                        Live System Signal
+                        {isAdmin ? 'Live System Signal' : 'Assigned Queue Signal'}
                       </span>
                     </div>
 
@@ -594,7 +643,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                       <div className="space-y-1.5 p-3.5 bg-white/50 dark:bg-slate-800/40 rounded-xl border border-white/40 dark:border-slate-700/40">
                         <div className="flex items-center gap-1.5 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           <span className="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px] font-black">1</span>
-                          <span>What is happening?</span>
+                          <span>{isAdmin ? 'What is happening?' : 'My Queue Status'}</span>
                         </div>
                         <p className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
                           {item.what}
@@ -605,7 +654,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                       <div className="space-y-1.5 p-3.5 bg-white/50 dark:bg-slate-800/40 rounded-xl border border-white/40 dark:border-slate-700/40">
                         <div className="flex items-center gap-1.5 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           <span className="w-4 h-4 rounded-full bg-amber-200 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 flex items-center justify-center text-[10px] font-black">2</span>
-                          <span>Why is it happening? (Root Cause)</span>
+                          <span>{isAdmin ? 'Why is it happening? (Root Cause)' : 'Context & Bottleneck'}</span>
                         </div>
                         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                           {item.why}
@@ -617,7 +666,7 @@ export default function HorizonClient({ userRole, userEmail }: { userRole: strin
                         <div>
                           <div className="flex items-center gap-1.5 text-xs font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
                             <span className="w-4 h-4 rounded-full bg-indigo-200 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 flex items-center justify-center text-[10px] font-black">3</span>
-                            <span>Action Plan & Impact</span>
+                            <span>{isAdmin ? 'Action Plan & Impact' : 'Recommended Next Step'}</span>
                           </div>
                           <p className="text-xs text-indigo-950 dark:text-indigo-200 mt-1 leading-relaxed font-medium">
                             {item.whatIf}
