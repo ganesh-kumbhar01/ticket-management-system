@@ -49,6 +49,7 @@ export async function middleware(request: NextRequest) {
   // Add user info to headers for API routes if needed
   response.headers.set('x-user-id', payload.userId);
   response.headers.set('x-user-role', payload.role);
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   
   return response;
 }
