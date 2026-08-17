@@ -5,6 +5,9 @@ import { verifyJwtToken } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { checkAndEscalateSlaBreaches } from '@/lib/slaService';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function TicketsPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;

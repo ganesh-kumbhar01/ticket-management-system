@@ -5,6 +5,10 @@ import { prisma } from '@/lib/db';
 import Link from 'next/link';
 import DashboardCharts from '@/components/DashboardCharts';
 import DashboardGreeting from '@/components/DashboardGreeting';
+import DashboardLivePoller from '@/components/DashboardLivePoller';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -29,12 +33,13 @@ export default async function DashboardPage() {
 
   const whereClause = isAdmin ? {} : { assignedAgentId: payload.userId };
 
+  // Live real-time KPI counts across Agent & Admin scopes
   const [totalTickets, openTickets, progressTickets, resolvedTickets, unassignedTickets] = await Promise.all([
     prisma.ticket.count({ where: whereClause }),
-    prisma.ticket.count({ where: { ...whereClause, status: 'NEW' } }),
-    prisma.ticket.count({ where: { ...whereClause, status: { in: ['OPEN', 'PENDING_CUSTOMER'] } } }),
-    prisma.ticket.count({ where: { ...whereClause, status: 'RESOLVED' } }),
-    prisma.ticket.count({ where: { assignedAgentId: null } })
+    prisma.ticket.count({ where: { ...whereClause, status: { in: ['NEW', 'OPEN'] } } }),
+    prisma.ticket.count({ where: { ...whereClause, status: 'PENDING_CUSTOMER' } }),
+    prisma.ticket.count({ where: { ...whereClause, status: { in: ['RESOLVED', 'CLOSED'] } } }),
+    prisma.ticket.count({ where: { assignedAgentId: null, status: { notIn: ['RESOLVED', 'CLOSED'] } } })
   ]);
 
   const recentTickets = await prisma.ticket.findMany({
@@ -46,7 +51,7 @@ export default async function DashboardPage() {
   let unassignedRecentTickets: any[] = [];
   if (!isAdmin) {
     unassignedRecentTickets = await prisma.ticket.findMany({
-      where: { assignedAgentId: null },
+      where: { assignedAgentId: null, status: { notIn: ['RESOLVED', 'CLOSED'] } },
       orderBy: { createdAt: 'desc' },
       take: 5,
     });
@@ -118,12 +123,12 @@ export default async function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'NEW': return 'bg-purple-100 text-purple-700 border border-purple-200';
-      case 'OPEN': return 'bg-amber-100 text-amber-700 border border-amber-200';
-      case 'PENDING_CUSTOMER': return 'bg-orange-100 text-orange-700 border border-orange-200';
-      case 'RESOLVED': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'CLOSED': return 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800';
-      default: return 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-200 dark:border-slate-800 dark:border-slate-800';
+      case 'NEW': return 'bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800';
+      case 'OPEN': return 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800';
+      case 'PENDING_CUSTOMER': return 'bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800';
+      case 'RESOLVED': return 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+      case 'CLOSED': return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
+      default: return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
     }
   };
 
@@ -132,29 +137,46 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-full p-4 md:p-6">
       <div className="max-w-7xl mx-auto w-full">
-        <DashboardGreeting userName={userName} isAdmin={isAdmin} />
+        
+        {/* Header with Greeting and Live Sync Indicator */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <DashboardGreeting userName={userName} isAdmin={isAdmin} />
+          <div className="self-end sm:self-auto">
+            <DashboardLivePoller />
+          </div>
+        </div>
 
-        {/* Metric Cards */}
+        {/* Metric Cards (Live Real-Time KPIs) */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 shrink-0">
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Total Tickets</h3>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalTickets}</p>
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl p-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+              {isAdmin ? 'Total System Tickets' : 'My Total Tickets'}
+            </h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalTickets}</p>
           </div>
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Open</h3>
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{openTickets}</p>
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl p-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+              {isAdmin ? 'Active Open' : 'My Open Queue'}
+            </h3>
+            <p className="text-2xl font-black text-purple-600 dark:text-purple-400">{openTickets}</p>
           </div>
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">In Progress</h3>
-            <p className="text-2xl font-bold text-amber-500 dark:text-amber-400">{progressTickets}</p>
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl p-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+              Awaiting Reply
+            </h3>
+            <p className="text-2xl font-black text-amber-500 dark:text-amber-400">{progressTickets}</p>
           </div>
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Resolved</h3>
-            <p className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">{resolvedTickets}</p>
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl p-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+              Resolved & Closed
+            </h3>
+            <p className="text-2xl font-black text-emerald-500 dark:text-emerald-400">{resolvedTickets}</p>
           </div>
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-xl p-4 shadow-sm">
-            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">Unassigned</h3>
-            <p className="text-2xl font-bold text-rose-500 dark:text-rose-400">{unassignedTickets}</p>
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl p-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+              Unassigned Pool
+            </h3>
+            <p className="text-2xl font-black text-rose-500 dark:text-rose-400">{unassignedTickets}</p>
           </div>
         </div>
 
@@ -178,99 +200,46 @@ export default async function DashboardPage() {
               </Link>
             </div>
           
-          <div className="overflow-x-auto">
-            {recentTickets.length === 0 ? (
-              <div className="p-12 text-center">
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">No tickets found. You are all caught up!</p>
-              </div>
-            ) : (
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-white/20 dark:bg-slate-900/20 border-b border-white/20 dark:border-slate-800/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ticket</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                  {recentTickets.map(ticket => (
-                    <tr key={ticket.id} className="hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors bg-transparent">
-                      <td className="px-4 py-3">
-                        <Link href={`/dashboard/tickets/${ticket.id}`} className="block">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[200px]">{ticket.subject}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{ticket.studentEmail}</p>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}>
-                          {ticket.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          ticket.priority === 'URGENT' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
-                          ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-700 border border-orange-200' :
-                          ticket.priority === 'NORMAL' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                          'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
-                        }`}>
-                          {ticket.priority}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        {new Date(ticket.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-
-        {!isAdmin && (
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-                  Unassigned Queue
-                </h2>
-                <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {unassignedTickets} NEW
-                </span>
-              </div>
-              <Link href="/dashboard/tickets?tab=unassigned" className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-                View all &rarr;
-              </Link>
-            </div>
             <div className="overflow-x-auto">
-              {unassignedRecentTickets.length === 0 ? (
+              {recentTickets.length === 0 ? (
                 <div className="p-12 text-center">
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">No unassigned tickets right now.</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">No tickets found. You are all caught up!</p>
                 </div>
               ) : (
                 <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 z-10">
-                    <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
-                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Subject</th>
-                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Time</th>
+                  <thead className="bg-white/20 dark:bg-slate-900/20 border-b border-white/20 dark:border-slate-800/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ticket</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {unassignedRecentTickets.map(ticket => (
-                      <tr key={ticket.id} className="hover:bg-white/50 dark:bg-slate-900/50 transition-colors bg-transparent">
-                        <td className="py-2.5 px-4 text-xs font-bold text-slate-900 dark:text-white">
-                          <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors truncate block max-w-xs">
-                            {ticket.subject}
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                    {recentTickets.map(ticket => (
+                      <tr key={ticket.id} className="hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors bg-transparent">
+                        <td className="px-4 py-3">
+                          <Link href={`/dashboard/tickets/${ticket.id}`} className="block">
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[200px]">{ticket.subject}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{ticket.studentEmail}</p>
                           </Link>
                         </td>
-                        <td className="py-2.5 px-4">
+                        <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}>
                             {ticket.status}
                           </span>
                         </td>
-                        <td className="py-2.5 px-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            ticket.priority === 'URGENT' ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800' :
+                            ticket.priority === 'HIGH' ? 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800' :
+                            ticket.priority === 'NORMAL' ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800' :
+                            'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
+                          }`}>
+                            {ticket.priority}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right text-xs text-slate-500 dark:text-slate-400 font-medium">
                           {new Date(ticket.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </td>
                       </tr>
@@ -280,50 +249,103 @@ export default async function DashboardPage() {
               )}
             </div>
           </div>
-        )}
 
-        {isAdmin && (
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
-            <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
-              <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-                Agent Performance
-              </h2>
+          {!isAdmin && (
+            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
+              <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+                    Unassigned Queue
+                  </h2>
+                  <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {unassignedTickets} AVAILABLE
+                  </span>
+                </div>
+                <Link href="/dashboard/tickets?tab=unassigned" className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                  View all &rarr;
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                {unassignedRecentTickets.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">No unassigned tickets right now.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse">
+                    <thead className="sticky top-0 z-10">
+                      <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
+                        <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Subject</th>
+                        <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                        <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                      {unassignedRecentTickets.map(ticket => (
+                        <tr key={ticket.id} className="hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors bg-transparent">
+                          <td className="py-2.5 px-4 text-xs font-bold text-slate-900 dark:text-white">
+                            <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 transition-colors truncate block max-w-xs">
+                              {ticket.subject}
+                            </Link>
+                          </td>
+                          <td className="py-2.5 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusColor(ticket.status)}`}>
+                              {ticket.status}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            {new Date(ticket.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 z-10">
-                  <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
-                    <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Agent</th>
-                    <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Assigned</th>
-                    <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Open/WIP</th>
-                    <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Resolved</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {agentStats.map((agent: any) => (
-                    <tr key={agent.id} className="hover:bg-white/50 dark:bg-slate-900/50 transition-colors bg-transparent">
-                      <td className="py-2.5 px-4">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">{agent.name}</span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{agent.email}</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-4 text-center">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">{agent.total}</span>
-                      </td>
-                      <td className="py-2.5 px-4 text-center">
-                        <span className="text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">{agent.open}</span>
-                      </td>
-                      <td className="py-2.5 px-4 text-center">
-                        <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">{agent.resolved}</span>
-                      </td>
+          )}
+
+          {isAdmin && (
+            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-slate-800/50 rounded-2xl flex flex-col overflow-hidden shadow-sm min-w-0">
+              <div className="p-4 border-b border-white/20 dark:border-slate-800/50 flex justify-between items-center bg-transparent">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+                  Agent Performance
+                </h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40">
+                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Agent</th>
+                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Assigned</th>
+                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Open/WIP</th>
+                      <th className="py-2.5 px-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Resolved</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                    {agentStats.map((agent: any) => (
+                      <tr key={agent.id} className="hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors bg-transparent">
+                        <td className="py-2.5 px-4">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">{agent.name}</span>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{agent.email}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-4 text-center">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">{agent.total}</span>
+                        </td>
+                        <td className="py-2.5 px-4 text-center">
+                          <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-full">{agent.open}</span>
+                        </td>
+                        <td className="py-2.5 px-4 text-center">
+                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">{agent.resolved}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
       </div>
     </div>

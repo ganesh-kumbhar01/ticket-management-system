@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { verifyJwtToken } from '@/lib/auth';
 import HorizonClient from './HorizonClient';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function HorizonPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
