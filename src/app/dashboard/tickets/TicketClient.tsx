@@ -231,6 +231,7 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
   };
 
   const [isSendingReport, setIsSendingReport] = useState(false);
+  const [isSendingWeekly, setIsSendingWeekly] = useState(false);
 
   const handleSendDailyReport = async () => {
     setIsSendingReport(true);
@@ -248,6 +249,26 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       toast.error(error.message || 'Failed to send daily report');
     } finally {
       setIsSendingReport(false);
+    }
+  };
+
+  const handleSendWeeklyReport = async () => {
+    setIsSendingWeekly(true);
+    const toastId = toast.loading('Generating 7-day executive report & CSV...');
+    try {
+      const res = await fetch('/api/reports/weekly', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to dispatch weekly report');
+      if (data.success === false) {
+        toast.error(`⚠️ ${data.message || 'Failed to send weekly report.'}`, { id: toastId });
+        return;
+      }
+      toast.success(`📈 ${data.message || 'Weekly Executive Report & CSV sent to your mailbox!'}`, { id: toastId });
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to send weekly report', { id: toastId });
+    } finally {
+      setIsSendingWeekly(false);
     }
   };
 
@@ -273,15 +294,24 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
             Manage and respond to incoming requests.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button 
+            onClick={handleSendWeeklyReport}
+            disabled={isSendingWeekly}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-sm shadow-indigo-600/20 active:scale-95 shrink-0 disabled:opacity-50 text-sm"
+            title="Dispatch 7-day executive briefing & spreadsheet report to your alert mailbox"
+          >
+            <FileSpreadsheet className={`w-4 h-4 ${isSendingWeekly ? 'animate-bounce' : ''}`} />
+            <span>{isSendingWeekly ? 'Sending...' : '📈 Send Weekly Report'}</span>
+          </button>
           <button 
             onClick={handleSendDailyReport}
             disabled={isSendingReport}
             className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-xl font-bold transition-all shadow-sm active:scale-95 shrink-0 disabled:opacity-50 text-sm"
-            title="Send 7:00 PM EOD Operations Report & CSV Spreadsheet to all staff active mailboxes"
+            title="Send 7:00 PM EOD Operations Report & CSV Spreadsheet to configured alert mailboxes"
           >
             <FileSpreadsheet className={`w-4 h-4 text-emerald-600 dark:text-emerald-400 ${isSendingReport ? 'animate-bounce' : ''}`} />
-            <span>{isSendingReport ? 'Sending Report...' : 'Send Daily EOD Report'}</span>
+            <span>{isSendingReport ? 'Sending...' : 'Daily EOD'}</span>
           </button>
           <button 
             onClick={handleSyncEmails}
