@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -68,28 +67,38 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen w-full relative overflow-hidden bg-[#eef4fc] flex items-center justify-center lg:justify-end p-4 sm:p-6 lg:p-12 xl:pr-32 font-sans">
+    <main className="min-h-screen w-full relative overflow-hidden bg-[#e0ecfc] flex flex-col lg:flex-row items-center justify-center lg:justify-between p-4 sm:p-6 lg:p-12 xl:px-32 font-sans">
       
-      {/* 8K Infinite Resolution CSS Background (Never Pixelates) */}
+      {/* Top Left Branding */}
+      <div className="absolute top-6 left-6 sm:top-10 sm:left-10 z-40 flex items-center gap-2.5">
+        <div className="w-8 h-8 bg-blue-600 rounded-[10px] flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <Ticket className="w-4.5 h-4.5 text-white" />
+        </div>
+        <span className="text-xl font-bold text-[#0a1a3a] tracking-tight">
+          helpdesk
+        </span>
+      </div>
+
+      {/* 8K Infinite Resolution CSS Background (Darker/More Saturated) */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Soft white base layer overlay */}
-        <div className="absolute inset-0 bg-white/20 z-10 backdrop-blur-[60px]" />
+        {/* Soft base layer overlay */}
+        <div className="absolute inset-0 bg-white/10 z-10 backdrop-blur-[60px]" />
         
-        {/* Main sweeping blue wave (bottom left crossing to middle right) */}
-        <div className="absolute -left-[10%] bottom-[10%] w-[120%] h-[50%] bg-[#6c8cf5]/40 rounded-[100%] blur-[120px] -rotate-12" />
+        {/* Main sweeping blue wave */}
+        <div className="absolute -left-[10%] bottom-[5%] w-[120%] h-[60%] bg-[#3b66f5]/50 rounded-[100%] blur-[120px] -rotate-12" />
         
-        {/* Secondary purplish glow (mid left) */}
-        <div className="absolute left-[5%] top-[30%] w-[50%] h-[40%] bg-[#a59ef8]/30 rounded-full blur-[130px]" />
+        {/* Secondary purplish glow (darker) */}
+        <div className="absolute left-[5%] top-[15%] w-[50%] h-[50%] bg-[#7768f5]/45 rounded-full blur-[130px]" />
         
-        {/* Cyan accent (top right) */}
-        <div className="absolute -right-[10%] -top-[10%] w-[60%] h-[60%] bg-[#8ee6f7]/40 rounded-full blur-[140px]" />
+        {/* Cyan accent (darker/vibrant) */}
+        <div className="absolute -right-[10%] -top-[10%] w-[60%] h-[60%] bg-[#36d6f5]/45 rounded-full blur-[140px]" />
         
-        {/* Soft bottom-right fill */}
-        <div className="absolute right-[5%] -bottom-[20%] w-[70%] h-[60%] bg-[#9ec4e8]/40 rounded-full blur-[120px]" />
+        {/* Deep blue bottom-right fill */}
+        <div className="absolute right-[5%] -bottom-[20%] w-[70%] h-[60%] bg-[#2554d6]/35 rounded-full blur-[120px]" />
         
-        {/* Crisp vector wave line overlay to give the organic edge structure */}
+        {/* Crisp vector wave line overlay */}
         <svg 
-          className="absolute inset-0 w-full h-full z-20 opacity-[0.15]" 
+          className="absolute inset-0 w-full h-full z-20 opacity-[0.3]" 
           viewBox="0 0 1440 900" 
           preserveAspectRatio="xMidYMid slice" 
           xmlns="http://www.w3.org/2000/svg"
@@ -101,33 +110,46 @@ export default function LoginPage() {
           <defs>
             <linearGradient id="gradient-overlay" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
             </linearGradient>
           </defs>
         </svg>
       </div>
 
+      {/* Left Content (Typography & Floating Chat Bubbles) */}
+      <div className="relative z-20 hidden lg:flex flex-col justify-center h-full w-full max-w-xl pl-4 xl:pl-16">
+        
+        {/* Decorative Floating Chat Bubbles */}
+        <div className="absolute top-[28%] left-[40%] flex flex-col gap-3 w-[280px]">
+          <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[13px] text-slate-700 font-semibold shadow-sm border border-white/60 w-fit">
+            Hi! How can I help you?
+          </div>
+          <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[13px] text-slate-700 font-semibold shadow-sm border border-white/60 ml-8 w-fit">
+            I'll need to verify your identity first.
+          </div>
+        </div>
+
+        {/* Center Huge Typography */}
+        <div className="relative mt-12 z-10 select-none">
+          <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mb-[-1rem] ml-2 uppercase">The</p>
+          <h1 className="text-[5.5rem] xl:text-[7.5rem] leading-none font-black text-[#0a1a3a] tracking-tight drop-shadow-sm">
+            helpdesk
+          </h1>
+          <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mt-[-1rem] ml-3 uppercase">Future</p>
+        </div>
+      </div>
+
       {/* Floating White Login Card (Existing Box) */}
-      <div className="relative z-30 w-full max-w-[430px] bg-white/95 backdrop-blur-3xl rounded-[36px] sm:rounded-[44px] p-8 sm:p-11 shadow-[0_30px_80px_rgba(40,65,120,0.12)] border border-white flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
+      <div className="relative z-30 w-full max-w-[430px] bg-white/95 backdrop-blur-3xl rounded-[36px] sm:rounded-[44px] p-8 sm:p-11 shadow-[0_30px_80px_rgba(40,65,120,0.15)] border border-white flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
         
         <div>
-          {/* Logo Header */}
-          <div className="flex items-center justify-center gap-2.5 mb-7">
-            <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
-              <Ticket className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="text-xl font-black text-slate-900 tracking-tight">
-              HelpDesk
-            </span>
-          </div>
-
           {/* Headline & Subtitle */}
           <div className="text-center space-y-1.5 mb-8">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Log in to account
+              Log in
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              Enter your credentials to access your support workspace.
+              Enter your credentials to access your workspace.
             </p>
           </div>
 
@@ -189,7 +211,7 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Remember Me Only (Forgot Password Removed as requested) */}
+            {/* Remember Me */}
             <div className="flex items-center pt-0.5 px-1 text-xs">
               <button 
                 type="button"
@@ -225,10 +247,10 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Bottom Compliance & Security Note */}
+        {/* Bottom Note */}
         <div className="pt-7 text-center">
           <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-            Authorized Agent & Administrator Access Only · Support OS
+            Authorized Agent & Administrator Access Only
           </p>
         </div>
 
