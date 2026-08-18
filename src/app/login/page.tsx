@@ -256,7 +256,7 @@ export default function LoginPage() {
           {/* Bottom Sign Up Link */}
           <div className="mt-8 pt-5 text-center flex justify-center">
             <p className="text-[11px] text-slate-400 font-medium">
-              Don't have an account? <Link href="#" className="text-indigo-600 font-bold hover:underline ml-1">Sign up</Link>
+              Don&apos;t have an account? <Link href="#" className="text-indigo-600 font-bold hover:underline ml-1">Sign up</Link>
             </p>
           </div>
 
