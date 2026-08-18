@@ -119,18 +119,18 @@ export default function LoginPage() {
       {/* Left Content (Typography & Floating Chat Bubbles) */}
       <div className="relative z-20 hidden lg:flex flex-col justify-center h-full w-full max-w-xl pl-4 xl:pl-16">
         
-        {/* Decorative Floating Chat Bubbles */}
-        <div className="absolute top-[28%] left-[40%] flex flex-col gap-3 w-[280px]">
-          <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[13px] text-slate-700 font-semibold shadow-sm border border-white/60 w-fit">
+        {/* Decorative Floating Chat Bubbles (Now in normal flow, above text) */}
+        <div className="flex flex-col gap-3 mb-8 pl-32 xl:pl-48 opacity-90">
+          <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[12px] text-slate-700 font-semibold shadow-sm border border-white/80 w-fit">
             Hi! How can I help you?
           </div>
-          <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[13px] text-slate-700 font-semibold shadow-sm border border-white/60 ml-8 w-fit">
+          <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[12px] text-slate-700 font-semibold shadow-sm border border-white/80 ml-8 w-fit">
             I'll need to verify your identity first.
           </div>
         </div>
 
         {/* Center Huge Typography */}
-        <div className="relative mt-12 z-10 select-none">
+        <div className="relative z-10 select-none">
           <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mb-[-1rem] ml-2 uppercase">The</p>
           <h1 className="text-[5.5rem] xl:text-[7.5rem] leading-none font-black text-[#0a1a3a] tracking-tight drop-shadow-sm">
             helpdesk
