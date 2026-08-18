@@ -5,8 +5,8 @@
       "schedule": "30 13 * * *"
     },
     {
-      "path": "/api/tickets/sla-check",
-      "schedule": "*/15 * * * *"
+      "path": "/api/tickets/sync-emails",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
