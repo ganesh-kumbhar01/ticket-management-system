@@ -61,6 +61,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isPolishing, setIsPolishing] = useState(false);
   const [isRunningAiResponse, setIsRunningAiResponse] = useState(false);
+  const [isSavingToKB, setIsSavingToKB] = useState(false);
   const [currentTier, setCurrentTier] = useState(ticket.currentTier || 'TIER_1');
   const [isEscalateModalOpen, setIsEscalateModalOpen] = useState(false);
   const [targetTier, setTargetTier] = useState<'TIER_2' | 'TIER_3'>('TIER_2');
@@ -379,6 +380,21 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     }
   };
 
+  const handleSaveToKB = async () => {
+    setIsSavingToKB(true);
+    try {
+      const res = await fetch(`/api/tickets/${ticket.id}/to-kb`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to save to KB');
+      toast.success(`✨ KB Article Created: "${data.title}"`);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to generate KB article');
+    } finally {
+      setIsSavingToKB(false);
+    }
+  };
+
   const handleDownloadJsonReport = () => {
     if (!reportData) return;
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
@@ -500,6 +516,19 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
           </div>
         </div>
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Save to KB Button (Visible only when resolved) */}
+          {status === 'RESOLVED' && (
+            <button
+              onClick={handleSaveToKB}
+              disabled={isSavingToKB}
+              className="px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-xs font-black transition-all shadow-md shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
+              title="Generate a Knowledge Base article from this resolved ticket"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>{isSavingToKB ? 'Saving...' : 'Save to KB'}</span>
+            </button>
+          )}
+
           {/* Report Button */}
           <button
             onClick={handleOpenReportModal}
