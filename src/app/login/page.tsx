@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,25 +68,47 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen w-full relative overflow-hidden bg-[#9ec4e8] dark:bg-slate-950 flex items-center justify-center lg:justify-end p-4 sm:p-6 lg:p-12 xl:pr-24 font-sans">
-      {/* Full-Screen 3D Workspace Scene (No artificial frames or black bezels) */}
-      <div className="absolute inset-0 z-0">
-        <Image 
-          src="/login_scene_bg.jpg" 
-          alt="Support Workspace Scene" 
-          fill
-          priority
-          unoptimized
-          quality={100}
-          className="object-cover object-left md:object-center select-none pointer-events-none"
-          sizes="100vw"
-        />
-        {/* Soft Mobile Darkening Overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] lg:hidden pointer-events-none" />
+    <main className="min-h-screen w-full relative overflow-hidden bg-[#eef4fc] flex items-center justify-center lg:justify-end p-4 sm:p-6 lg:p-12 xl:pr-32 font-sans">
+      
+      {/* 8K Infinite Resolution CSS Background (Never Pixelates) */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Soft white base layer overlay */}
+        <div className="absolute inset-0 bg-white/20 z-10 backdrop-blur-[60px]" />
+        
+        {/* Main sweeping blue wave (bottom left crossing to middle right) */}
+        <div className="absolute -left-[10%] bottom-[10%] w-[120%] h-[50%] bg-[#6c8cf5]/40 rounded-[100%] blur-[120px] -rotate-12" />
+        
+        {/* Secondary purplish glow (mid left) */}
+        <div className="absolute left-[5%] top-[30%] w-[50%] h-[40%] bg-[#a59ef8]/30 rounded-full blur-[130px]" />
+        
+        {/* Cyan accent (top right) */}
+        <div className="absolute -right-[10%] -top-[10%] w-[60%] h-[60%] bg-[#8ee6f7]/40 rounded-full blur-[140px]" />
+        
+        {/* Soft bottom-right fill */}
+        <div className="absolute right-[5%] -bottom-[20%] w-[70%] h-[60%] bg-[#9ec4e8]/40 rounded-full blur-[120px]" />
+        
+        {/* Crisp vector wave line overlay to give the organic edge structure */}
+        <svg 
+          className="absolute inset-0 w-full h-full z-20 opacity-[0.15]" 
+          viewBox="0 0 1440 900" 
+          preserveAspectRatio="xMidYMid slice" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M0,450 C300,550 500,250 800,400 C1100,550 1300,350 1440,450 L1440,900 L0,900 Z" 
+            fill="url(#gradient-overlay)" 
+          />
+          <defs>
+            <linearGradient id="gradient-overlay" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
 
-      {/* Floating White Login Card (Exact UI Structure & Styling matching Reference Design) */}
-      <div className="relative z-10 w-full max-w-[430px] bg-white/95 backdrop-blur-2xl rounded-[36px] sm:rounded-[44px] p-8 sm:p-11 shadow-[0_25px_70px_rgba(15,23,42,0.18)] border border-white/80 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
+      {/* Floating White Login Card (Existing Box) */}
+      <div className="relative z-30 w-full max-w-[430px] bg-white/95 backdrop-blur-3xl rounded-[36px] sm:rounded-[44px] p-8 sm:p-11 shadow-[0_30px_80px_rgba(40,65,120,0.12)] border border-white flex flex-col justify-between animate-in fade-in zoom-in-95 duration-300">
         
         <div>
           {/* Logo Header */}
@@ -128,7 +149,7 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 {...register('email')}
-                className={`w-full h-12 sm:h-13 px-4 sm:px-5 bg-slate-50/90 border ${
+                className={`w-full h-12 sm:h-13 px-4 sm:px-5 bg-slate-50/80 border ${
                   errors.email 
                     ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500' 
                     : 'border-slate-200 focus:ring-blue-600/20 focus:border-blue-600'
@@ -147,7 +168,7 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...register('password')}
-                  className={`w-full h-12 sm:h-13 pl-4 sm:pl-5 pr-12 bg-slate-50/90 border ${
+                  className={`w-full h-12 sm:h-13 pl-4 sm:pl-5 pr-12 bg-slate-50/80 border ${
                     errors.password 
                       ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500' 
                       : 'border-slate-200 focus:ring-blue-600/20 focus:border-blue-600'
@@ -168,8 +189,8 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password Row */}
-            <div className="flex items-center justify-between pt-0.5 px-1 text-xs">
+            {/* Remember Me Only (Forgot Password Removed as requested) */}
+            <div className="flex items-center pt-0.5 px-1 text-xs">
               <button 
                 type="button"
                 onClick={() => setValue('rememberMe', !rememberMe, { shouldValidate: true })}
@@ -182,13 +203,6 @@ export default function LoginPage() {
                 )}
                 <span>Remember me</span>
               </button>
-
-              <Link 
-                href="/forgot-password"
-                className="font-bold text-blue-600 hover:underline transition-all"
-              >
-                Forgot password?
-              </Link>
             </div>
 
             {/* Submit Action Button */}
