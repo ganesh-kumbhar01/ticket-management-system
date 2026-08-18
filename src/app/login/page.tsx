@@ -117,10 +117,10 @@ export default function LoginPage() {
       </div>
 
       {/* Left Content (Typography & Floating Chat Bubbles) */}
-      <div className="relative z-20 hidden lg:flex flex-col justify-center h-full w-full max-w-xl pl-4 xl:pl-16">
+      <div className="relative z-20 hidden lg:flex flex-col justify-center h-full flex-1 min-w-0 pl-4 lg:pl-8 xl:pl-16 pr-8">
         
         {/* Decorative Floating Chat Bubbles (Now in normal flow, above text) */}
-        <div className="flex flex-col gap-3 mb-8 pl-32 xl:pl-48 opacity-90">
+        <div className="flex flex-col gap-3 mb-6 pl-[20%] xl:pl-[30%] opacity-90">
           <div className="bg-white/80 backdrop-blur-xl px-5 py-3 rounded-[20px] rounded-bl-sm text-[12px] text-slate-700 font-semibold shadow-sm border border-white/80 w-fit">
             Hi! How can I help you?
           </div>
@@ -129,13 +129,13 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Center Huge Typography */}
+        {/* Center Huge Typography (Fluidly scaling to prevent overlap) */}
         <div className="relative z-10 select-none">
-          <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mb-[-1rem] ml-2 uppercase">The</p>
-          <h1 className="text-[5.5rem] xl:text-[7.5rem] leading-none font-black text-[#0a1a3a] tracking-tight drop-shadow-sm">
+          <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mb-[-1rem] lg:mb-[-0.5rem] ml-2 uppercase">The</p>
+          <h1 className="text-[clamp(3.5rem,6.5vw,7.5rem)] leading-none font-black text-[#0a1a3a] tracking-tight drop-shadow-sm truncate">
             helpdesk
           </h1>
-          <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mt-[-1rem] ml-3 uppercase">Future</p>
+          <p className="text-slate-400/80 font-black tracking-[0.4em] text-xs xl:text-sm mt-[-1rem] lg:mt-[-0.5rem] ml-3 uppercase">Future</p>
         </div>
       </div>
 
