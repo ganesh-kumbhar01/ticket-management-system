@@ -147,8 +147,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const payload = await verifyJwtToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!payload || payload.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden: Only admins can delete tickets' }, { status: 403 });
     }
 
     const id = resolvedParams.id;

@@ -3,7 +3,19 @@ import { generateAndSendWeeklyReport } from '@/lib/weeklyReportService';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+const checkCronAuth = (req: Request) => {
+  const authHeader = req.headers.get('authorization');
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return false;
+  }
+  return true;
+};
+
+export async function GET(req: Request) {
+  if (!checkCronAuth(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const result = await generateAndSendWeeklyReport();
     return NextResponse.json(result, { status: result.success ? 200 : 500 });
@@ -12,6 +24,6 @@ export async function GET() {
   }
 }
 
-export async function POST() {
-  return GET();
+export async function POST(req: Request) {
+  return GET(req);
 }
