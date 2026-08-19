@@ -30,6 +30,7 @@ type SafeUser = {
   notificationEmail?: string | null;
   role: string;
   supportTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | string;
+  receiveAlerts?: boolean;
   status: string;
   createdAt: string;
   assignedTickets: Array<{
@@ -48,6 +49,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
   const [name, setName] = useState(user.name || '');
   const [email, setEmail] = useState(user.email);
   const [notificationEmail, setNotificationEmail] = useState(user.notificationEmail || '');
+  const [receiveAlerts, setReceiveAlerts] = useState(user.receiveAlerts ?? true);
   const [role, setRole] = useState(user.role);
   const [supportTier, setSupportTier] = useState(user.supportTier || 'TIER_1');
   const [status, setStatus] = useState(user.status);
@@ -58,6 +60,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
     name: user.name || '',
     email: user.email,
     notificationEmail: user.notificationEmail || '',
+    receiveAlerts: user.receiveAlerts ?? true,
     role: user.role,
     supportTier: user.supportTier || 'TIER_1',
     status: user.status
@@ -74,6 +77,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
     setName(savedUser.name);
     setEmail(savedUser.email);
     setNotificationEmail(savedUser.notificationEmail);
+    setReceiveAlerts(savedUser.receiveAlerts);
     setRole(savedUser.role);
     setSupportTier(savedUser.supportTier);
     setStatus(savedUser.status);
@@ -93,6 +97,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
         name: name.trim() || null,
         email: email.trim(),
         notificationEmail: notificationEmail.trim() || null,
+        receiveAlerts,
         role,
         supportTier,
         status
@@ -117,6 +122,7 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
         name: name.trim(),
         email: email.trim(),
         notificationEmail: notificationEmail.trim(),
+        receiveAlerts,
         role,
         supportTier,
         status
@@ -481,6 +487,25 @@ export default function UserDetailClient({ user }: { user: SafeUser }) {
                         <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                       </div>
                     </div>
+                  </div>
+
+                  {/* Toggle: Receive Alerts */}
+                  <div className="pt-2 pb-2">
+                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl transition-all hover:bg-slate-100 dark:hover:bg-slate-800">
+                      <div className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={receiveAlerts}
+                          onChange={(e) => setReceiveAlerts(e.target.checked)}
+                        />
+                        <div className="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">Receive Automated Alerts</p>
+                        <p className="text-[11px] text-slate-500 font-medium mt-0.5">Toggle to enable or disable SLA breach and Daily Report emails for this user.</p>
+                      </div>
+                    </label>
                   </div>
 
                   {/* Password Reset Field (Optional) */}
