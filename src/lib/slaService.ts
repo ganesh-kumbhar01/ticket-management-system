@@ -5,6 +5,8 @@ export async function checkAndEscalateSlaBreaches() {
   try {
     // 3 hours threshold for unassigned critical tickets
     const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    // Ignore extremely old tickets (e.g. from previous tests)
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     // 1. Find all unassigned critical tickets older than 3 hours that have not been escalated yet
     const breachedTickets = await prisma.ticket.findMany({
@@ -13,7 +15,10 @@ export async function checkAndEscalateSlaBreaches() {
         status: { in: ['NEW', 'OPEN'] },
         priority: { in: ['URGENT', 'HIGH'] },
         isSlaBreached: false,
-        createdAt: { lte: threeHoursAgo },
+        createdAt: { 
+          lte: threeHoursAgo,
+          gte: twentyFourHoursAgo // Do not trigger for old tickets
+        },
       },
       include: {
         messages: {
@@ -32,6 +37,7 @@ export async function checkAndEscalateSlaBreaches() {
       where: {
         role: 'ADMIN',
         status: 'ACTIVE',
+        receiveAlerts: true, // Only admins who opted-in via toggle
       },
       select: {
         id: true,
@@ -42,18 +48,25 @@ export async function checkAndEscalateSlaBreaches() {
     });
 
     if (admins.length === 0) {
-      console.warn('No active admins found for SLA escalation.');
-      return { breachedCount: breachedTickets.length, message: 'No active admins configured.' };
+      console.warn('No active admins found with receiveAlerts enabled.');
+      return { breachedCount: breachedTickets.length, message: 'No active admins configured for alerts.' };
     }
 
     // Extract unique active alert mailboxes (priority: notificationEmail -> admin email)
-    const adminAlertEmails = Array.from(
+    const rawAdminAlertEmails = Array.from(
       new Set(
         admins
           .map((admin) => admin.notificationEmail?.trim() || admin.email?.trim())
           .filter((email): email is string => Boolean(email && email.length > 0))
       )
     );
+    
+    // As per user request, strictly enforce delivery to the requested address only
+    const adminAlertEmails = rawAdminAlertEmails.filter(email => email === 'kumbharganesh815@gmail.com');
+    
+    if (adminAlertEmails.length === 0) {
+      console.warn('Admin target email kumbharganesh815@gmail.com is not among the enabled admins.');
+    }
 
     const now = new Date();
 

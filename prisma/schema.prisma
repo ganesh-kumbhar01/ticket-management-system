@@ -21,6 +21,7 @@ model User {
   resetTokenExpiry DateTime?
   name              String?
   notificationEmail String?
+  receiveAlerts     Boolean        @default(true)
   status            UserStatus     @default(ACTIVE)
   notifications     Notification[]
   assignedTickets   Ticket[]       @relation("AssignedTo")

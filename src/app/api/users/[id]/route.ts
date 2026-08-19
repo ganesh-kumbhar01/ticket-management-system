@@ -31,7 +31,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const body = await req.json();
-    const { name, email, notificationEmail, role, supportTier, status, password } = body;
+    const { name, email, notificationEmail, role, supportTier, status, password, receiveAlerts } = body;
 
     // Verify user exists
     const existingUser = await prisma.user.findUnique({ where: { id } });
@@ -80,6 +80,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       updateData.supportTier = supportTier;
     }
     if (status !== undefined) updateData.status = status;
+    if (receiveAlerts !== undefined) updateData.receiveAlerts = Boolean(receiveAlerts);
 
     if (password && existingUser.role !== 'ADMIN') {
       updateData.passwordHash = await bcrypt.hash(password, 10);
@@ -93,6 +94,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         name: true,
         email: true,
         notificationEmail: true,
+        receiveAlerts: true,
         role: true,
         supportTier: true,
         status: true,

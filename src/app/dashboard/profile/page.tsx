@@ -19,6 +19,7 @@ export default async function ProfilePage() {
       name: true,
       email: true,
       notificationEmail: true,
+      receiveAlerts: true,
       role: true,
       status: true,
       createdAt: true

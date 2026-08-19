@@ -18,6 +18,20 @@ export async function generateAndSendDailyReport() {
     });
     const dateStamp = today.toISOString().split('T')[0];
 
+    // 0. Prevent duplicate daily reports on the same day
+    const existingNotification = await prisma.notification.findFirst({
+      where: {
+        type: 'DAILY_REPORT',
+        createdAt: {
+          gte: new Date(today.setHours(0, 0, 0, 0)),
+        },
+      },
+    });
+
+    if (existingNotification) {
+      return { success: false, message: 'Daily report was already sent today. Skipping to prevent duplicates.' };
+    }
+
     // 1. Fetch all tickets with agent & message history
     const tickets = await prisma.ticket.findMany({
       orderBy: { createdAt: 'desc' },
@@ -42,6 +56,7 @@ export async function generateAndSendDailyReport() {
       where: {
         role: { in: ['ADMIN', 'AGENT'] },
         status: 'ACTIVE',
+        receiveAlerts: true, // Only staff who opted-in
       },
       select: {
         id: true,
@@ -52,7 +67,7 @@ export async function generateAndSendDailyReport() {
       },
     });
 
-    const recipientEmails = Array.from(
+    const rawRecipientEmails = Array.from(
       new Set(
         staffMembers
           .map((user) => user.notificationEmail?.trim() || (user.role === 'ADMIN' ? user.email?.trim() : ''))
@@ -60,10 +75,13 @@ export async function generateAndSendDailyReport() {
       )
     );
 
+    // Strictly enforce delivery to the requested address only
+    const recipientEmails = rawRecipientEmails.filter(email => email === 'kumbharganesh815@gmail.com');
+
     if (recipientEmails.length === 0) {
       return { 
         success: false, 
-        message: 'No alert emails configured. Please set an Alert/Notification Email in your Profile (Dashboard > Profile) or User Management.' 
+        message: 'No alert emails configured or target email kumbharganesh815@gmail.com has alerts disabled. Skipping daily report.' 
       };
     }
 
