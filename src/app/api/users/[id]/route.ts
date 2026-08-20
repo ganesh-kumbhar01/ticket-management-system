@@ -31,7 +31,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const body = await req.json();
-    const { name, email, notificationEmail, role, supportTier, status, password, receiveAlerts } = body;
+    const { name, email, notificationEmail, role, supportTier, status, password, receiveAlerts, aiAutoReply } = body;
 
     // Verify user exists
     const existingUser = await prisma.user.findUnique({ where: { id } });
@@ -58,15 +58,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       }
       if (status && status !== 'ACTIVE') {
         return NextResponse.json({ 
-          error: 'Admin account cannot be deactivated.' 
+          error: 'Admin status cannot be modified.' 
         }, { status: 403 });
       }
     }
 
     // If email is changing on an agent, ensure it doesn't collide
     if (email && email !== existingUser.email) {
-      const collision = await prisma.user.findUnique({ where: { email } });
-      if (collision) {
+      const emailCheck = await prisma.user.findUnique({ where: { email } });
+      if (emailCheck) {
         return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
       }
     }
@@ -81,6 +81,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
     if (status !== undefined) updateData.status = status;
     if (receiveAlerts !== undefined) updateData.receiveAlerts = Boolean(receiveAlerts);
+    if (aiAutoReply !== undefined) updateData.aiAutoReply = Boolean(aiAutoReply);
 
     if (password && existingUser.role !== 'ADMIN') {
       updateData.passwordHash = await bcrypt.hash(password, 10);
@@ -95,6 +96,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         email: true,
         notificationEmail: true,
         receiveAlerts: true,
+        aiAutoReply: true,
         role: true,
         supportTier: true,
         status: true,

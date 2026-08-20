@@ -20,6 +20,7 @@ export default async function ProfilePage() {
       email: true,
       notificationEmail: true,
       receiveAlerts: true,
+      aiAutoReply: true,
       role: true,
       status: true,
       createdAt: true

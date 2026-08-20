@@ -22,6 +22,7 @@ model User {
   name              String?
   notificationEmail String?
   receiveAlerts     Boolean        @default(true)
+  aiAutoReply       Boolean        @default(true)
   status            UserStatus     @default(ACTIVE)
   notifications     Notification[]
   assignedTickets   Ticket[]       @relation("AssignedTo")

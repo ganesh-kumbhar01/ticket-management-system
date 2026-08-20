@@ -224,10 +224,15 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
         await prisma.processedEmail.create({ data: { emailMessageId: messageId } }).catch(() => {});
       }
 
-      // 🤖 Trigger Autonomous AI Knowledge First-Response to customer
-      triggerAiFirstResponse(newTicket.id).catch((err) =>
-        console.error('[AI First-Responder] Async trigger error:', err)
-      );
+      // 🤖 Trigger Autonomous AI Knowledge First-Response to customer if any admin has it enabled
+      const isAiAutoReplyEnabled = admins.some(admin => admin.aiAutoReply !== false); // Default true if undefined
+      if (isAiAutoReplyEnabled) {
+        triggerAiFirstResponse(newTicket.id).catch((err) =>
+          console.error('[AI First-Responder] Async trigger error:', err)
+        );
+      } else {
+        console.log(`[AI First-Responder] Skipped for ticket ${newTicket.id} because it is toggled OFF globally.`);
+      }
 
       console.log(`Created new ticket ${newTicket.id}`);
       return true;

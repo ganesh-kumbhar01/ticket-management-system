@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Bell, Shield, KeyRound, Check, Edit3, X, Save, AlertCircle } from 'lucide-react';
+import { User, Mail, Bell, Shield, KeyRound, Check, Edit3, X, Save, AlertCircle, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type UserData = {
@@ -11,6 +11,7 @@ type UserData = {
   email: string;
   notificationEmail: string | null;
   receiveAlerts?: boolean;
+  aiAutoReply?: boolean;
   role: string;
   status: string;
   createdAt: Date | string;
@@ -25,6 +26,7 @@ export default function ProfileClient({ user }: { user: UserData }) {
   const [email, setEmail] = useState(user.email || '');
   const [notificationEmail, setNotificationEmail] = useState(user.notificationEmail || '');
   const [receiveAlerts, setReceiveAlerts] = useState(user.receiveAlerts ?? true);
+  const [aiAutoReply, setAiAutoReply] = useState(user.aiAutoReply ?? true);
   const [password, setPassword] = useState('');
 
   const [savedData, setSavedData] = useState({
@@ -32,6 +34,7 @@ export default function ProfileClient({ user }: { user: UserData }) {
     email: user.email || '',
     notificationEmail: user.notificationEmail || '',
     receiveAlerts: user.receiveAlerts ?? true,
+    aiAutoReply: user.aiAutoReply ?? true,
   });
 
   const handleSave = async (e: React.FormEvent) => {
@@ -43,6 +46,7 @@ export default function ProfileClient({ user }: { user: UserData }) {
         email: email.trim(),
         notificationEmail: notificationEmail.trim() || null,
         receiveAlerts,
+        aiAutoReply,
       };
 
       if (password) {
@@ -65,6 +69,7 @@ export default function ProfileClient({ user }: { user: UserData }) {
         email: email.trim(),
         notificationEmail: notificationEmail.trim(),
         receiveAlerts,
+        aiAutoReply,
       });
 
       toast.success('🎉 Profile updated successfully!');
@@ -190,6 +195,23 @@ export default function ProfileClient({ user }: { user: UserData }) {
                     </p>
                   </div>
                 )}
+
+                {/* AI Auto-Responder Status */}
+                <div className={`p-4 rounded-xl border sm:col-span-2 space-y-1 ${savedData.aiAutoReply ? 'bg-blue-500/10 dark:bg-blue-500/15 border-blue-500/30' : 'bg-slate-100 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700'}`}>
+                  <div className="flex items-center justify-between">
+                    <p className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${savedData.aiAutoReply ? 'text-blue-800 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                      <Zap className={`w-3.5 h-3.5 ${savedData.aiAutoReply ? 'text-blue-600' : 'text-slate-500'}`} /> AI Auto-Responder
+                    </p>
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${savedData.aiAutoReply ? 'bg-blue-500/20 text-blue-800 dark:text-blue-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                      {savedData.aiAutoReply ? '⚡ Active' : '⚪ Disabled'}
+                    </span>
+                  </div>
+                  <p className={`text-[11px] font-medium mt-1 ${savedData.aiAutoReply ? 'text-blue-800/80 dark:text-blue-300/80' : 'text-slate-500 dark:text-slate-400'}`}>
+                    {savedData.aiAutoReply 
+                      ? 'AI automatically drafts and sends first responses to incoming customer tickets.' 
+                      : 'AI First-Responder is currently OFF. Incoming tickets require manual replies.'}
+                  </p>
+                </div>
               </div>
             </div>
           ) : (
@@ -243,10 +265,42 @@ export default function ProfileClient({ user }: { user: UserData }) {
                   placeholder="e.g. yourpersonalemail@gmail.com"
                   className="w-full h-11 px-3.5 bg-slate-50 dark:bg-slate-800 border border-amber-500/30 dark:border-amber-500/40 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
                   The Daily 7:00 PM EOD spreadsheet report will be delivered directly to this mailbox.
                 </p>
               </div>
+
+              {/* Receive Alerts Toggle */}
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white mb-0.5">Receive Automated Alerts</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Receive SLA breaches and daily report emails.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReceiveAlerts(!receiveAlerts)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${receiveAlerts ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${receiveAlerts ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {/* AI Auto-Reply Toggle */}
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 border border-blue-200 dark:border-blue-900/50 rounded-xl">
+                <div>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white mb-0.5 flex items-center gap-1.5">
+                    <Zap className="w-4 h-4 text-blue-500" /> AI Auto-Responder
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Automatically reply to new incoming customer tickets.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAiAutoReply(!aiAutoReply)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${aiAutoReply ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${aiAutoReply ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
 
               {user.role !== 'ADMIN' && (
                 <div>
