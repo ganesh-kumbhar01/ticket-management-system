@@ -53,6 +53,8 @@ export async function generateAndSendWeeklyReport() {
       where: {
         role: 'ADMIN',
         status: 'ACTIVE',
+        receiveAlerts: true,
+        email: { not: 'kumbharganesh929@gmail.com' }
       },
       select: {
         id: true,

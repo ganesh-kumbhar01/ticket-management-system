@@ -98,7 +98,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // 5. Fetch Admins and Staff to notify & CC
     const admins = await prisma.user.findMany({
-      where: { role: 'ADMIN', status: 'ACTIVE' },
+      where: { 
+        role: 'ADMIN', 
+        status: 'ACTIVE',
+        receiveAlerts: true,
+        email: { not: 'kumbharganesh929@gmail.com' } // Prevent sending to system inbox
+      },
       select: { id: true, email: true, notificationEmail: true },
     });
 
@@ -139,7 +144,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // Remove duplicates that are already in 'TO'
     toEmails.forEach((toMail) => ccEmailsSet.delete(toMail));
-    const ccEmails = Array.from(ccEmailsSet);
+    const ccEmails = Array.from(ccEmailsSet).filter(email => email !== 'kumbharganesh929@gmail.com');
+    toEmails = toEmails.filter(email => email !== 'kumbharganesh929@gmail.com');
 
     // 6. In-App Notifications
     if (targetAgent) {

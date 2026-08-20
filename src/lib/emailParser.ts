@@ -60,6 +60,21 @@ export async function processEmailSource(source: Buffer): Promise<boolean> {
       return false;
     }
 
+    const systemEmails = [
+      process.env.IMAP_USER?.toLowerCase(),
+      process.env.SMTP_USER?.toLowerCase(),
+      'kumbharganesh929@gmail.com' // Hardcoded based on user feedback to guarantee blocking loop
+    ].filter(Boolean);
+
+    if (systemEmails.includes(from.toLowerCase())) {
+      console.log(`Skipping email sent by system itself to prevent loops: ${from}`);
+      // Mark it as processed so we don't keep checking it
+      if (messageId) {
+         await prisma.processedEmail.create({ data: { emailMessageId: messageId } }).catch(() => {});
+      }
+      return false;
+    }
+
     console.log(`Processing email from ${from}: ${subject}`);
 
     // Check if we already processed this messageId
