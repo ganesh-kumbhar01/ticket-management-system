@@ -265,6 +265,7 @@ export default function ProfileClient({ user }: { user: UserData }) {
                   placeholder="e.g. yourpersonalemail@gmail.com"
                   className="w-full h-11 px-3.5 bg-slate-50 dark:bg-slate-800 border border-amber-500/30 dark:border-amber-500/40 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 />
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
                   The Daily 7:00 PM EOD spreadsheet report will be delivered directly to this mailbox.
                 </p>
               </div>
