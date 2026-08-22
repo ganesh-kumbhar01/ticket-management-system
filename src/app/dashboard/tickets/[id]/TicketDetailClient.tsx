@@ -579,7 +579,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
               </span>
             </div>
           )}
-          {currentUser.role === 'ADMIN' && (
+          {isAdmin && (
             <button
               onClick={handleDeleteTicket}
               className="hidden md:flex p-2 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors"

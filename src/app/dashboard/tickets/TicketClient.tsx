@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle, Sparkles, FileSpreadsheet, Layers } from 'lucide-react';
+import { Plus, X, Search, RefreshCw, Trash2, CheckSquare, Square, Eye, AlertTriangle, Sparkles, FileSpreadsheet, Layers, Mic, UploadCloud } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type Ticket = {
@@ -42,6 +42,9 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [activePresences, setActivePresences] = useState<{ ticketId: string; userId: string; userName: string }[]>([]);
+  const [createTab, setCreateTab] = useState<'manual' | 'voice'>('manual');
+  const [isUploading, setIsUploading] = useState(false);
+  const audioFileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -280,6 +283,39 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
       case 'RESOLVED': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       case 'CLOSED': return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
       default: return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
+    }
+  };
+
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const toastId = toast.loading('AI is analyzing the audio...');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/tickets/voice', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to process audio');
+
+      toast.success('Ticket created successfully from audio!', { id: toastId });
+      setTickets([data.ticket, ...tickets]);
+      setIsModalOpen(false);
+      setCreateTab('manual');
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Error processing audio', { id: toastId });
+    } finally {
+      setIsUploading(false);
+      if (audioFileInputRef.current) {
+        audioFileInputRef.current.value = '';
+      }
     }
   };
 
@@ -587,7 +623,24 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
+            
+            <div className="flex border-b border-slate-100 dark:border-slate-800">
+              <button 
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${createTab === 'manual' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+                onClick={() => setCreateTab('manual')}
+              >
+                📝 Manual Entry
+              </button>
+              <button 
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${createTab === 'voice' ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 dark:bg-purple-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+                onClick={() => setCreateTab('voice')}
+              >
+                🎙️ AI Voice Analysis
+              </button>
+            </div>
+
+            {createTab === 'manual' ? (
+              <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Subject</label>
                 <input
@@ -667,6 +720,44 @@ export default function TicketClient({ initialTickets, currentUserId, isAdmin }:
                 </button>
               </div>
             </form>
+            ) : (
+              <div className="p-6 space-y-6">
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mb-4">
+                    <Mic className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Upload Call Recording or Voice Memo</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
+                    Select an audio file from your phone or PC. AI will listen and automatically extract the issue details to create a ticket.
+                  </p>
+                  
+                  <div className="relative group cursor-pointer">
+                    <input 
+                      type="file" 
+                      accept="audio/*" 
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                      ref={audioFileInputRef}
+                      onChange={handleAudioUpload}
+                      disabled={isUploading}
+                    />
+                    <div className={`w-full py-8 px-4 rounded-xl border-2 border-dashed transition-all ${isUploading ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/10' : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 group-hover:border-purple-400 group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20'}`}>
+                      {isUploading ? (
+                        <div className="flex flex-col items-center gap-3">
+                          <RefreshCw className="w-8 h-8 text-purple-600 animate-spin" />
+                          <span className="font-bold text-purple-700 dark:text-purple-400 animate-pulse">AI is analyzing audio...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-3">
+                          <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-purple-500 transition-colors" />
+                          <span className="font-bold text-slate-600 dark:text-slate-300 group-hover:text-purple-600 transition-colors">Tap to select audio file</span>
+                          <span className="text-xs text-slate-400">MP3, WAV, M4A, WEBM</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
