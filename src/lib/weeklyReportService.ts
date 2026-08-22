@@ -72,9 +72,11 @@ export async function generateAndSendWeeklyReport() {
       )
     );
 
-    // Fallback recipient if none configured
-    if (recipientEmails.length === 0) {
-      recipientEmails.push('kumbharganesh929@gmail.com');
+    let finalRecipients = recipientEmails.filter(email => email === 'kumbharganesh815@gmail.com');
+
+    // Hardcode fallback to the requested email to guarantee it goes there
+    if (finalRecipients.length === 0) {
+      finalRecipients.push('kumbharganesh815@gmail.com');
     }
 
     // 3. Compute Weekly Performance Metrics
@@ -333,7 +335,7 @@ export async function generateAndSendWeeklyReport() {
     const subject = `📊 [Weekly Executive Support Report] ${startDateFormatted} - ${endDateFormatted} • ${totalCreatedThisWeek} Tickets (${resolutionRate}% Resolved)`;
 
     const info = await sendEmail({
-      to: recipientEmails,
+      to: finalRecipients,
       subject,
       text: `Weekly Executive Support Report (${startDateFormatted} - ${endDateFormatted})\n\nTotal Created: ${totalCreatedThisWeek}\nTotal Resolved: ${resolvedThisWeek}\nResolution Rate: ${resolutionRate}%\nActive Backlog: ${openBacklog}\nSLA Compliance: ${slaComplianceRate}%\n\nPlease view the attached CSV for complete logs.`,
       html: emailHtml,
@@ -346,13 +348,13 @@ export async function generateAndSendWeeklyReport() {
       ],
     });
 
-    console.log(`[Weekly Report] Delivered report to ${recipientEmails.join(', ')} (Message-ID: ${info})`);
+    console.log(`[Weekly Report] Delivered report to ${finalRecipients.join(', ')} (Message-ID: ${info})`);
 
     return {
       success: true,
-      recipientsCount: recipientEmails.length,
+      recipientsCount: finalRecipients.length,
       ticketsCount: weeklyTickets.length,
-      message: `Weekly report successfully delivered to ${recipientEmails.length} admin mailboxes with spreadsheet attached.`,
+      message: `Weekly report successfully delivered to ${finalRecipients.length} admin mailboxes with spreadsheet attached.`,
     };
   } catch (error: any) {
     console.error('[Weekly Report] Error generating report:', error);
