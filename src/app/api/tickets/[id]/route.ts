@@ -9,6 +9,7 @@ const updateTicketSchema = z.object({
   priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']).optional(),
   category: z.string().optional(),
   assignedAgentId: z.string().nullable().optional(),
+  studentEmail: z.string().optional(),
 });
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +34,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Invalid input', details: parsed.error.issues }, { status: 400 });
     }
 
-    const { status, priority, category, assignedAgentId } = parsed.data;
+    const { status, priority, category, assignedAgentId, studentEmail } = parsed.data;
     const id = resolvedParams.id;
 
     // Fetch old ticket for comparison
@@ -46,6 +47,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         ...(priority && { priority }),
         ...(category && { category }),
         ...(assignedAgentId !== undefined && { assignedAgentId }),
+        ...(studentEmail && { studentEmail }),
       }
     });
 
@@ -58,6 +60,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           ticketId: id,
           senderType: 'SYSTEM' as const,
           content: `Status changed to ${status} by ${payload.role === 'ADMIN' ? 'Admin' : 'Agent'}`,
+        });
+      }
+
+      if (studentEmail && oldTicket.studentEmail !== studentEmail) {
+        messages.push({
+          ticketId: id,
+          senderType: 'SYSTEM' as const,
+          content: `Customer email updated to ${studentEmail}`,
         });
       }
 

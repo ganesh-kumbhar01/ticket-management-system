@@ -76,6 +76,8 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
   const [priority, setPriority] = useState(ticket.priority);
   const [category, setCategory] = useState(ticket.category);
   const [assignedAgentId, setAssignedAgentId] = useState(ticket.assignedAgentId || '');
+  const [studentEmail, setStudentEmail] = useState(ticket.studentEmail);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isSavingProps, setIsSavingProps] = useState(false);
   const [propsChanged, setPropsChanged] = useState(false);
   const [replyType, setReplyType] = useState<'PUBLIC' | 'INTERNAL'>('PUBLIC');
@@ -288,6 +290,9 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
     if (field === 'priority') setPriority(value);
     if (field === 'category') setCategory(value);
     if (field === 'assignedAgentId') setAssignedAgentId(value === 'unassigned' ? '' : value);
+    if (field === 'studentEmail') {
+      setStudentEmail(value);
+    }
     setPropsChanged(true);
   };
 
@@ -454,6 +459,7 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
           status,
           priority,
           category,
+          studentEmail,
           assignedAgentId: assignedAgentId || null,
         }),
       });
@@ -1117,13 +1123,29 @@ export default function TicketDetailClient({ ticket, agents, currentUserId, isAd
 
               {/* Customer Info Unified Card */}
               <div className="mt-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-800/40 divide-y divide-slate-200/60 dark:divide-slate-800/60 overflow-hidden shadow-xs">
-                <div className="p-3.5 space-y-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                <div className="p-3.5 space-y-1 relative group">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex justify-between items-center">
                     Customer Email
+                    {!isEditingEmail && (
+                      <button onClick={() => setIsEditingEmail(true)} className="opacity-0 group-hover:opacity-100 text-blue-500 hover:text-blue-600 transition-opacity">
+                        Edit
+                      </button>
+                    )}
                   </span>
                   <div className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2 truncate">
                     <UserIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
-                    <span className="truncate">{ticket.studentEmail}</span>
+                    {isEditingEmail ? (
+                      <input 
+                        type="email" 
+                        value={studentEmail} 
+                        onChange={(e) => handlePropsChange('studentEmail', e.target.value)}
+                        onBlur={() => setIsEditingEmail(false)}
+                        autoFocus
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      />
+                    ) : (
+                      <span className="truncate">{studentEmail}</span>
+                    )}
                   </div>
                 </div>
                 
